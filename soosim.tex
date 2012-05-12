@@ -238,13 +238,8 @@ breaklines=true,basicstyle=\ttfamily];#1;}
 %%%%%%%%%%%%%%%%%
 % defines       %
 %%%%%%%%%%%%%%%%%
-\ifxetex
-\newcommand{\hl}[1]{\textcolor{Maroon}{#1}}% prints in red
-\else
-\ifpdf
-\newcommand{\hl}[1]{\textcolor{Maroon}{#1}}% prints in red
-\fi
-\fi
+%\newcommand{\hl}[1]{\textcolor{Maroon}{#1}}% prints in red
+\newcommand{\hl}[1]{\textcolor{Red}{#1}}% prints in red
 
 %%% kommentare
 %\newcommand{\comm}[2]{}
@@ -267,8 +262,8 @@ breaklines=true,basicstyle=\ttfamily];#1;}
 %\titlebanner{banner above paper title}        % These are ignored unless
 \preprintfooter{\today}   % 'preprint' option specified.
 
-\title{Experience report: an OS similator in Haskell}
-\subtitle{Subtitle Text, if any}
+\title{Experience report: \soosim, an OS similator in Haskell}
+%\subtitle{Subtitle Text, if any}
 
 \authorinfo{Oleg Lobachev}
            {Scuola Superiore Sant'Anna\\Pisa, Italy}
@@ -277,8 +272,8 @@ breaklines=true,basicstyle=\ttfamily];#1;}
            {University of Twente\\Twente, Netherlands}
            {\{c.p.r.baaij,...\}@utwente.nl}
 \authorinfo{Giuseppe Lipari}
-           {Scuola Superiore Sant'Anna}
-           {g.lipari@sssup.it\\Pisa, Italy}
+           {Scuola Superiore Sant'Anna\\Pisa, Italy}
+           {g.lipari@sssup.it}
 
 
 \maketitle
