@@ -1,0 +1,52 @@
+\section{Introduction}
+
+In the SoOS project we inspect service-oriented aspects of operating
+systems. One part of the project requires to simulate the interactions
+between software components of an operating system (in the following:
+OS) and between OS and application software.
+
+The ability to simulate separate components of the OS and of the
+application was the main goal to develop the OS simulator \soosim. The
+design decisions were 
+\begin{itemize}
+\item to simulate all the communication between the components with
+  message passing
+\item to have global ``ticks'', designating time.
+\end{itemize}
+However, we required a way to implement blocking messages. In other
+words, if a blocking message is sent, the sender is waiting for the
+answer---regardless \emph{when} in the sender the message is sent. If
+a blocking message is received, the reviever should suspend its
+current work and process the message.\olcomment{is this true?} This
+means, we required the notion of a suspending
+computation---\emph{suspendable} at any moment of execution of the
+simulated component. In the following we will show that using Haskell
+enabled us to implement this property in a nice way.
+
+The contributions of this paper include
+\begin{itemize}
+\item a short overview of the SoOS project
+\item the description of the eDSL used to implement \soosim 
+\item the list of Haskell language features, we found particulary
+  useful in this project.
+\end{itemize}
+
+The remaining part of this paper is organised as follows. Section
+.... gives an overview of the SoOS project and of the role \soosim
+plays in the project. Section .... described the structure of the
+\soosim simulator from the user's perspective. Section .... gives an
+implementation overview of the domain specific language, used to
+implement \soosim. Section .... discusses Haskell features from which
+our implementation especially benefitted. Section .... covers related
+work. Section .... concludes and gives an outlook for the further
+research.
+
+% \appendix
+% \section{Appendix Title}
+%
+% This is the text of the appendix, if you need one.
+
+\acks
+
+%Acknowledgments, if needed.
+This work was supported by EU FP7 SoOS project under grant ......

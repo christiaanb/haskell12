@@ -26,12 +26,237 @@
 %
 % 10pt          To set in 10-point type instead of 9-point.
 % 11pt          To set in 11-point type instead of 9-point.
-% authoryear    To obtain author/year citation style instead of numeric.
+% authoryear    To obtain author/year citation style instead of
+% numeric.
 
-\usepackage{amsmath}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% page numbering
+%%% remember to set to empty for submission
+\pagestyle{headings}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%
+% includes      %
+%%%%%%%%%%%%%%%%%
+%%% fix latex
+\usepackage{fixltx2e}
+\usepackage{amsfonts,amsmath,amssymb,latexsym,stmaryrd}
+%%%%%%%% decide of pdflatex
+\usepackage{ifpdf}
+%%%%%%%% decide on xetex
+\usepackage{ifxetex}
+%% ifthenelse
+\usepackage{xifthen}
+
+\usepackage{url}
+\usepackage{doi}
+
+%% nicer micro-layout of text. cool if it works here
+\usepackage{microtype}
+
+
+%%%%%%%%%%% code faerben
+% Coloured Code
+\usepackage[table,x11names,svgnames]{xcolor}
+\definecolor{middlegray}{rgb}{0.3,0.3,0.3}
+\definecolor{lightgray}{rgb}{0.7,0.7,0.7}
+\definecolor{Red}{rgb}{1,0,0}
+\definecolor{red}{rgb}{.8,0,0}
+\definecolor{blue}{rgb}{0,0,0.5}
+\definecolor{yac}{rgb}{0.5,0.5,0.1}
+
+%\if\istufte
+\usepackage{listings}
+\lstloadlanguages{Haskell}
+\lstnewenvironment{codeXX}
+ {
+   \lstset{style=steden,
+    xleftmargin=0pt,
+    xrightmargin=0pt,
+  }} {}
+\lstnewenvironment{codeX}
+ {
+   \lstset{style=steden,
+    xleftmargin=0pt,
+    xrightmargin=0pt,
+  }} {}
+ \lstdefinestyle{mypseudoc}{basicstyle=\sffamily,
+    language=C,
+    commentstyle=\color{darkgray}\sffamily\slshape,
+    stringstyle=\color{yac}\sffamily, 
+    emph={par,repeat,until,not,size,all,map,takeWhile, subset,or},
+    emphstyle={\bfseries},
+%    emph={[2]size,all,map,takeWhile},
+%    emphstyle={[2]\em}
+    %    frame=lines,    
+    columns=fullflexible,
+    lineskip=-0.1ex,
+}   
+\lstnewenvironment{pseudoc}
+ {
+   \lstset{style=mypseudoc,
+    % xleftmargin=10pt,
+    % xrightmargin=10pt,
+  }} {}
+
+
+\newcommand{\pseudocd}[1]{\lstinline[style=mypseudoc,keepspaces=true,breaklines=true]|#1|}          
+
+ \lstdefinestyle{maple}{basicstyle=\ttfamily,
+    keywordstyle=\color{blue}\bfseries\ttfamily,
+    stringstyle=\color{yac}\ttfamily,
+    escapechar={$}, %$
+    showstringspaces=false,
+    commentstyle=\color{darkgray}\ttfamily,
+    emph={with,:=,:,..,RandomMatrix,Determinant}, 
+    emphstyle={\color{blue}\bfseries},
+    captionpos=b,
+    lineskip=-0.1ex,
+    frame=no,
+    language=Octave,
+    columns=fullflexible
+}
+
+\lstnewenvironment{maplec}
+ {
+   \lstset{style=maple,
+    xleftmargin=30pt,
+    xrightmargin=10pt,
+  }} {}
+
+
+ \lstdefinestyle{steden}{basicstyle=\ttfamily,%\footnotesize,
+    keywordstyle=\color{blue}\bfseries\ttfamily,
+    stringstyle=\color{yac}\ttfamily,
+%    escapechar={},
+    showstringspaces=false,
+    commentstyle=\color{darkgray}\sl\ttfamily,
+    emph={process,new,parfill,multifill,release,fetch,releaseAll,fetchAll,spawn,processDC,\#}, 
+    emphstyle={\color{blue}\bfseries},
+    emph={[2]ChanName,Process,RD,Trans,NFData,reduce,fold,parMapDC,reduceDC,parMapAt,map_par,map_farm,map_wp,parMap,farm,ssf,workpool,par,pseq},
+    emphstyle={[2]\color{blue}\bfseries},
+    emphstyle={[3]\color{red}\bfseries},
+    emph={[3]r0,rwhnf,rnf,rdeepseq,unsafePerformIO,IO,merge},
+    captionpos=b,
+    lineskip=-0.1ex,
+    frame=lines,
+    language=Haskell,
+    literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+%             {`+`}{{$\;+\;$}}1  {`-`}{{$\;-\;$}}1 {`*`}{{$\;*\;$}}1
+%% make it back
+             {`+`}{{+}}1  {`-`}{{-}}1 {`*`}{{*}}1 
+             {>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1 {\\n}{{\textbackslash
+             n}}2 {\\\\}{{\char`\\\char`\\}}1
+             {->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 
+%             {<-}{{$\leftarrow$}}2
+             {<-}{{$\in$}}2 % the list comprehension <-
+             {<--}{{$\leftarrow$}}2 % the monadic <-
+             {<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2
+             {\ .\ }{{ $\circ$ }}3     
+             {(.)}{{($\circ$)}}3     
+%%%             {\ |.\ }{{ . }}3
+             {>>}{{>>}}2 {>>=}{{>>=}}2 {/=}{{$\neq$}}2
+             {|}{{$\mid$}}1
+%%% vector operations
+             {v+}{{$\overrightarrow{+}$}}1 {v-}{{$\overrightarrow{-}$}}1
+             {v*}{{$\overrightarrow{\cdot}$}}1
+%%% number fields
+             {NN}{{$\N$}}1 {ZZ}{{$\Z$}}1 {QQ}{{$\Q$}}1
+             {xdd}{{$\delta$}}1
+             {xaa}{{$\alpha$}}1
+%%% further hacks
+             {`l_p`}{{l\textsubscript{p}}}2 {`=`}{{$=$}}1
+             {p^k}{{p\textsuperscript{k}}}2
+             {`p^k`}{{p\textsuperscript{k}}}2
+             {`^2`}{{\textsuperscript{2}}}1
+             {bottom}{{$\bot$}}1
+%             {++}{{}}
+%% do not highlight "reduce" in a special case
+             {xreduce}{{reduce}}6
+             }
+
+\lstnewenvironment{code*}
+   {
+     \lstset{style=steden,
+    }} {}
+\newcommand{\cd}[1]{\lstinline[style=steden,keepspaces=true,
+breaklines=true,basicstyle=\ttfamily];#1;}             
+\newcommand{\scd}[1]{\texttt{#1}}
+%\newcommand{\scd}[1]{\protect\cd{#1}}
+\newcommand{\inputcode}[1]{\lstinputlisting[style=steden,xleftmargin=0pt,
+    xrightmargin=0pt]{#1}}
+
+\lstnewenvironment{code}
+   {
+     \lstset{style=steden,
+    frame=none,
+    xleftmargin=30pt,
+    xrightmargin=10pt,
+    }} {}
+
+
+\ifxetex
+%%% workaround
+% \renewcommand{\allcaps}[1]{{\mycapfont\sc #1}}
+% \renewcommand{\allcaps}[1]{\smallcaps{#1}}
+\else
+\fi
+
+%%
+% For nicely typeset tabular material
+\usepackage{booktabs}
+
+%%
+% For graphics / images
+\usepackage{graphicx}
+\graphicspath{{img/}}
+
+%%
+% Prints a trailing space in a smart way.
 \usepackage{xspace}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% Graphics
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{tikz}
+%% optional arrows
+\usetikzlibrary{arrows}
+%% calculating and geometry
+\usetikzlibrary{calc}
+\usetikzlibrary{through}
+% \usetikzlibrary{shapes.symbols}
+\usetikzlibrary{shapes}
+%% decoration library
+\usetikzlibrary{decorations.pathmorphing}
+
+%% wrap figure
+\usepackage{wrapfig}
+
+
+%%%%%%%%%%%%%%%%%
+% defines       %
+%%%%%%%%%%%%%%%%%
+\ifxetex
+\newcommand{\hl}[1]{\textcolor{Maroon}{#1}}% prints in red
+\else
+\ifpdf
+\newcommand{\hl}[1]{\textcolor{Maroon}{#1}}% prints in red
+\fi
+\fi
+
+%%% kommentare
+%\newcommand{\comm}[2]{}
+\newcommand{\comm}[2]{\hl{\(\spadesuit\){\bfseries #1: }}{\sffamily #2}\hl{\(\spadesuit\)}}
+\newcommand{\olcomment}[1]{\comm{OL}{#1}}
+\newcommand{\cbcomment}[1]{\comm{CB}{#1}}
+\newcommand{\jkcomment}[1]{\comm{JK}{#1}}
+\newcommand{\glcomment}[1]{\comm{GL}{#1}}
+
+
 \newcommand{\soosim}{SoOSiM\xspace}
+
 
 \begin{document}
 
@@ -45,12 +270,16 @@
 \title{Experience report: an OS similator in Haskell}
 \subtitle{Subtitle Text, if any}
 
-\authorinfo{Name1}
-           {Affiliation1}
-           {Email1}
-\authorinfo{Name2\and Name3}
-           {Affiliation2/3}
-           {Email2/3}
+\authorinfo{Oleg Lobachev}
+           {Scuola Superiore Sant'Anna\\Pisa, Italy}
+           {o.lobachev@sssup.it}
+\authorinfo{Christiaan Baaij\and J. Kuper}
+           {University of Twente\\Twente, Netherlands}
+           {\{c.p.r.baaij,...\}@utwente.nl}
+\authorinfo{Giuseppe Lipari}
+           {Scuola Superiore Sant'Anna}
+           {g.lipari@sssup.it\\Pisa, Italy}
+
 
 \maketitle
 
@@ -66,58 +295,7 @@ term1, term2
 \keywords
 keyword1, keyword2
 
-\section{Introduction}
-
-In the SoOS project we inspect service-oriented aspects of operating
-systems. One part of the project requires to simulate the interactions
-between software components of an operating system (in the following:
-OS) and between OS and application software.
-
-The ability to simulate separate components of the OS and of the
-application was the main goal to develop the OS simulator \soosim. The
-design decisions were 
-\begin{itemize}
-\item to simulate all the communication between the components with
-  message passing
-\item to have global ``ticks'', designating time.
-\end{itemize}
-However, we required a way to implement blocking messages. In other
-words, if a blocking message is sent, the sender is waiting for the
-answer---regardless \emph{when} in the sender the message is sent. If
-a blocking message is received, the reviever should suspend its
-current work and process the message.\olcomment{is this true?} This
-means, we required the notion of a suspending
-computation---\emph{suspendable} at any moment of execution of the
-simulated component. In the following we will show that using Haskell
-enabled us to implement this property in a nice way.
-
-The contributions of this paper include
-\begin{itemize}
-\item a short overview of the SoOS project
-\item the description of the eDSL used to implement \soosim 
-\item the list of Haskell language features, we found particulary
-  useful in this project.
-\end{itemize}
-
-The remaining part of this paper is organised as follows. Section
-.... gives an overview of the SoOS project and of the role \soosim
-plays in the project. Section .... described the structure of the
-\soosim simulator from the user's perspective. Section .... gives an
-implementation overview of the domain specific language, used to
-implement \soosim. Section .... discusses Haskell features from which
-our implementation especially benefitted. Section .... covers related
-work. Section .... concludes and gives an outlook for the further
-research.
-
-% \appendix
-% \section{Appendix Title}
-%
-% This is the text of the appendix, if you need one.
-
-\acks
-
-%Acknowledgments, if needed.
-This work was supported by EU FP7 SoOS project under grant ......
+\input{content}
 
 % We recommend abbrvnat bibliography style.
 
