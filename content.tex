@@ -1,15 +1,20 @@
 \section{Introduction}
 
 
-In the SoOS project\footnote{See <<project url>> for details.} we
+In the SoOS project\footnote{See \url{www.example.com} for details.} we
 inspect service-oriented aspects of operating systems. One part of the
 project requires to simulate the interactions between software
 components of an operating system (in the following: OS) and between
 OS and application software.
 
 The ability to simulate separate components of the OS and of the
-application was the main goal to develop the OS simulator \soosim. The
-design decisions were 
+application was the main goal to develop the OS simulator \soosim
+\olcomment{cite the WATERS paper if it is accepted until
+  submission}. \olcomment{would be too cool to be true: \soosim is
+  also available from Hackage.\footnote{Issue \cd{cabal install
+      soosim} to install the simulator. See also:
+    \url{www.example.com/soosim}.}}
+ The design decisions were
 \begin{itemize}
 \item to simulate all the communication between the components with
   message passing
@@ -22,7 +27,7 @@ a blocking message is received, the reviever should suspend its
 current work and process the message.\olcomment{is this true?} This
 means, we required the notion of a suspending
 computation---\emph{suspendable} at any moment of execution of the
-simulated component. In the following we will show that using Haskell
+simulated component. In the following we will show that using Haskell 
 enabled us to implement this property in a nice way.
 
 The contributions of this paper include
@@ -52,17 +57,110 @@ outlook for the further research.
 \section{\soosim: An Overview}
 \label{sec:soosim-an-overview}
 
+\olcomment{Explain all this \cd{createComponent}, \cd{invoke}, etc.}
+
 \section{A Domain-specific Language for \soosim}
 \label{sec:dsl}
+
+The DSL was embedded in Haskell \cite{haskell-report}.
+
+\subsection{Final Tagless}
+
+\olcomment{- Final tagless \cite{...}
+
+- Tillmann embedded DSL with type classes \cite{...} }
 
 \section{Implementation Details}
 \label{sec:impl-detail}
 
+\subsection{Type classes}
+
+Type classes are naturally used for the eDSL encoding from the
+previous section.  \olcomment{more details on this?}
+
+Beyond this, we use type classes to express many
+other useful abstractions. For instance, an \emph{interface} for the
+component of the OS is a type class. Thus, each interacting ``building
+block'' in the simulated software is an instance of that particular
+type class. This enables great flexibility, including an option to
+extend the kinds of simulated objects by third party.
+
+\subsection{Monads}
+
+We use a monad called \cd{SimM} to capture the \emph{State}
+\olcomment{sure?} of the simulator. We use
+\cd{Control.Monad.Coroutine} to capture...
+
+We use dynamic type for \olcomment{my god, what for?}
+
+\begin{figure}
+\centering
+\begin{code*}
+type SimMonad  = StateT SimState IO
+data SimState = ...
+
+newtype SimM a 
+  = SimM { runSimM :: Coroutine 
+      (RequestOrYield Unique Dynamic) 
+      SimMonad a }
+    deriving (Functor, Monad)
+
+data RequestOrYield request response x
+  = Request request (response -> x)
+  | Yield   x
+
+instance Functor (RequestOrYield x f) where
+  fmap f (Request x g) = Request x (f . g)
+  fmap f (Yield y)     = Yield (f y)
+\end{code*}
+\caption{Implementing \cd{SimM}.}
+\label{fig:code-simm}
+\end{figure}
+
+The implementation of \cd{SimM}, sketched in
+Figure~\ref{fig:code-simm}, enables us to reach the main
+implementation goal: the ultimate suspension and resume of the
+components upon message passing.  To suspend a computation we can now
+merely write \cd{request componentId}, where the \cd{componentId} is
+the unique ID of the OS component we are expecting a message from. The
+execute a resumeable computation we issue \cd{resume computation}.
+
+As one could infer from Figure~\ref{fig:code-simm}, the implementation
+makes use of the coroutines in the following way. \olcomment{explain it!}
+
+
 \section{Related Work}
 \label{sec:related-work}
 
+\olcomment{Related work from WATERS paper + more!}
+
 \section{Conclusions and Future Work}
 \label{sec:concl-future-work}
+
+\paragraph{Conclusions.} \olcomment{What have we seen?} We have
+presented ....., and the techniques more commonly used in the
+programming language research were highly applicable for our
+purposes. We have demonstrated how the utilisation of final tagless
+eDSL contruction \cite{...}, type classes \cite{...}, monads
+\cite{...}, and coroutines \cite{...} facilitated an abstract and
+concise implementation of an operating system simulator.
+
+\paragraph{Real life simulations.} The major goal of the project is to
+simulate the behaviour of a real life application and to draw
+conclusions therefrom. This work is still ongoing.
+
+\paragraph{Concurrency.} One aspect of the future work is the
+concurrent \soosim. One option is to use Concurrent Haskell
+\cite{ConcHs}, it provides (concurrent) green threads. However, it
+would also require to use software transactional memory
+\cite{springerlink:10.1007/s004460050028} because of multiple writes
+to the same data. Examples of fruitful combinations of STM with other
+concepts include
+\cite{Harris:2008:CMT:1378704.1378725,Bieniusa:2010:BAA:1835698.1835714}.
+Another option would be to use a \emph{parallel} Haskell like
+Multicore Haskell \cite{marlow:rsm}, \cd{Par} monad \cite{par-monad}
+or Eden \cite{eden}. The ``multiple writes'' issue, however, needs
+some further handling in this case.
 
 % \appendix
 % \section{Appendix Title}
@@ -73,3 +171,8 @@ outlook for the further research.
 
 %Acknowledgments, if needed.
 This work was supported by EU FP7 SoOS project under grant ......
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "soosim"
+%%% End: 
