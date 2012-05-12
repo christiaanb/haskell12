@@ -45,6 +45,9 @@
 \usepackage{url}
 \usepackage{doi}
 
+%% format the doi links:
+\renewcommand{\doitext}{DOI~}
+
 %% nicer micro-layout of text. cool if it works here
 \usepackage{microtype}
 
@@ -128,7 +131,7 @@
     commentstyle=\color{darkgray}\sl\sffamily,
     emph={process,new,parfill,multifill,release,fetch,releaseAll,fetchAll,spawn,processDC,\#}, 
     emphstyle={\color{blue}\bfseries},
-    emph={[2]ChanName,Process,RD,Trans,NFData,reduce,fold,parMapDC,reduceDC,parMapAt,map_par,map_farm,map_wp,parMap,farm,ssf,workpool,par,pseq},
+    emph={[2]ChanName,Process,RD,Trans,NFData,reduce,fold,parMapDC,reduceDC,parMapAt,map_par,map_farm,map_wp,parMap,farm,ssf,workpool,par,pseq,StateT},
     emphstyle={[2]\color{blue}\bfseries},
     emphstyle={[3]\color{red}\bfseries},
     emph={[3]r0,rwhnf,rnf,rdeepseq,unsafePerformIO,IO,merge},
