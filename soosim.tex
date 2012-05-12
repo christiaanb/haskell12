@@ -29,12 +29,6 @@
 % authoryear    To obtain author/year citation style instead of
 % numeric.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% page numbering
-%%% remember to set to empty for submission
-\pagestyle{headings}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %%%%%%%%%%%%%%%%%
 % includes      %
 %%%%%%%%%%%%%%%%%
@@ -125,12 +119,13 @@
   }} {}
 
 
- \lstdefinestyle{steden}{basicstyle=\ttfamily,%\footnotesize,
-    keywordstyle=\color{blue}\bfseries\ttfamily,
-    stringstyle=\color{yac}\ttfamily,
+ \lstdefinestyle{steden}{basicstyle=\sffamily,%\footnotesize,
+    keywordstyle=\color{blue}\bfseries\sffamily,
+    stringstyle=\color{yac}\sffamily,
 %    escapechar={},
+    columns=flexible,
     showstringspaces=false,
-    commentstyle=\color{darkgray}\sl\ttfamily,
+    commentstyle=\color{darkgray}\sl\sffamily,
     emph={process,new,parfill,multifill,release,fetch,releaseAll,fetchAll,spawn,processDC,\#}, 
     emphstyle={\color{blue}\bfseries},
     emph={[2]ChanName,Process,RD,Trans,NFData,reduce,fold,parMapDC,reduceDC,parMapAt,map_par,map_farm,map_wp,parMap,farm,ssf,workpool,par,pseq},
@@ -139,7 +134,7 @@
     emph={[3]r0,rwhnf,rnf,rdeepseq,unsafePerformIO,IO,merge},
     captionpos=b,
     lineskip=-0.1ex,
-    frame=lines,
+    frame=none,
     language=Haskell,
     literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
 %             {`+`}{{$\;+\;$}}1  {`-`}{{$\;-\;$}}1 {`*`}{{$\;*\;$}}1
@@ -180,7 +175,7 @@
      \lstset{style=steden,
     }} {}
 \newcommand{\cd}[1]{\lstinline[style=steden,keepspaces=true,
-breaklines=true,basicstyle=\ttfamily];#1;}             
+breaklines=true,basicstyle=\sffamily];#1;}             
 \newcommand{\scd}[1]{\texttt{#1}}
 %\newcommand{\scd}[1]{\protect\cd{#1}}
 \newcommand{\inputcode}[1]{\lstinputlisting[style=steden,xleftmargin=0pt,
@@ -214,6 +209,40 @@ breaklines=true,basicstyle=\ttfamily];#1;}
 %%
 % Prints a trailing space in a smart way.
 \usepackage{xspace}
+
+
+\newcommand{\hangleft}[1]{\makebox[0pt][r]{#1}}
+\newcommand{\hairsp}{\hspace{1pt}}% hair space
+\newcommand{\hairspn}{\hspace{1pt}\nolinebreak}% hair space with no break
+\newcommand{\hquad}{\hskip0.5em\relax}% half quad space
+\newcommand{\TODO}{\textcolor{red}{\bfseries TODO!}\xspace}
+%% Don't italicize either form in its standard use:
+\DeclareRobustCommand{\ie}{{i.\hairspn{}e.,}\nopagebreak[4] }
+\DeclareRobustCommand{\eg}{{e.\hairspn{}g.,}\nopagebreak[4] }
+\DeclareRobustCommand{\fe}{{f.\hairspn{}e.,}\nopagebreak[4] }
+\DeclareRobustCommand{\ad}{{A.\hairspn{}D.}\xspace}
+\DeclareRobustCommand{\bcc}{{A.\hairspn{}C.}\xspace}
+\DeclareRobustCommand{\wrt}{w.\hairsp{}r.\hairspn{}t.~}
+\DeclareRobustCommand{\etc}{etc.\ }
+\DeclareRobustCommand{\cf}{\textit{cf.}~}
+\DeclareRobustCommand{\viz}{\textit{viz.}~}
+\DeclareRobustCommand{\hof}{higher-or\-der function\xspace}
+
+%% the numberings
+\newcommand{\xth}{\textsuperscript{th}\xspace}
+\ifxetex
+  \newcommand{\st}{\textsuperscript{st}\xspace}
+\else
+  \ifpdf
+    \newcommand{\st}{\textsuperscript{st}\xspace}
+  \else
+    \renewcommand{\st}{\textsuperscript{st}\xspace}
+  \fi 
+\fi
+\newcommand{\nd}{\textsuperscript{nd}\xspace}
+\newcommand{\xrd}{\textsuperscript{rd}\xspace}
+\providecommand{\th}{\xth}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
@@ -279,7 +308,29 @@ breaklines=true,basicstyle=\ttfamily];#1;}
 \maketitle
 
 \begin{abstract}
-This is the text of the abstract.
+  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+  eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+  ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+  aliquip ex ea commodo consequat. Duis aute irure dolor in
+  reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+  pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+  culpa qui officia deserunt mollit anim id est laborum.
+
+
+  Sed ut perspiciatis unde omnis iste natus error sit voluptatem
+  accusantium doloremque laudantium, totam rem aperiam, eaque ipsa
+  quae ab illo inventore veritatis et quasi architecto beatae vitae
+  dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit
+  aspernatur aut odit aut fugit, sed quia consequuntur magni dolores
+  eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est,
+  qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit,
+  sed quia non numquam eius modi tempora incidunt ut labore et dolore
+  magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis
+  nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut
+  aliquid ex ea commodi consequatur? Quis autem vel eum iure
+  reprehenderit qui in ea voluptate velit esse quam nihil molestiae
+  consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla
+  pariatur?
 \end{abstract}
 
 \category{CR-number}{subcategory}{third-level}
@@ -298,6 +349,8 @@ keyword1, keyword2
 
 % The bibliography should be embedded for final submission.
 %% for now: use bibtex!
+%\bibliography{jabref,soos}
+\bibliography{jabref}
 
 %% this is how you embedd a biblio
 % \begin{thebibliography}{}
