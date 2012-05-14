@@ -62,6 +62,10 @@
 \definecolor{blue}{rgb}{0,0,0.5}
 \definecolor{yac}{rgb}{0.5,0.5,0.1}
 
+%% additional symbols for the haskell markup
+\usepackage{colonequals} % for \equalscolon
+%% \twoheadrightarrow is an AMS arrow
+
 %\if\istufte
 \usepackage{listings}
 \lstloadlanguages{Haskell}
@@ -168,6 +172,8 @@
              {`p^k`}{{p\textsuperscript{k}}}2
              {`^2`}{{\textsuperscript{2}}}1
              {bottom}{{$\bot$}}1
+             {:-> }{{$\twoheadrightarrow$ }}2
+             {=:}{{$\equalscolon$}}2
 %             {++}{{}}
 %% do not highlight "reduce" in a special case
              {xreduce}{{reduce}}6
