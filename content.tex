@@ -1,11 +1,25 @@
 \section{Introduction}
 
-
+Simulation is often used to inspect various characteristics of a system.
 In the SoOS project\footnote{See \url{www.example.com} for details.} we
 inspect service-oriented aspects of operating systems. One part of the
 project requires to simulate the interactions between software
 components of an operating system (in the following: OS) and between
 OS and application software.
+
+To be more elaborate: While creating of new operating system concepts
+and regarding their interaction with the programmability of
+large-scale systems, we found that existing simulation packages do not
+seem to have the right abstractions for fast design exploration
+\cite{cotson,omnet}. This was the motivation for the S(o)OS project
+\cite{soos}.  It aims to research OS concepts and specific OS modules,
+which aid in scalability of the complete software stack (both OS and
+application) on future many-core systems.  One of the key concepts of
+S(o)OS is that only those OS modules needed by a application thread,
+are actually loaded into the (local) memory of a CPU core on which the
+thread will run.  This execution environment differs from contemporary
+operating systems where every core runs a complete copy of the
+(monolithic) operating system.
 
 The ability to simulate separate components of the OS and of the
 application was the main goal to develop the OS simulator \soosim
@@ -56,6 +70,65 @@ outlook for the further research.
 
 \section{\soosim: An Overview}
 \label{sec:soosim-an-overview}
+
+\paragraph{Basic structure.} \olcomment{few words on the ``building
+  blocks''!}
+The purpose of \soosim is to provide a platform that allows a
+developer to observe the interactions between OS modules and
+application threads.  For this reason the simulated hardware is highly
+abstract.
+
+In \soosim, the hardware platform is described as a set of nodes.
+Each \emph{node} represents a physical computing object: such as a
+core, complete CPU, memory controller, etc.  Every node has a local
+memory of potentially infinite size.  The layout and connectivity
+properties of the nodes are not part of the system description.  If
+such a level of detail is required it would have to be modelled
+explicitly by the user.
+
+Each \emph{node} hosts a set of components.  A \emph{component}
+represents an executable object: such as a thread, application, OS
+module, etc.  Components communicate with each other either using
+direct messaging, or through the local memory of a node.  Having both
+explicit messaging and shared memories, \soosim supports the two well
+known methods of communication.  Because multiple components can send
+messages to one component, all component have a message queue.  All
+components in a simulated system, even those hosted within the same
+node, are executed concurrently.  The simulator poses no restrictions
+as to which components can communicate with each other, nor to which
+node's local memory they can read from and write to.  A user of
+\soosim would have to model those restrictions explicitly if required.
+A schematic overview of an example system can be seen in
+Figure~\ref{fig:system}.
+
+\def\svgwidth{\columnwidth}
+\begin{figure}
+%\includesvg{system}
+\olcomment{graphics!!!}
+\caption{System, abstracted.}
+\label{fig:system}
+\end{figure}
+
+\paragraph{Agility.} Basic requirements that we would have towards
+any simulator, include the facilities to straightforwardly simulate
+the instantiation of application threads and OS modules.  Aside from
+the fact that the S(o)OS-envisioned system will be dynamic as a result
+of loading OS modules on-the-fly; large-scale systems also tend to be
+dynamic in the sense that computing nodes can disappear (failure), or
+appear (hot-swap).  Hence, we also require that our simulator
+facilitates the straightforward creation and destruction of computing
+elements.  Our current need for a simulator rests mostly in
+formalizing the S(o)OS concept, and examining the interaction between
+our envisioned OS modules and the application threads.  As such, being
+able to extract highly accurate performance figures from a simulated
+system is not a key requirement.  We do however wish to be able to
+observe all interactions among application threads and OS modules.
+Additionally, we wish to be able to \emph{zoom in} on particular
+aspects of the behaviour of an application: such as memory access,
+messaging, etc.
+
+
+
 
 \olcomment{Explain all this \cd{createComponent}, \cd{invoke}, etc.}
 
