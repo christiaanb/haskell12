@@ -197,18 +197,20 @@ available functions are:
 Instantiate a new component on a specified node. 
 %; the component definition must be registered with the simulator.
 \paragraph{\hs{invoke}}
-Send a message to another component, and wait for the answer.  This
-means that whenever a component uses this function it will be
-(temporarily) suspended by the simulator.  Several simulator ticks
-might pass before the callee sends a response.  Once the response is
-put in the message queue of the caller, the simulator resumes the
-execution of the calling component.  Having this synchronization
-available obviates the need to specify the behaviour of a component as
-a finite state machine.
+Send a message to another component and wait for the answer.  Whenever a component uses this function it will be
+temporarily suspended by the simulator.  Several simulator ticks
+might pass before the % callee sends a
+response.  Once the response is
+% put in the message queue of the caller,
+available the simulator resumes the execution of the calling
+component.  Having this synchronization obviates the need to specify
+the behaviour of a component as a finite state machine---a standard
+approach in the area.
 \paragraph{\hs{invokeAsync}}
-Send a message to another component, and register a handler with the
-simulator to process the response.  Unlike \hs{invoke}, using this
-function will \emph{not} suspend the execution of the component.
+Send a message to another component and register a handler with the
+simulator to process the response.  In a contrast to \hs{invoke},
+using this function will \emph{not} suspend the execution of the
+component.
 \paragraph{\hs{respond}}
 Send a message to another component as a response to an invocation.
 \paragraph{\hs{yield}}
