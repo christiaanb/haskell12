@@ -194,12 +194,25 @@ breaklines=true,basicstyle=\sffamily];#1;}
     }} {}
 
 
-\ifxetex
-%%% workaround
-% \renewcommand{\allcaps}[1]{{\mycapfont\sc #1}}
-% \renewcommand{\allcaps}[1]{\smallcaps{#1}}
-\else
-\fi
+% Run command if a source-file has changed
+\newcommand{\executeiffilenewer}[3]{%
+\ifnum\pdfstrcmp{\pdffilemoddate{#1}}%
+{\pdffilemoddate{#2}}>0%
+{\immediate\write18{#3}}\fi%
+}
+
+\newcommand{\includesvg}[1]{%
+\executeiffilenewer{images/#1.svg}{images/#1.pdf}%
+{inkscape -z --file=images/#1.svg --export-pdf=images/#1.pdf --export-latex}%
+\import{images/}{#1.pdf_tex}%
+}
+
+% New caption environment for code listings
+\usepackage{float}
+\floatstyle{ruled}
+\newfloat{programlisting}{ht}{lop}
+\floatname{programlisting}{Listing}
+
 
 %%
 % For nicely typeset tabular material
@@ -354,7 +367,7 @@ keyword1, keyword2
 % The bibliography should be embedded for final submission.
 %% for now: use bibtex!
 %\bibliography{jabref,soos}
-\bibliography{jabref}
+\bibliography{jabref,haskell2012}
 
 %% this is how you embedd a biblio
 % \begin{thebibliography}{}

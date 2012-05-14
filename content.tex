@@ -127,6 +127,14 @@ Additionally, we wish to be able to \emph{zoom in} on particular
 aspects of the behaviour of an application: such as memory access,
 messaging, etc.
 
+The simulator progresses all components concurrently in one discrete
+step called a \hs{tick}.  During a \emph{tick}, the simulator passes
+the content that is at the head of the message queue of each
+individual component.  If the message queue of a component is empty, a
+component will be executed with a \emph{null} message.  If desired, a
+component can inform the simulator that it does not want to receive
+these \emph{null} messages.  In that case the component will not be
+executed by the simulator during a \emph{tick}.
 
 
 
