@@ -1,0 +1,8 @@
+$pdf_mode = 1;
+$pdflatex = 'lhs2TeX -v --poly %B.lhs > %B.tex; pdflatex --file-line-error --halt-on-error --shell-escape --enable-write18 %O %B.tex %B.pdf';
+$pdf_previewer = 'xpdf %S &';
+$pdf_update_method = 0;
+$clean_ext = "nav snm ptb aux bbl pdf_tex tex";
+
+add_cus_dep('svg', 'pdf', 0, 'cus_dep_require_primary_run');
+add_cus_dep('lhs', 'tex', 0, 'cus_dep_require_primary_run');

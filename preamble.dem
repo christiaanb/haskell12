@@ -1,0 +1,48 @@
+% Use UTF-8 Character in source
+\usepackage[utf8x]{inputenc}
+\newcommand\textlambda{\ensuremath{\lambda}}
+
+% Support for graphics
+\usepackage[pdftex]{graphicx}
+\usepackage{color}
+
+% URL Formatting
+\usepackage{url}
+
+% Run command if a source-file has changed
+\newcommand{\executeiffilenewer}[3]{%
+\ifnum\pdfstrcmp{\pdffilemoddate{#1}}%
+{\pdffilemoddate{#2}}>0%
+{\immediate\write18{#3}}\fi%
+}
+
+% Automatically run lhs2TeX preprocessor on include tex files
+\newcommand{\includelhs}[1]{%
+\executeiffilenewer{#1.lhs}{#1.tex}%
+{lhs2TeX -v --poly #1.lhs > #1.tex}%
+\input{#1.tex}%
+}
+
+
+\usepackage{import}
+
+\newcommand{\includesvg}[1]{%
+\executeiffilenewer{images/#1.svg}{images/#1.pdf}%
+{inkscape -z --file=images/#1.svg --export-pdf=images/#1.pdf --export-latex}%
+\import{images/}{#1.pdf_tex}%
+}
+
+% New caption environment for code listings
+\usepackage{float}
+\floatstyle{ruled}
+\newfloat{programlisting}{ht}{lop}
+\floatname{programlisting}{Listing}
+
+\newenvironment{program}{\begin{programlisting}\vspace{-0.5em}\mathindent0em\numberson\numbersreset}{\vspace{-1.5em}\end{programlisting}}
+
+\usepackage{cite}
+
+% \setlength\mathindent{1em}
+\numbersright
+
+\newcommand\soosim{SoOSiM}

@@ -1,0 +1,8 @@
+%include polycode.fmt
+
+%subst code a = "\begin{hscode}\linenumsetup\printlinebegin\SaveRestoreHook'n" a "\printlineend\ColumnHook'n\end{hscode}\resethooks'n"
+%subst newline = "\printlineend\\'n\printlinebegin"
+%subst blankline = "\printlineend\\[\blanklineskip]%'n\printlinebegin"
+
+%format :-> = "\twoheadrightarrow"
+%format ^^  = "\ \ \ "
