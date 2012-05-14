@@ -41,8 +41,9 @@ a blocking message is received, the reviever should suspend its
 current work and process the message.\olcomment{is this true?} This
 means, we required the notion of a suspending
 computation---\emph{suspendable} at any moment of execution of the
-simulated component. In the following we will show that using Haskell 
-enabled us to implement this property in a nice way.
+simulated component. In the following we will show that using Haskell
+\cite{haskell-report} enabled us to implement this property in a nice
+way.
 
 The contributions of this paper include
 \begin{itemize}
@@ -67,6 +68,8 @@ outlook for the further research.
 
 \section{SoOS Project}
 \label{sec:soos-project}
+
+The SoOS project \olcomment{....... } \cite{soos}...
 
 \section{\soosim: An Overview}
 \label{sec:soosim-an-overview}
@@ -163,15 +166,16 @@ signature for a component:
 component :: State -> SimEvent -> SimM State
 \end{code}
 
-The simulator monad \hs{SimM} is described in Figure \olcomment{.....}
-The user-defined internal \hs{State} can be used to store any
-information that needs to perpetuate across simulator ticks.
+The simulator monad \hs{SimM} is described in
+Figure~\ref{fig:code-simm}. \olcomment{Move that text block next to
+  here?}  The user-defined internal \hs{State} can be used to store
+any information that needs to perpetuate across simulator ticks.
 
 To include a component description in the simulator, the developer
-will have to create an instance of the \hs{ComponentIface} \emph{type-class}.
-% A \emph{type-class} in Haskell can be compared to an interface
+will have to create an instance of the \hs{ComponentIface} \emph{type class}.
+% A \emph{type class} in Haskell can be compared to an interface
 % definition as those known in object-oriented languages.  An
-% \emph{instance} of a \emph{type-class} is a concrete instantiation
+% \emph{instance} of a \emph{type class} is a concrete instantiation
 % of such an interface.
 %% haskell people know that!
 The \hs{ComponentIface} requires the instantiation of the following values to completely define a component:
@@ -239,7 +243,30 @@ find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
 \section{A Domain-specific Language for \soosim}
 \label{sec:dsl}
 
-The DSL was embedded in Haskell \cite{haskell-report}.
+% The DSL was embedded in Haskell \cite{haskell-report}.
+For the sake of the implementation of ...... we embedded a DSL in
+Haskell. \olcomment{FIX the explanation!}
+Following the \emph{final tagless} \cite{final_tagless_embedding}
+encoding of embedded languages in Haskell, we use a type class to
+define the language constructs of our mini functional language with
+mutable references.  A partial specification of the \hs{Symantics} (a
+pun on \emph{syntax} and \emph{semantics}) type class, defining our
+\emph{embedded language}, is shown in
+Figure~\ref{fig:embedded_language_interface}.
+
+\begin{figure}
+\centering
+\begin{code}
+class Symantics repr where
+  fun  :: (repr a -> repr b) -> repr (a :-> b)
+  app  :: repr (a :-> b) -> repr a -> repr b
+  ...
+  drf   :: repr (Ref a) -> repr a
+  (=:)  :: repr (Ref a) -> repr a -> repr Void
+\end{code}
+\caption{Embedded language, a partial definition.}
+\label{fig:embedded_language_interface}
+\end{figure}
 
 \subsection{Final Tagless}
 
@@ -263,17 +290,17 @@ type class. This enables great flexibility, including an option to
 extend the kinds of simulated objects by third party.
 
 \subsection{Monads}
-
+\olcomment{Merge to OS Component Descriptions? Or: keep!}
 We use a monad called \cd{SimM} to capture the \emph{State}
 \olcomment{sure?} of the simulator. We use
-\cd{Control.Monad.Coroutine} to capture...
+\textsf{Control.Monad.Coroutine} to capture...
 
 We use dynamic type for \olcomment{my god, what for?}
 
 \begin{figure}
 \centering
 \begin{code*}
-type SimMonad  = StateT SimState IO
+type SimMonad =  StateT SimState IO
 data SimState = ...
 
 newtype SimM a 
