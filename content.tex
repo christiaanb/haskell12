@@ -272,7 +272,10 @@ class Symantics repr where
 
 \olcomment{- Final tagless \cite{final_tagless_embedding}
 
-- Tillmann embedded DSL with type classes \cite{Hofer:2008:PED:1449913.1449935} }
+- Tillmann embedded DSL with type classes
+\cite{Hofer:2008:PED:1449913.1449935} 
+
+-- move to related work?}
 
 \section{Implementation Details}
 \label{sec:impl-detail}
@@ -341,7 +344,23 @@ makes use of the coroutines in the following way. \olcomment{explain it!}
 \olcomment{Related work from WATERS paper + more!}
 
 \cite{house}
-\cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}
+\cite{final_tagless_embedding}
+
+\cite{Hofer:2008:PED:1449913.1449935} --- compared to the work by
+\citeauthor{final_tagless_embedding} \cite{final_tagless_embedding} is
+more composable, allows subtyping, done in Scala
+\cite{odersky2008programming}. These two papers have different goals:
+\citeauthor{final_tagless_embedding} implement DSLs for higher-order
+languages, while \citeauthor{Hofer:2008:PED:1449913.1449935} focus on
+the possibility to plug in multiple implementations of an embedded
+DSL. \olcomment{pure embedded DSL, it if matters}
+
+\olcomment{cite: P. Hudak. Building domain-specific embedded
+  languages. ACM Comput. Surv., 28(4), 1996.}
+\olcomment{cite: P. Hudak. Modular domain specific languages and tools. In
+P. Devanbu and J. Poulin, editors, Proceedings: Fifth International
+Conference on Software Reuse, pages 134–142. IEEE Computer Society
+Press, 1998. for pure embedding}
 
 \section{Conclusions and Future Work}
 \label{sec:concl-future-work}
@@ -363,13 +382,17 @@ concurrent \soosim. One option is to use Concurrent Haskell
 \cite{ConcHs}, it provides (concurrent) green threads. However, it
 would also require to use software transactional memory
 \cite{springerlink:10.1007/s004460050028} because of multiple writes
-to the same data. Examples of fruitful combinations of STM with other
-concepts include
-\cite{Harris:2008:CMT:1378704.1378725,Bieniusa:2010:BAA:1835698.1835714}.
-Another option would be to use a \emph{parallel} Haskell like
-Multicore Haskell \cite{marlow:rsm}, \cd{Par} monad \cite{par-monad}
-or Eden \cite{eden}. The ``multiple writes'' issue, however, needs
-some further handling in this case.
+to the same data. Examples of fruitful combinations of STM
+\olcomment{dirty style. either introduce properly or remove the
+  acronym!} with other concepts include papers by
+\citeauthor{Harris:2008:CMT:1378704.1378725}
+\cite{Harris:2008:CMT:1378704.1378725} and
+\citeauthor{Bieniusa:2010:BAA:1835698.1835714}
+\cite{Bieniusa:2010:BAA:1835698.1835714}.  Another option would be to
+use a \emph{parallel} Haskell like Multicore Haskell
+\cite{marlow:rsm}, \cd{Par} monad \cite{par-monad} or Eden
+\cite{eden}. The ``multiple writes'' issue, however, needs some
+further handling in this case.
 
 % \appendix
 % \section{Appendix Title}
