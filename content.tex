@@ -5,17 +5,20 @@ In the SoOS project\footnote{See \url{http://www.soos-project.eu/} and \cite{soo
 One part of the project requires to simulate the interactions between software components of an operating system (in the following: OS) and between
 OS and application software.
 
-The main issue is: it is in fact not desirable to keep the whole, monolithic OS kernel on the each core of a  multicore machine. 
-For example, we could dedicate some cores to an application and some cores to an OS. 
-One possible approach to this is the partitioning of the address space. \olcomment{is this so?}
-In a simular manner, if we know that a core is occupied by a particular program, we can move the dynamic libraries, required for some other application to some other core's memory range.
-A further issue is the scalability of the parallel system. 
-Aforementioned ideas were the motivation for the S(o)OS project \cite{soos}.
-It aims to research OS concepts and specific OS modules, which aid in scalability of the complete software stack (both OS andapplication) on future many-core systems.
-One of the key concepts of S(o)OS is that only those OS modules needed by a application thread, are actually loaded into the (local) memory of a CPU core on which the thread will run.
-This execution environment differs from contemporary operating systems where every core runs a complete copy of the (monolithic) operating system.
+The main issue is: it is in fact not desirable to keep the whole, monolithic, OS kernel on the each core of a multicore machine.
+Doing so has detrimental effects on the caches of the individual cores.\cbcomment{citation needed?}
+Moving to larger distributed systems, monolithic kernels hinder scalability as the entire internal state has to be synchronized amongst the copies.\cbcomment{I don't think we should say more about S(o)OS or its ideas / concepts in the intro.}
+% For example, we could dedicate some cores to an application and some cores to an OS.
+% One possible approach to this is the partitioning of the address space. \olcomment{is this so?}
+% In a simular manner, if we know that a core is occupied by a particular program, we can move the dynamic libraries, required for some other application to some other core's memory range.
+% A further issue is the scalability of the parallel system.
 
-While creating of new operating system concepts and regarding their interaction with the programmability of large-scale systems, we found that existing simulation packages do not seem to have the right abstractions for fast design exploration \cite{cotson,omnet}.
+Overcoming the aforementioned limitations of contemporary operating system designs is the motivation for the S(o)OS project \cite{soos}.
+The project aims to research OS concepts and specific OS modules, which aid in scalability of the complete software stack (both OS and application) on future many-core systems.
+One of the key concepts of S(o)OS is that only those OS modules needed by a application thread, are actually loaded into the (local) memory of a CPU core on which the thread will run.
+This execution environment thus differs from contemporary operating systems where every core runs a complete copy of the (monolithic) operating system.
+
+While creating new operating system concepts and regarding their interaction with the programmability of large-scale systems, we found that existing simulation packages do not seem to have the right abstractions for fast design exploration \cite{cotson,omnet}.
 The ability to simulate separate components of the OS and of the application was the main goal to develop the OS simulator \soosim \olcomment{cite the WATERS paper if it is accepted until submission}.
 \olcomment{would be too cool to be true: \soosim is also available from Hackage.
 \footnote{Issue \cd{cabal install soosim} to install the simulator. See also:
@@ -28,22 +31,22 @@ The design decisions were:
 \end{itemize}
 However, we required a way to implement blocking messages.
 In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{when} in the sender the message is sent.
-If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
-This means, we required the notion of a suspending computation---\emph{suspendable} at any moment of execution of the simulated component.
+% If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
+This means, we required the notion of a suspending computation---\emph{suspend-able} at any moment of execution of the simulated component.
 In the following we will show that using Haskell \cite{haskell-report} enabled us to implement this property in a nice way.
 
 The contributions of this paper include:
 \begin{itemize}
 \item A short overview of the SoOS project
-\item The description of the embedded domain-specific language (eDSL) used to implement \soosim
-\item The list of Haskell language features, we found particulary useful in this project.
+\item The description of the embedded domain-specific language (eDSL) used to implement \soosim.
+\item The list of Haskell language features, we found particularly useful in this project.
 \end{itemize}
 
 The remaining part of this paper is organised as follows.
 Section~\ref{sec:soos-project} gives an overview of the SoOS project and of the role \soosim plays in the project.
 Section~\ref{sec:soosim-an-overview} described the structure of the \soosim simulator from the user's perspective.
 Section~\ref{sec:dsl} gives an implementation overview of the domain specific language, used to implement \soosim.
-Section~\ref{sec:impl-detail} discusses Haskell features from which our implementation especially benefitted.
+Section~\ref{sec:impl-detail} discusses Haskell features from which our implementation especially benefited.
 Section~\ref{sec:related-work} covers related work.
 Section~\ref{sec:concl-future-work} concludes and gives an outlook for the further research.
 
@@ -88,7 +91,7 @@ Basic requirements that we would have towards any simulator, include the facilit
 Aside from the fact that the S(o)OS-envisioned system will be dynamic as a result of loading OS modules on-the-fly; large-scale systems also tend to be dynamic in the sense that computing nodes can disappear (failure), or
 appear (hot-swap).
 Hence, we also require that our simulator facilitates the straightforward creation and destruction of computing elements.
-Our current need for a simulator rests mostly in formalizing the S(o)OS concept, and examining the interaction betweenour envisioned OS modules and the application threads.
+Our current need for a simulator rests mostly in formalizing the S(o)OS concept, and examining the interaction between our envisioned OS modules and the application threads.
 As such, being able to extract highly accurate performance figures from a simulated system is not a key requirement.
 We do however wish to be able to observe all interactions among application threads and OS modules.
 Additionally, we wish to be able to \emph{zoom in} on particular aspects of the behaviour of an application: such as memory access, messaging, etc.
@@ -288,8 +291,8 @@ As one could infer from Figure~\ref{fig:code-simm}, the implementation makes use
 \paragraph{Operating systems and simulators.}
 \olcomment{Related work from WATERS paper + more!}
 
-\citeauthor{house} describe a basic operating system implementation in Haskell \cite{house}. 
-This work is in a sense dual to ours: we simulate an OS. 
+\citeauthor{house} describe a basic operating system implementation in Haskell \cite{house}.
+This work is in a sense dual to ours: we simulate an OS.
 However, as we are also concerned with
 
 
@@ -298,7 +301,7 @@ For the concept of an eDSL see the papers by \citeauthor{hudak1} \cite{hudak1,hu
 The literature on this topic is quite broad, an overview is presented, \eg by \citeauthor{dsl-survey} \cite{dsl-survey}.
 
 The final tagless embedding of DSLs originates from the seminal paper by \citeauthor{final_tagless_embedding} \cite{final_tagless_embedding}.
-\citeauthor{Hofer:2008:PED:1449913.1449935} \cite{Hofer:2008:PED:1449913.1449935} presented a paper that compared to the work by \citeauthor{final_tagless_embedding} \cite{final_tagless_embedding} is more composable, allows subtyping, and is done in Scala \cite{odersky2008programming}. 
+\citeauthor{Hofer:2008:PED:1449913.1449935} \cite{Hofer:2008:PED:1449913.1449935} presented a paper that compared to the work by \citeauthor{final_tagless_embedding} \cite{final_tagless_embedding} is more composable, allows subtyping, and is done in Scala \cite{odersky2008programming}.
 These two papers have different goals: \citeauthor{final_tagless_embedding} implement DSLs for higher-order languages, while \citeauthor{Hofer:2008:PED:1449913.1449935} focus on the possibility to plug in multiple implementations of a pure embedded DSL.
 
 
@@ -316,7 +319,7 @@ The major goal of the project is to simulate the behaviour of a real life applic
 This work is still ongoing.
 
 \paragraph{Concurrency.}
-One aspect of the future work is the concurrent \soosim. 
+One aspect of the future work is the concurrent \soosim.
 One option is to use Concurrent Haskell \cite{ConcHs}, it provides (concurrent) green threads.
 However, it would also require to use software transactional memory \cite{springerlink:10.1007/s004460050028} because of multiple writes to the same data.
 Examples of fruitful combinations with other concepts include papers by \citeauthor{Harris:2008:CMT:1378704.1378725} \cite{Harris:2008:CMT:1378704.1378725} and \citeauthor{Bieniusa:2010:BAA:1835698.1835714} \cite{Bieniusa:2010:BAA:1835698.1835714,springerlink:10.1007/978-3-642-25959-3_2}.
