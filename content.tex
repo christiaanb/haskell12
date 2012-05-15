@@ -1,70 +1,46 @@
 \section{Introduction}
 
 Simulation is often used to inspect various characteristics of a system.
-In the SoOS project\footnote{See \url{www.example.com} for details.} we
-inspect service-oriented aspects of operating systems. One part of the
-project requires to simulate the interactions between software
-components of an operating system (in the following: OS) and between
+In the SoOS project\footnote{See \url{www.example.com} for details.} we inspect service-oriented aspects of operating systems.
+One part of the project requires to simulate the interactions between software components of an operating system (in the following: OS) and between
 OS and application software.
 
 To be more elaborate: While creating of new operating system concepts
-and regarding their interaction with the programmability of
-large-scale systems, we found that existing simulation packages do not
-seem to have the right abstractions for fast design exploration
-\cite{cotson,omnet}. This was the motivation for the S(o)OS project
-\cite{soos}.  It aims to research OS concepts and specific OS modules,
-which aid in scalability of the complete software stack (both OS and
-application) on future many-core systems.  One of the key concepts of
-S(o)OS is that only those OS modules needed by a application thread,
-are actually loaded into the (local) memory of a CPU core on which the
-thread will run.  This execution environment differs from contemporary
-operating systems where every core runs a complete copy of the
-(monolithic) operating system.
+and regarding their interaction with the programmability of large-scale systems, we found that existing simulation packages do not seem to have the right abstractions for fast design exploration \cite{cotson,omnet}.
+This was the motivation for the S(o)OS project \cite{soos}.
+It aims to research OS concepts and specific OS modules, which aid in scalability of the complete software stack (both OS andapplication) on future many-core systems.
+One of the key concepts of S(o)OS is that only those OS modules needed by a application thread, are actually loaded into the (local) memory of a CPU core on which the thread will run.
+This execution environment differs from contemporary operating systems where every core runs a complete copy of the (monolithic) operating system.
 
-The ability to simulate separate components of the OS and of the
-application was the main goal to develop the OS simulator \soosim
-\olcomment{cite the WATERS paper if it is accepted until
-  submission}. \olcomment{would be too cool to be true: \soosim is
-  also available from Hackage.\footnote{Issue \cd{cabal install
-      soosim} to install the simulator. See also:
-    \url{www.example.com/soosim}.}}
- The design decisions were
+The ability to simulate separate components of the OS and of the application was the main goal to develop the OS simulator \soosim \olcomment{cite the WATERS paper if it is accepted until submission}.
+\olcomment{would be too cool to be true: \soosim is also available from Hackage.
+\footnote{Issue \cd{cabal install soosim} to install the simulator. See also:
+\url{www.example.com/soosim}.}}
+The design decisions were:
 \begin{itemize}
-\item to simulate all the communication between the components with
-  message passing
-\item to have global ``ticks'', designating time.
+\item To simulate all the communication between the components with message passing.
+\item To have global ``ticks'', designating time.
 \end{itemize}
-However, we required a way to implement blocking messages. In other
-words, if a blocking message is sent, the sender is waiting for the
-answer---regardless \emph{when} in the sender the message is sent. If
-a blocking message is received, the reviever should suspend its
-current work and process the message.\olcomment{is this true?} This
-means, we required the notion of a suspending
-computation---\emph{suspendable} at any moment of execution of the
-simulated component. In the following we will show that using Haskell
-\cite{haskell-report} enabled us to implement this property in a nice
-way.
+However, we required a way to implement blocking messages.
+In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{when} in the sender the message is sent.
+If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
+This means, we required the notion of a suspending computation---\emph{suspendable} at any moment of execution of the simulated component.
+In the following we will show that using Haskell \cite{haskell-report} enabled us to implement this property in a nice way.
 
-The contributions of this paper include
+The contributions of this paper include:
 \begin{itemize}
-\item a short overview of the SoOS project
-\item the description of the eDSL used to implement \soosim 
-\item the list of Haskell language features, we found particulary
-  useful in this project.
+\item A short overview of the SoOS project
+\item The description of the eDSL used to implement \soosim
+\item The list of Haskell language features, we found particulary useful in this project.
 \end{itemize}
 
-The remaining part of this paper is organised as
-follows. Section~\ref{sec:soos-project} gives an overview of the SoOS
-project and of the role \soosim plays in the
-project. Section~\ref{sec:soosim-an-overview} described the structure
-of the \soosim simulator from the user's
-perspective. Section~\ref{sec:dsl} gives an implementation overview of
-the domain specific language, used to implement
-\soosim. Section~\ref{sec:impl-detail} discusses Haskell features from
-which our implementation especially
-benefitted. Section~\ref{sec:related-work} covers related
-work. Section~\ref{sec:concl-future-work} concludes and gives an
-outlook for the further research.
+The remaining part of this paper is organised as follows.
+Section~\ref{sec:soos-project} gives an overview of the SoOS project and of the role \soosim plays in the project.
+Section~\ref{sec:soosim-an-overview} described the structure of the \soosim simulator from the user's perspective.
+Section~\ref{sec:dsl} gives an implementation overview of the domain specific language, used to implement \soosim.
+Section~\ref{sec:impl-detail} discusses Haskell features from which our implementation especially benefitted.
+Section~\ref{sec:related-work} covers related work.
+Section~\ref{sec:concl-future-work} concludes and gives an outlook for the further research.
 
 \section{SoOS Project}
 \label{sec:soos-project}
@@ -74,35 +50,25 @@ The SoOS project \olcomment{....... } \cite{soos}...
 \section{\soosim: An Overview}
 \label{sec:soosim-an-overview}
 
-\paragraph{Basic structure.} \olcomment{few words on the ``building
-  blocks''!}
-The purpose of \soosim is to provide a platform that allows a
-developer to observe the interactions between OS modules and
-application threads.  For this reason the simulated hardware is highly
-abstract.
+\paragraph{Basic structure.} \olcomment{few words on the ``building blocks''!}
+The purpose of \soosim is to provide a platform that allows a developer to observe the interactions between OS modules and application threads.
+For this reason the simulated hardware is highly abstract.
 
 In \soosim, the hardware platform is described as a set of nodes.
-Each \emph{node} represents a physical computing object: such as a
-core, complete CPU, memory controller, etc.  Every node has a local
-memory of potentially infinite size.  The layout and connectivity
-properties of the nodes are not part of the system description.  If
-such a level of detail is required it would have to be modelled
-explicitly by the user.
+Each \emph{node} represents a physical computing object: such as a core, complete CPU, memory controller, etc.
+Every node has a local memory of potentially infinite size.
+The layout and connectivity properties of the nodes are not part of the system description.
+If such a level of detail is required it would have to be modelled explicitly by the user.
 
-Each \emph{node} hosts a set of components.  A \emph{component}
-represents an executable object: such as a thread, application, OS
-module, etc.  Components communicate with each other either using
-direct messaging, or through the local memory of a node.  Having both
-explicit messaging and shared memories, \soosim supports the two well
-known methods of communication.  Because multiple components can send
-messages to one component, all component have a message queue.  All
-components in a simulated system, even those hosted within the same
-node, are executed concurrently.  The simulator poses no restrictions
-as to which components can communicate with each other, nor to which
-node's local memory they can read from and write to.  A user of
-\soosim would have to model those restrictions explicitly if required.
-A schematic overview of an example system can be seen in
-Figure~\ref{fig:system}.
+Each \emph{node} hosts a set of components.
+A \emph{component} represents an executable object: such as a thread, application, OS module, etc.
+Components communicate with each other either using direct messaging, or through the local memory of a node.
+Having both explicit messaging and shared memories, \soosim supports the two well known methods of communication.
+Because multiple components can send messages to one component, all component have a message queue.
+All components in a simulated system, even those hosted within the same node, are executed concurrently.
+The simulator poses no restrictions as to which components can communicate with each other, nor to which node's local memory they can read from and write to.
+A user of \soosim would have to model those restrictions explicitly if required.
+A schematic overview of an example system can be seen in Figure~\ref{fig:system}.
 
 \def\svgwidth{\columnwidth}
 \begin{figure}
@@ -112,67 +78,45 @@ Figure~\ref{fig:system}.
 \label{fig:system}
 \end{figure}
 
-\paragraph{Agility.} Basic requirements that we would have towards
-any simulator, include the facilities to straightforwardly simulate
-the instantiation of application threads and OS modules.  Aside from
-the fact that the S(o)OS-envisioned system will be dynamic as a result
-of loading OS modules on-the-fly; large-scale systems also tend to be
-dynamic in the sense that computing nodes can disappear (failure), or
-appear (hot-swap).  Hence, we also require that our simulator
-facilitates the straightforward creation and destruction of computing
-elements.  Our current need for a simulator rests mostly in
-formalizing the S(o)OS concept, and examining the interaction between
-our envisioned OS modules and the application threads.  As such, being
-able to extract highly accurate performance figures from a simulated
-system is not a key requirement.  We do however wish to be able to
-observe all interactions among application threads and OS modules.
-Additionally, we wish to be able to \emph{zoom in} on particular
-aspects of the behaviour of an application: such as memory access,
-messaging, etc.
+\paragraph{Agility.}
+Basic requirements that we would have towards any simulator, include the facilities to straightforwardly simulate the instantiation of application threads and OS modules.
+Aside from the fact that the S(o)OS-envisioned system will be dynamic as a result of loading OS modules on-the-fly; large-scale systems also tend to be dynamic in the sense that computing nodes can disappear (failure), or
+appear (hot-swap).
+Hence, we also require that our simulator facilitates the straightforward creation and destruction of computing elements.
+Our current need for a simulator rests mostly in formalizing the S(o)OS concept, and examining the interaction betweenour envisioned OS modules and the application threads.
+As such, being able to extract highly accurate performance figures from a simulated system is not a key requirement.
+We do however wish to be able to observe all interactions among application threads and OS modules.
+Additionally, we wish to be able to \emph{zoom in} on particular aspects of the behaviour of an application: such as memory access, messaging, etc.
 
-The simulator progresses all components concurrently in one discrete
-step called a \hs{tick}.  During a \emph{tick}, the simulator passes
-the content that is at the head of the message queue of each
-individual component.  If the message queue of a component is empty, a
-component will be executed with a \emph{null} message.  If desired, a
-component can inform the simulator that it does not want to receive
-these \emph{null} messages.  In that case the component will not be
-executed by the simulator during a \emph{tick}.
+The simulator progresses all components concurrently in one discrete step called a \hs{tick}.
+During a \emph{tick}, the simulator passes the content that is at the head of the message queue of each individual component.
+If the message queue of a component is empty, a component will be executed with a \emph{null} message.
+If desired, a component can inform the simulator that it does not want to receive these \emph{null} messages.
+In that case the component will not be executed by the simulator during a \emph{tick}.
 
 
 \subsection{OS Component Descriptions}
 
-The OS components are also specified in Haskell, each component is
-modelled as a function. In case of \soosim, such a function is
-executed within the context of the simulator, this means: in a
-\emph{monad}.
+The OS components are also specified in Haskell, each component is modelled as a function.
+In case of \soosim, such a function is executed within the context of the simulator, this means: in a \emph{monad}.
 
-Because the function is executed within the monad, it can have
-\emph{side-effects} such as sending messages to other components, or
-reading the memory of a local memory.  In addition, the function can
-be temporarily suspended at (almost) any point in the code.  \soosim
-needs to be able to suspend the execution of a function so that it may
-emulate synchronous message passing between components, a subject we
-will further elaborate later on.
+Because the function is executed within the monad, it can have \emph{side-effects} such as sending messages to other components, or reading the memory of a local memory.
+In addition, the function can be temporarily suspended at (almost) any point in the code.
+\soosim needs to be able to suspend the execution of a function so that it may emulate synchronous message passing between components, a subject we will further elaborate later on.
 
-We describe a component as a function that receives a user-defined
-internal state as its first argument and a value of type \hs{SimEvent}
-as its second argument.  The result of this function is the internal
-state.  A value of type \hs{SimEvent} is either message from another
-component, or a \emph{null} message.  We thus have the following type
-signature for a component: 
+We describe a component as a function that receives a user-defined internal state as its first argument and a value of type \hs{SimEvent} as its second argument.
+The result of this function is the internal state.
+A value of type \hs{SimEvent} is either message from another component, or a \emph{null} message.
+We thus have the following type signature for a component:
 %\numbersoff
 \begin{code}
 component :: State -> SimEvent -> SimM State
 \end{code}
 
-The simulator monad \hs{SimM} is described in
-Figure~\ref{fig:code-simm}. \olcomment{Move that text block next to
-  here?}  The user-defined internal \hs{State} can be used to store
-any information that needs to perpetuate across simulator ticks.
+The simulator monad \hs{SimM} is described in Figure~\ref{fig:code-simm}. \olcomment{Move that text block next to here?}
+The user-defined internal \hs{State} can be used to store any information that needs to perpetuate across simulator ticks.
 
-To include a component description in the simulator, the developer
-will have to create an instance of the \hs{ComponentIface} \emph{type class}.
+To include a component description in the simulator, the developer will have to create an instance of the \hs{ComponentIface} \emph{type class}.
 % A \emph{type class} in Haskell can be compared to an interface
 % definition as those known in object-oriented languages.  An
 % \emph{instance} of a \emph{type class} is a concrete instantiation
@@ -186,35 +130,29 @@ The \hs{ComponentIface} requires the instantiation of the following values to co
   \item The monadic function describing the behaviour of the component.
 \end{itemize}
 
-Note, we are aiming at a high level of abstraction for the behavioural
-descriptions of our OS modules, where the focus is mainly on the
-interaction with other OS modules and application threads.
+Note, we are aiming at a high level of abstraction for the behavioural descriptions of our OS modules, where the focus is mainly on the interaction with other OS modules and application threads.
 
 
 \subsection{Interaction with the simulator}
 
-Components have several functions at their disposal to interact with
-the simulator and consequently interact with other components.  The
-available functions are:
+Components have several functions at their disposal to interact with the simulator and consequently interact with other components.
+The available functions are:
 
 \paragraph{\hs{createComponent}}
-Instantiate a new component on a specified node. 
+Instantiate a new component on a specified node.
 %; the component definition must be registered with the simulator.
 \paragraph{\hs{invoke}}
-Send a message to another component and wait for the answer.  Whenever a component uses this function it will be
-temporarily suspended by the simulator.  Several simulator ticks
-might pass before the % callee sends a
-response.  Once the response is
+Send a message to another component and wait for the answer.
+Whenever a component uses this function it will be temporarily suspended by the simulator.
+Several simulator ticks might pass before the % callee sends a
+response.
+Once the response is
 % put in the message queue of the caller,
-available the simulator resumes the execution of the calling
-component.  Having this synchronization obviates the need to specify
-the behaviour of a component as a finite state machine---a standard
-approach in the area.
+available the simulator resumes the execution of the calling component.
+Having this synchronization obviates the need to specify the behaviour of a component as a finite state machine---a standard approach in the area.
 \paragraph{\hs{invokeAsync}}
-Send a message to another component and register a handler with the
-simulator to process the response.  In a contrast to \hs{invoke},
-using this function will \emph{not} suspend the execution of the
-component.
+Send a message to another component and register a handler with the simulator to process the response.
+In a contrast to \hs{invoke}, using this function will \emph{not} suspend the execution of the component.
 \paragraph{\hs{respond}}
 Send a message to another component as a response to an invocation.
 \paragraph{\hs{yield}}
@@ -226,33 +164,20 @@ Read at a specified address of a node's local memory.
 Write a new value at a specified address of a node's local memory.
 \paragraph{\hs{componentLookup}}
 Lookup the unique identifier of a component on a specified node.
-Components have two unique identifiers, their global \emph{name} (as
-specified in the \hs{CompIface} instance), and a \hs{ComponentId} that
-is a unique number corresponding to a specific instance of a
-component.  When you want to \emph{invoke} a component, you need to
-know the unique \hs{ComponentId} of the specific instance.  To give a
-concrete example, using the system of Figure~\ref{img_system} as our
-context: \emph{Thread (\#6)} wants to invoke the instance of the
-\emph{Memory Manager} that is running on the same Node (\#2).  As
-\emph{Thread (\#6)} was not involved with the instantiation of that OS
-module, it has no idea what the specific \hs{ComponentId} of the
-memory manager on Node \#2 is.  It knows the unique global name of all
-memory managers, so it can use the \hs{componentLookup} function to
-find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
+Components have two unique identifiers, their global \emph{name} (as specified in the \hs{CompIface} instance), and a \hs{ComponentId} that
+is a unique number corresponding to a specific instance of a component.
+When you want to \emph{invoke} a component, you need to know the unique \hs{ComponentId} of the specific instance.
+To give a concrete example, using the system of Figure~\ref{img_system} as our context: \emph{Thread (\#6)} wants to invoke the instance of the \emph{Memory Manager} that is running on the same Node (\#2).
+As \emph{Thread (\#6)} was not involved with the instantiation of that OS module, it has no idea what the specific \hs{ComponentId} of the memory manager on Node \#2 is.
+It knows the unique global name of all memory managers, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
 
 \section{A Domain-specific Language for \soosim}
 \label{sec:dsl}
 
 % The DSL was embedded in Haskell \cite{haskell-report}.
-For the sake of the implementation of ...... we embedded a DSL in
-Haskell. \olcomment{FIX the explanation!}
-Following the \emph{final tagless} \cite{final_tagless_embedding}
-encoding of embedded languages in Haskell, we use a type class to
-define the language constructs of our mini functional language with
-mutable references.  A partial specification of the \hs{Symantics} (a
-pun on \emph{syntax} and \emph{semantics}) type class, defining our
-\emph{embedded language}, is shown in
-Figure~\ref{fig:embedded_language_interface}.
+For the sake of the implementation of ...... we embedded a DSL in Haskell. \olcomment{FIX the explanation!}
+Following the \emph{final tagless} \cite{final_tagless_embedding} encoding of embedded languages in Haskell, we use a type class to define the language constructs of our mini functional language with mutable references.
+A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics}) type class, defining our \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}.
 
 \begin{figure}
 \centering
@@ -273,7 +198,7 @@ class Symantics repr where
 \olcomment{- Final tagless \cite{final_tagless_embedding}
 
 - Tillmann embedded DSL with type classes
-\cite{Hofer:2008:PED:1449913.1449935} 
+\cite{Hofer:2008:PED:1449913.1449935}
 
 -- move to related work?}
 
@@ -284,15 +209,12 @@ class Symantics repr where
 
 \subsection{Type classes}
 
-Type classes are naturally used for the eDSL encoding from the
-previous section.  \olcomment{more details on this?}
+Type classes are naturally used for the eDSL encoding from the previous section. \olcomment{more details on this?}
 
-Beyond this, we use type classes to express many
-other useful abstractions. For instance, an \emph{interface} for the
-component of the OS is a type class. Thus, each interacting ``building
-block'' in the simulated software is an instance of that particular
-type class. This enables great flexibility, including an option to
-extend the kinds of simulated objects by third party.
+Beyond this, we use type classes to express many other useful abstractions.
+For instance, an \emph{interface} for the component of the OS is a type class.
+Thus, each interacting ``building block'' in the simulated software is an instance of that particular type class.
+This enables great flexibility, including an option to extend the kinds of simulated objects by third party.
 
 \subsection{Monads}
 \olcomment{Merge to OS Component Descriptions? Or: keep!}
@@ -308,9 +230,9 @@ We use dynamic type for \olcomment{my god, what for?}
 type SimMonad =  StateT SimState IO
 data SimState = ...
 
-newtype SimM a 
-  = SimM { runSimM :: Coroutine 
-      (RequestOrYield Unique Dynamic) 
+newtype SimM a
+  = SimM { runSimM :: Coroutine
+      (RequestOrYield Unique Dynamic)
       SimMonad a }
     deriving (Functor, Monad)
 
@@ -326,16 +248,11 @@ instance Functor (RequestOrYield x f) where
 \label{fig:code-simm}
 \end{figure}
 
-The implementation of \cd{SimM}, sketched in
-Figure~\ref{fig:code-simm}, enables us to reach the main
-implementation goal: the ultimate suspension and resume of the
-components upon message passing.  To suspend a computation we can now
-merely write \cd{request componentId}, where the \cd{componentId} is
-the unique ID of the OS component we are expecting a message from. The
-execute a resumeable computation we issue \cd{resume computation}.
+The implementation of \cd{SimM}, sketched in Figure~\ref{fig:code-simm}, enables us to reach the main implementation goal: the ultimate suspension and resume of the components upon message passing.
+To suspend a computation we can now merely write \cd{request componentId}, where the \cd{componentId} is the unique ID of the OS component we are expecting a message from.
+The execute a resumeable computation we issue \cd{resume computation}.
 
-As one could infer from Figure~\ref{fig:code-simm}, the implementation
-makes use of the coroutines in the following way. \olcomment{explain it!}
+As one could infer from Figure~\ref{fig:code-simm}, the implementation makes use of the coroutines in the following way. \olcomment{explain it!}
 
 
 \section{Related Work}
@@ -350,49 +267,28 @@ makes use of the coroutines in the following way. \olcomment{explain it!}
 \citeauthor{final_tagless_embedding} \cite{final_tagless_embedding} is
 more composable, allows subtyping, done in Scala
 \cite{odersky2008programming}. These two papers have different goals:
-\citeauthor{final_tagless_embedding} implement DSLs for higher-order
-languages, while \citeauthor{Hofer:2008:PED:1449913.1449935} focus on
-the possibility to plug in multiple implementations of an embedded
-DSL. \olcomment{pure embedded DSL, it if matters}
+\citeauthor{final_tagless_embedding} implement DSLs for higher-order languages, while \citeauthor{Hofer:2008:PED:1449913.1449935} focus on the possibility to plug in multiple implementations of an embedded DSL. \olcomment{pure embedded DSL, it if matters}
 
-\olcomment{cite: P. Hudak. Building domain-specific embedded
-  languages. ACM Comput. Surv., 28(4), 1996.}
-\olcomment{cite: P. Hudak. Modular domain specific languages and tools. In
-P. Devanbu and J. Poulin, editors, Proceedings: Fifth International
-Conference on Software Reuse, pages 134–142. IEEE Computer Society
-Press, 1998. for pure embedding}
+\olcomment{cite: P. Hudak. Building domain-specific embedded languages. ACM Comput. Surv., 28(4), 1996.}
+\olcomment{cite: P. Hudak. Modular domain specific languages and tools. In P. Devanbu and J. Poulin, editors, Proceedings: Fifth International Conference on Software Reuse, pages 134–142. IEEE Computer Society Press, 1998. for pure embedding}
 
 \section{Conclusions and Future Work}
 \label{sec:concl-future-work}
 
-\paragraph{Conclusions.} \olcomment{What have we seen?} We have
-presented ....., and the techniques more commonly used in the
-programming language research were highly applicable for our
-purposes. We have demonstrated how the utilisation of final tagless
-eDSL contruction \cite{...}, type classes \cite{...}, monads
-\cite{...}, and coroutines \cite{...} facilitated an abstract and
-concise implementation of an operating system simulator.
+\paragraph{Conclusions.} \olcomment{What have we seen?}
+We have presented ....., and the techniques more commonly used in the
+programming language research were highly applicable for our purposes.
+We have demonstrated how the utilisation of final tagless eDSL contruction \cite{...}, type classes \cite{...}, monads \cite{...}, and coroutines \cite{...} facilitated an abstract and concise implementation of an operating system simulator.
 
-\paragraph{Real life simulations.} The major goal of the project is to
-simulate the behaviour of a real life application and to draw
-conclusions therefrom. This work is still ongoing.
+\paragraph{Real life simulations.}
+The major goal of the project is to simulate the behaviour of a real life application and to draw conclusions therefrom. This work is still ongoing.
 
-\paragraph{Concurrency.} One aspect of the future work is the
-concurrent \soosim. One option is to use Concurrent Haskell
-\cite{ConcHs}, it provides (concurrent) green threads. However, it
-would also require to use software transactional memory
-\cite{springerlink:10.1007/s004460050028} because of multiple writes
-to the same data. Examples of fruitful combinations of STM
-\olcomment{dirty style. either introduce properly or remove the
-  acronym!} with other concepts include papers by
-\citeauthor{Harris:2008:CMT:1378704.1378725}
-\cite{Harris:2008:CMT:1378704.1378725} and
-\citeauthor{Bieniusa:2010:BAA:1835698.1835714}
-\cite{Bieniusa:2010:BAA:1835698.1835714}.  Another option would be to
-use a \emph{parallel} Haskell like Multicore Haskell
-\cite{marlow:rsm}, \cd{Par} monad \cite{par-monad} or Eden
-\cite{eden}. The ``multiple writes'' issue, however, needs some
-further handling in this case.
+\paragraph{Concurrency.}
+One aspect of the future work is the concurrent \soosim. One option is to use Concurrent Haskell \cite{ConcHs}, it provides (concurrent) green threads.
+However, it would also require to use software transactional memory \cite{springerlink:10.1007/s004460050028} because of multiple writes to the same data.
+Examples of fruitful combinations of STM \olcomment{dirty style. either introduce properly or remove the acronym!} with other concepts include papers by \citeauthor{Harris:2008:CMT:1378704.1378725} \cite{Harris:2008:CMT:1378704.1378725} and \citeauthor{Bieniusa:2010:BAA:1835698.1835714} \cite{Bieniusa:2010:BAA:1835698.1835714}.
+Another option would be to use a \emph{parallel} Haskell like Multicore Haskell \cite{marlow:rsm}, \cd{Par} monad \cite{par-monad} or Eden \cite{eden}.
+The ``multiple writes'' issue, however, needs some further handling in this case.
 
 % \appendix
 % \section{Appendix Title}
@@ -402,11 +298,9 @@ further handling in this case.
 \acks
 
 %Acknowledgments, if needed.
-This work was supported by the S(o)OS project, sponsored by the
-European Commission under FP7-ICT-2009.8.1, Grant Agreement
-No. 248465.
+This work was supported by the S(o)OS project, sponsored by the European Commission under FP7-ICT-2009.8.1, Grant Agreement No. 248465.
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "soosim"
-%%% End: 
+%%% End:
