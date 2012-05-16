@@ -84,15 +84,15 @@
  \lstdefinestyle{mypseudoc}{basicstyle=\sffamily,
     language=C,
     commentstyle=\color{darkgray}\sffamily\slshape,
-    stringstyle=\color{yac}\sffamily, 
+    stringstyle=\color{yac}\sffamily,
     emph={par,repeat,until,not,size,all,map,takeWhile, subset,or},
     emphstyle={\bfseries},
 %    emph={[2]size,all,map,takeWhile},
 %    emphstyle={[2]\em}
-    %    frame=lines,    
+    %    frame=lines,
     columns=fullflexible,
     lineskip=-0.1ex,
-}   
+}
 \lstnewenvironment{pseudoc}
  {
    \lstset{style=mypseudoc,
@@ -101,7 +101,7 @@
   }} {}
 
 
-\newcommand{\pseudocd}[1]{\lstinline[style=mypseudoc,keepspaces=true,breaklines=true]|#1|}          
+\newcommand{\pseudocd}[1]{\lstinline[style=mypseudoc,keepspaces=true,breaklines=true]|#1|}
 
  \lstdefinestyle{maple}{basicstyle=\ttfamily,
     keywordstyle=\color{blue}\bfseries\ttfamily,
@@ -109,7 +109,7 @@
     escapechar={$}, %$
     showstringspaces=false,
     commentstyle=\color{darkgray}\ttfamily,
-    emph={with,:=,:,..,RandomMatrix,Determinant}, 
+    emph={with,:=,:,..,RandomMatrix,Determinant},
     emphstyle={\color{blue}\bfseries},
     captionpos=b,
     lineskip=-0.1ex,
@@ -133,7 +133,7 @@
     columns=flexible,
     showstringspaces=false,
     commentstyle=\color{darkgray}\sl\sffamily,
-    emph={process,new,parfill,multifill,release,fetch,releaseAll,fetchAll,spawn,processDC,\#}, 
+    emph={process,new,parfill,multifill,release,fetch,releaseAll,fetchAll,spawn,processDC,\#},
     emphstyle={\color{blue}\bfseries},
     emph={[2]ChanName,Process,RD,Trans,NFData,reduce,fold,parMapDC,reduceDC,parMapAt,map_par,map_farm,map_wp,parMap,farm,ssf,workpool,par,pseq,StateT},
     emphstyle={[2]\color{blue}\bfseries},
@@ -146,16 +146,16 @@
     literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
 %             {`+`}{{$\;+\;$}}1  {`-`}{{$\;-\;$}}1 {`*`}{{$\;*\;$}}1
 %% make it back
-             {`+`}{{+}}1  {`-`}{{-}}1 {`*`}{{*}}1 
+             {`+`}{{+}}1  {`-`}{{-}}1 {`*`}{{*}}1
              {>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1 {\\n}{{\textbackslash
              n}}2 {\\\\}{{\char`\\\char`\\}}1
-             {->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 
+             {->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2
 %             {<-}{{$\leftarrow$}}2
              {<-}{{$\in$}}2 % the list comprehension <-
              {<--}{{$\leftarrow$}}2 % the monadic <-
              {<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2
-             {\ .\ }{{ $\circ$ }}3     
-             {(.)}{{($\circ$)}}3     
+             {\ .\ }{{ $\circ$ }}3
+             {(.)}{{($\circ$)}}3
 %%%             {\ |.\ }{{ . }}3
              {>>}{{>>}}2 {>>=}{{>>=}}2 {/=}{{$\neq$}}2
              {|}{{$\mid$}}1
@@ -184,7 +184,7 @@
      \lstset{style=steden,
     }} {}
 \newcommand{\cd}[1]{\lstinline[style=steden,keepspaces=true,
-breaklines=true,basicstyle=\sffamily];#1;}             
+breaklines=true,basicstyle=\sffamily];#1;}
 \newcommand{\scd}[1]{\texttt{#1}}
 \newcommand{\hs}[1]{\cd{#1}}
 %\newcommand{\scd}[1]{\protect\cd{#1}}
@@ -261,7 +261,7 @@ breaklines=true,basicstyle=\sffamily];#1;}
     \newcommand{\st}{\textsuperscript{st}\xspace}
   \else
     \renewcommand{\st}{\textsuperscript{st}\xspace}
-  \fi 
+  \fi
 \fi
 \newcommand{\nd}{\textsuperscript{nd}\xspace}
 \newcommand{\xrd}{\textsuperscript{rd}\xspace}
@@ -308,9 +308,9 @@ breaklines=true,basicstyle=\sffamily];#1;}
 
 \begin{document}
 
-\conferenceinfo{Haskell '12}{date, City.} 
-\copyrightyear{2012} 
-\copyrightdata{[to be supplied]} 
+\conferenceinfo{Haskell '12}{date, City.}
+\copyrightyear{2012}
+\copyrightdata{[to be supplied]}
 
 %\titlebanner{banner above paper title}        % These are ignored unless
 \preprintfooter{\today}   % 'preprint' option specified.
