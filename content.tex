@@ -185,7 +185,7 @@ Write a new value at a specified address of a node's local memory.
 Lookup the unique identifier of a component on a specified node.
 Components have two unique identifiers, their global \emph{name} (as specified in the \hs{CompIface} instance), and a \hs{ComponentId} that is a unique number corresponding to a specific instance of a component.
 When you want to \emph{invoke} a component, you need to know the unique \hs{ComponentId} of the specific instance.
-To give a concrete example, using the system of Figure~\ref{fig:system} as our context: \emph{Thread (\#6)} wants to invoke the instance of the \emph{Memory Manager} that is running on the same Node (\#2).
+To give a concrete example, using the system from Figure~\ref{fig:system} as our context: \emph{Thread (\#6)} wants to invoke the instance of the \emph{Memory Manager} that is running on the same Node (\#2).
 As \emph{Thread (\#6)} was not involved with the instantiation of that OS module, it has no idea what the specific \hs{ComponentId} of the memory manager on Node \#2 is.
 It knows the unique global name of all memory managers, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
 
@@ -267,12 +267,12 @@ Thus, each interacting ``building block'' in the simulated software is an instan
 This enables great flexibility, including an option to extend the kinds of simulated objects by third party.
 
 \subsection{Monads}
-\olcomment{Merge to OS Component Descriptions? Or: keep!}
-We use a monad called \cd{SimM} to capture the \emph{State}
-\olcomment{sure?} of the simulator. We use
-\textsf{Control.Monad.Coroutine} to capture...
-
-We use dynamic type for \olcomment{my god, what for?}
+\olcomment{Merge to OS Component Descriptions? Or: keep!}  
+We use a monad called \cd{SimM} to capture the \emph{State} \olcomment{sure?}  of the simulator.
+We use \textsf{Control.Monad.Coroutine} express coroutins \cite{coroutines}.
+With this concept we capture \olcomment{...}
+We use dynamic types for as ``the other side'' of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
+\olcomment{this is rather a summary of what we have used, than an introduction to our monad. Move!}
 
 \begin{figure}
 \centering
@@ -332,7 +332,8 @@ These two papers have different goals: \citeauthor{final_tagless_embedding} impl
 We have presented the efforts, required to implement \soosim, an OS simulator in Haskell.
 We note that the techniques more commonly used in the programming language research were highly applicable for our purposes.
 
-We have demonstrated how the utilisation of final tagless eDSL contruction \cite{final_tagless_embedding}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{haskell-report} \olcomment{no good cite, cite only Haskell report for both?}, and coroutines \cite{coroutines} facilitated an abstract and concise implementation of an operating system simulator.
+We have demonstrated how the utilisation of final tagless eDSL contruction \cite{final_tagless_embedding}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, and coroutines \cite{coroutines} facilitated an abstract and concise implementation of an operating system simulator. 
+\olcomment{These techniques belong to the typical repertoire of a programming language designer, but not of an operating systems researcher. --- emphasise somehow, that it is uncommon to use all these for such a task, this this work is cool.}
 
 \paragraph{Real life simulations.}
 The major goal of the project is to simulate the behaviour of a real life application and to draw conclusions therefrom.
