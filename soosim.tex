@@ -207,6 +207,7 @@ breaklines=true,basicstyle=\sffamily];#1;}
 {\immediate\write18{#3}}\fi%
 }
 
+\usepackage{import}
 \newcommand{\includesvg}[1]{%
 \executeiffilenewer{images/#1.svg}{images/#1.pdf}%
 {inkscape -z --file=images/#1.svg --export-pdf=images/#1.pdf --export-latex}%
