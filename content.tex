@@ -22,23 +22,22 @@ While creating new operating system concepts and regarding their interaction wit
 The ability to simulate separate components of the OS and of the application was the main goal to develop the OS simulator \soosim \olcomment{cite the WATERS paper if it is accepted until submission}.
 \olcomment{would be too cool to be true: \soosim is also available from Hackage.
 \footnote{Issue \cd{cabal install soosim} to install the simulator. See also:
-\url{www.example.com/soosim}.}}
-
+\url{http://github.com/christiaanb/SoOSiM}.}}
 The design decisions were:
 \begin{itemize}
-\item To simulate all the communication between the components with message passing.
-\item To have global ``ticks'', designating time.
+\item To simulate message passing and shared memories as the main forms of communication between software components.
+\item To have global \emph{ticks}, designating an abstract notion of time.
 \end{itemize}
-However, we required a way to implement blocking messages.
-In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{when} in the sender the message is sent.
+However, we additionally required a way to implement \emph{blocking} messaging as a means to provide \emph{synchronization} between components.
+In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{when}\cbcomment{when \emph{or} where?} in the sender the message is sent.
 % If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
-This means, we required the notion of a suspending computation---\emph{suspend-able} at any moment of execution of the simulated component.
+This means, we required the notion of a suspending computation---\emph{suspendable} at any moment of execution of the simulated component.
 In the following we will show that using Haskell \cite{haskell-report} enabled us to implement this property in a nice way.
-
 The contributions of this paper include:
 \begin{itemize}
 \item A short overview of the SoOS project
-\item The description of the embedded domain-specific language (eDSL) used to implement \soosim.
+\item The description of the embedded domain-specific language (eDSL) used to implement OS components in \soosim.
+\item The description of \emph{a} eDSL to describe applications that will run on within a \soosim \emph{simulated} system.
 \item The list of Haskell language features, we found particularly useful in this project.
 \end{itemize}
 
@@ -114,7 +113,7 @@ In addition, the function can be temporarily suspended at (almost) any point in 
 We describe a component as a function that receives a user-defined internal state as its first argument and a value of type \hs{SimEvent} as its second argument.
 The result of this function is the internal state.
 A value of type \hs{SimEvent} is either message from another component, or a \emph{null} message.
-We thus have the following type signature for a component:
+We thus have the following general type signature for a component:
 %\numbersoff
 \begin{code}
 component :: State -> SimEvent -> SimM State
@@ -122,6 +121,7 @@ component :: State -> SimEvent -> SimM State
 
 The simulator monad \hs{SimM} is described in Figure~\ref{fig:code-simm}. \olcomment{Move that text block next to here?}
 The user-defined internal \hs{State} can be used to store any information that needs to perpetuate across simulator ticks.
+\hs{State} should be read as a placeholder for any (user-defined) datatype; there is no actual predefined \hs{State} datatype.
 
 To include a component description in the simulator, the developer will have to create an instance of the \hs{ComponentIface} \emph{type class}.
 % A \emph{type class} in Haskell can be compared to an interface
@@ -142,42 +142,40 @@ Note, we are aiming at a high level of abstraction for the behavioural descripti
 
 \subsection{Interaction with the simulator}
 
-\begin{figure*}
-\centering
-\begin{code}
-createComponent :: Maybe NodeId      -- Node to create component on, Nothing for current
-                -> Maybe ComponentId -- ComponentId to set as parent, Nothing for self
-                -> String            -- Name of the registered component
-                -> SimM ComponentId  -- ComponentId of the created component
+% \begin{figure*}
+% \centering
+% \begin{code}
+% createComponent ::
+%   Maybe NodeId            -- Node to create component on, Nothing for current
+%   -> Maybe ComponentId    -- ComponentId to set as parent, Nothing for self
+%   -> String               -- Name of the registered component
+%   -> SimM ComponentId     -- ComponentId of the created component
 
--- | Synchronously invoke another component
-invoke :: Maybe ComponentId -- Caller, Nothing for current module
-       -> ComponentId       -- Callee
-       -> Dynamic           -- Argument
-       -> SimM Dynamic      -- Response from recipient
+% -- | Synchronously invoke another component
+% invoke ::
+%   Maybe ComponentId    -- Caller, Nothing for current module
+%   -> ComponentId       -- Callee
+%   -> Dynamic           -- Argument
+%   -> SimM Dynamic      -- Response from recipient
 
-...
-\end{code}
-\olcomment{Can we hide the \cd{Dynamic} somehow?}
-\caption{The interaction interface.}
-\label{fig:comp-types}
-\end{figure*}
+% ...
+% \end{code}
+% \olcomment{Can we hide the \cd{Dynamic} somehow?}
+% \caption{The interaction interface.}
+% \label{fig:comp-types}
+% \end{figure*}
 
 Components have several functions at their disposal to interact with the simulator and consequently interact with other components.
-We show the types of these functions in Figure~\ref{fig:comp-types}.
+% We show the types of these functions in Figure~\ref{fig:comp-types}.
 The available functions are:
 
 \paragraph{\hs{createComponent}}
 Instantiate a new component on a specified node.
-%; the component definition must be registered with the simulator.
 \paragraph{\hs{invoke}}
 Send a message to another component and wait for the answer.
 Whenever a component uses this function it will be temporarily suspended by the simulator.
-Several simulator ticks might pass before the % callee sends a
-response.
-Once the response is
-% put in the message queue of the caller,
-available the simulator resumes the execution of the calling component.
+Several simulator ticks might pass before the response.
+Once the response is available the simulator resumes the execution of the calling component.
 Having this synchronization obviates the need to specify the behaviour of a component as a finite state machine---a standard approach in the area.
 \paragraph{\hs{invokeAsync}}
 Send a message to another component and register a handler with the simulator to process the response.
@@ -185,41 +183,71 @@ In a contrast to \hs{invoke}, using this function will \emph{not} suspend the ex
 \paragraph{\hs{respond}}
 Send a message to another component as a response to an invocation.
 \paragraph{\hs{yield}}
-Inform the simulator that the component does not want to receive
-\emph{null} messages.
+Inform the simulator that the component does not want to receive \emph{null} messages.
 \paragraph{\hs{readMem}}
 Read at a specified address of a node's local memory.
 \paragraph{\hs{writeMem}}
 Write a new value at a specified address of a node's local memory.
 \paragraph{\hs{componentLookup}}
 Lookup the unique identifier of a component on a specified node.
-Components have two unique identifiers, their global \emph{name} (as specified in the \hs{CompIface} instance), and a \hs{ComponentId} that
-is a unique number corresponding to a specific instance of a component.
+Components have two unique identifiers, their global \emph{name} (as specified in the \hs{CompIface} instance), and a \hs{ComponentId} that is a unique number corresponding to a specific instance of a component.
 When you want to \emph{invoke} a component, you need to know the unique \hs{ComponentId} of the specific instance.
-To give a concrete example, using the system of Figure~\ref{img_system} as our context: \emph{Thread (\#6)} wants to invoke the instance of the \emph{Memory Manager} that is running on the same Node (\#2).
+To give a concrete example, using the system of Figure~\ref{fig:system} as our context: \emph{Thread (\#6)} wants to invoke the instance of the \emph{Memory Manager} that is running on the same Node (\#2).
 As \emph{Thread (\#6)} was not involved with the instantiation of that OS module, it has no idea what the specific \hs{ComponentId} of the memory manager on Node \#2 is.
 It knows the unique global name of all memory managers, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
 
 \section{A Domain-specific Language for \soosim}
 \label{sec:dsl}
+One of the purposes of \soosim is to observe the interaction between application and OS.
+We however do \emph{not} want to \emph{pollute} our application descriptions with with calls to the simulator functions.
+Nor do we want to be forced to describe our application in a monadic style.
+Additionally, we want to be in control which interactions between OS and application are exactly simulated, without having to change either the descriptions of the OS modules or the application when we want to observe different aspects.
 
-% The DSL was embedded in Haskell \cite{haskell-report}.
-For the sake of the implementation of ...... we embedded a DSL in Haskell. \olcomment{FIX the explanation!}
-Following the \emph{final tagless} \cite{final_tagless_embedding} encoding of embedded languages in Haskell, we use a type class to define the language constructs of our mini functional language with mutable references.
+It is for the above reasons that we have chosen to make use of embedded languages for the definitions of our applications.
+The idea is to specify an application once in a self-created embedded language, and define different interpretations for the embedded language constructs as the observations of the interaction between application and OS.
+
+Following the \emph{final tagless} \cite{final_tagless_embedding} encoding of embedded languages in Haskell, we use a type class to define the language constructs.
+As a running example we demonstrate a mini functional language with mutable references.
 A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics}) type class, defining our \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}.
 
 \begin{figure}
 \centering
 \begin{code}
 class Symantics repr where
-  fun  :: (repr a -> repr b) -> repr (a :-> b)
-  app  :: repr (a :-> b) -> repr a -> repr b
-  ...
+  fun   :: (repr a -> repr b) -> repr (a :-> b)
+  app   :: repr (a :-> b) -> repr a -> repr b
+
   drf   :: repr (Ref a) -> repr a
   (=:)  :: repr (Ref a) -> repr a -> repr Void
 \end{code}
 \caption{Embedded language, a partial definition.}
 \label{fig:embedded_language_interface}
+\end{figure}
+
+One interaction we might now want to observe is the applications use of mutable references and the subsequent communication with the memory manager OS module.
+For this purpose we create a \hs{newtype} (\hs{RefMemAcc}) wrapping the simulator monad, and define an instance of the \hs{Symantics} type-class for our \hs{newtype}.
+Where we would define most of the language constructs to behave like their Haskell counterparts, we define those language constructs dealing with mutable references as invocations of the memory manager (ref Figure~\ref{lst_observing_memory_access}.
+
+\begin{figure}
+\centering
+\begin{code}
+newtype RefMemAcc = RMA SimM
+
+instance Symantics RefMemAcc where
+
+  drf x = RMA $ do
+    i     <-- foo x
+    mmId  <-- componentLookup "MemoryManager"
+    fmap unmashal $ invoke mmId (marshal (Read i))
+
+  x =: y = RMA $ do
+    i     <-- foo x
+    v     <-- bar y
+    mmId  <-- componentLookup "MemoryManager"
+    fmap unmashal $ invoke mmId (mashal (Write i v))
+\end{code}
+\caption{Observing Memory Access - Partial definition}
+\label{lst_observing_memory_access}
 \end{figure}
 
 \subsection{Final Tagless}
