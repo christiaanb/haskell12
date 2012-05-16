@@ -144,29 +144,13 @@ Note, we are aiming at a high level of abstraction for the behavioural descripti
 
 \begin{figure*}
 \centering
-\olcomment{this takes too much space!}
-\begin{code}
-createComponent :: Maybe NodeId      -- Node to create component on, Nothing for current
-                -> Maybe ComponentId -- ComponentId to set as parent, Nothing for self
-                -> String            -- Name of the registered component
-                -> SimM ComponentId  -- ComponentId of the created component
-
--- | Synchronously invoke another component
-invoke :: Maybe ComponentId -- Caller, Nothing for current module
-       -> ComponentId       -- Callee
-       -> Dynamic           -- Argument
-       -> SimM Dynamic      -- Response from recipient
-
-...
-\end{code}
-\olcomment{Can we hide the \cd{Dynamic} somehow? Seems like we can't.}
-
-\olcomment{variant 2 of the figure:}
 \begin{code}
 createComponent :: Maybe NodeId -> Maybe ComponentId -> String -> SimM ComponentId   -- Nothing is self
 
 -- Synchronously invokes another component
 invoke :: Maybe ComponentId -> ComponentId -> Dynamic -> SimM Dynamic  -- the invocation argument has to be like this
+
+...
 \end{code}
 \caption{The interaction interface.}
 \label{fig:comp-types}
