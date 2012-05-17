@@ -52,12 +52,12 @@ Section~\ref{sec:concl-future-work} concludes and gives an outlook for the furth
 % \label{sec:soos-project}
 %
 % The SoOS project \olcomment{....... } \cite{soos}...
-%% ok?
+\olcomment{Do we need an overview of the whole project then?}
 
 \section{\soosim: An Overview}
 \label{sec:soosim-an-overview}
 
-\paragraph{Basic structure.} \olcomment{few words on the ``building blocks''!}
+\paragraph{Basic structure.}
 The purpose of \soosim is to provide a platform that allows a developer to observe the interactions between OS modules and application threads.
 For this reason the simulated hardware is highly abstract.
 
@@ -193,7 +193,7 @@ It knows the unique global name of all memory managers, so it can use the \hs{co
 \section{A Domain-specific Language for \soosim}
 \label{sec:dsl}
 One of the purposes of \soosim is to observe the interaction between application and OS.
-We however do \emph{not} want to \emph{pollute} our application descriptions with with calls to the simulator functions.
+We however do not want to \emph{pollute} our application descriptions with with calls to the simulator functions.
 Nor do we want to be forced to describe our application in a monadic style.
 Additionally, we want to be in control which interactions between OS and application are exactly simulated, without having to change either the descriptions of the OS modules or the application when we want to observe different aspects.
 
@@ -361,6 +361,7 @@ However, it would also require to use software transactional memory \cite{spring
 Examples of fruitful combinations with other concepts include papers by \citeauthor{Harris:2008:CMT:1378704.1378725} \cite{Harris:2008:CMT:1378704.1378725} and \citeauthor{Bieniusa:2010:BAA:1835698.1835714} \cite{Bieniusa:2010:BAA:1835698.1835714,springerlink:10.1007/978-3-642-25959-3_2}.
 Another option would be to use a \emph{parallel} Haskell like Multicore Haskell \cite{marlow:rsm}, \cd{Par} monad \cite{par-monad} or Eden \cite{eden}.
 The ``multiple writes'' issue, however, needs some further handling in this case.
+A yet further option is to make the coroutine execution concurrent using, \eg actors \cite{Hewitt:1973:UMA:1624775.1624804,sulzmann2008actors}.
 
 % \appendix
 % \section{Appendix Title}
