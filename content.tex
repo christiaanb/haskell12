@@ -7,7 +7,7 @@ OS and application software.
 
 The main issue is: it is in fact not desirable to keep the whole, monolithic, OS kernel on the each core of a multicore machine.
 Doing so has detrimental effects on the caches of the individual cores.\cbcomment{citation needed?}\olcomment{yes!}
-Moving to larger distributed systems, monolithic kernels hinder scalability as the entire internal state has to be synchronized amongst the copies.\cbcomment{I don't think we should say more about S(o)OS or its ideas / concepts in the intro.}
+Moving to larger distributed systems, monolithic kernels hinder scalability as the entire internal state has to be synchronised amongst the copies.\cbcomment{I don't think we should say more about S(o)OS or its ideas / concepts in the intro.}
 % For example, we could dedicate some cores to an application and some cores to an OS.
 % One possible approach to this is the partitioning of the address space. \olcomment{is this so?}
 % In a simular manner, if we know that a core is occupied by a particular program, we can move the dynamic libraries, required for some other application to some other core's memory range.
@@ -27,7 +27,7 @@ The design decisions were:
 \item To simulate message passing and shared memories as the main forms of communication between software components.
 \item To have global \emph{ticks}, designating an abstract notion of time.
 \end{itemize}
-However, we additionally required a way to implement \emph{blocking} messaging as a means to provide \emph{synchronization} between components.
+However, we additionally required a way to implement \emph{blocking} messaging as a means to provide \emph{synchronisation} between components.
 In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{when} in the sender the message is sent.
 % If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
 This means, we required the notion of a suspending computation---\emph{suspendable} at any moment of execution of the simulated component.\olcomment{check the grammar}
@@ -91,7 +91,7 @@ Basic requirements that we would have towards any simulator include the faciliti
 Aside from the fact that the S(o)OS-envisioned system will be dynamic as a result of loading OS modules on-the-fly, large-scale systems also tend to be dynamic in the sense that computing nodes can disappear (failure), or
 appear (hot-swap).
 Hence, we also require that our simulator facilitates the straightforward creation and destruction of computing elements.
-Our current need for a simulator rests mostly in formalizing the S(o)OS concept, and examining the interaction between our envisioned OS modules and the application threads.
+Our current need for a simulator rests mostly in formalising the S(o)OS concept, and examining the interaction between our envisioned OS modules and the application threads.
 As such, being able to extract highly accurate performance figures from a simulated system is not a key requirement.
 We do, however, wish to be able to observe all interactions among application threads and OS modules.
 Additionally, we wish to be able to \emph{zoom in} on particular aspects of the behaviour of an application: such as memory access, messaging, etc.
@@ -170,7 +170,7 @@ sends a message to another component and wait for the answer.
 Whenever a component uses this function it will be temporarily suspended by the simulator.
 Several simulator ticks might pass before the response.
 Once the response is available the simulator resumes the execution of the calling component.
-Having this synchronization obviates the need to specify the behaviour of a component as a finite state machine---a standard approach in the area. \olcomment{is it clear, that FSM is standard approach, not coroutines?}
+Having this synchronisation obviates the need to specify the behaviour of a component as a finite state machine---a standard approach in the area. \olcomment{is it clear, that FSM is standard approach, not coroutines?}
 \paragraph{\hs{invokeAsync}}
 sends a message to another component and register a handler with the simulator to process the response.
 In a contrast to \hs{invoke}, using this function will \emph{not} suspend the execution of the component.
@@ -304,7 +304,7 @@ The execute a resumeable computation we issue \cd{resume computation}.
 \subsection{Coroutines}
 \label{sec:impl-coroutines}
 As one could infer from Figure~\ref{fig:code-simm}, the implementation makes use of the coroutines~\cite{coroutines}. 
-With this concept we capture the notiong of multiple suspending and resuming computations.
+With this concept we capture the notion of multiple suspending and resuming computations.
 The need in such a behaviour arises naturally with the blocking message passing between components.
 We utilise \textsf{Control.Monad.Coroutine} to express coroutines.
 
@@ -351,7 +351,7 @@ The latter corresponds more with our goals.\olcomment{sure?}
 We have presented the efforts required to implement \soosim, an OS simulator in Haskell.
 We note that the techniques more commonly used in the programming language research were highly applicable for our purposes.
 
-We have demonstrated how the utilisation of final tagless eDSL contruction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, and coroutines \cite{coroutines} facilitated an abstract and concise implementation of an operating system simulator. 
+We have demonstrated how the utilisation of final tagless eDSL construction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, and coroutines \cite{coroutines} facilitated an abstract and concise implementation of an operating system simulator. 
 \olcomment{These techniques belong to the typical repertoire of a programming language designer, but not of an operating systems researcher. --- emphasise somehow, that it is uncommon to use all these for such a task, this this work is cool.}
 
 \paragraph{Real life simulations.}
