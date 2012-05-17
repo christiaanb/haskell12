@@ -20,9 +20,8 @@ This execution environment thus differs from contemporary operating systems wher
 
 While creating new operating system concepts and regarding their interaction with the programmability of large-scale systems, we found that existing simulation packages do not seem to have the right abstractions for fast design exploration \cite{cotson,omnet}.
 The ability to simulate separate components of the OS and of the application was the main goal to develop the OS simulator \soosim \olcomment{cite the WATERS paper if it is accepted until submission}.
-\olcomment{would be too cool to be true: \soosim is also available from Hackage.
-\footnote{Issue \cd{cabal install soosim} to install the simulator. See also:
-\url{http://github.com/christiaanb/SoOSiM}.}}
+\soosim is also available from Hackage.\footnote{Issue \cd{cabal install soosim} to install \soosim. See also:
+\url{http://github.com/christiaanb/SoOSiM}.}
 The design decisions were:
 \begin{itemize}
 \item To simulate message passing and shared memories as the main forms of communication between software components.
@@ -42,17 +41,18 @@ The contributions of this paper include:
 \end{itemize}
 
 The remaining part of this paper is organised as follows.
-Section~\ref{sec:soos-project} gives an overview of the SoOS project and of the role \soosim plays in the project.
+% Section~\ref{sec:soos-project} gives an overview of the SoOS project and of the role \soosim plays in the project.
 Section~\ref{sec:soosim-an-overview} described the structure of the \soosim simulator from the user's perspective.
 Section~\ref{sec:dsl} gives an implementation overview of the domain specific language, used to implement \soosim.
 Section~\ref{sec:impl-detail} discusses Haskell features from which our implementation especially benefited.
 Section~\ref{sec:related-work} covers related work.
 Section~\ref{sec:concl-future-work} concludes and gives an outlook for the further research.
 
-\section{SoOS Project}
-\label{sec:soos-project}
-
-The SoOS project \olcomment{....... } \cite{soos}...
+% \section{SoOS Project}
+% \label{sec:soos-project}
+%
+% The SoOS project \olcomment{....... } \cite{soos}...
+%% ok?
 
 \section{\soosim: An Overview}
 \label{sec:soosim-an-overview}
@@ -144,19 +144,20 @@ Note, we are aiming at a high level of abstraction for the behavioural descripti
 
 \subsection{Interaction with the simulator}
 
-\begin{figure*}
-\centering
-\begin{code}
-createComponent :: Maybe NodeId -> Maybe ComponentId -> String -> SimM ComponentId   -- Nothing is self
-
--- Synchronously invokes another component
-invoke :: Maybe ComponentId -> ComponentId -> Dynamic -> SimM Dynamic  -- the invocation argument has to be like this
-
-...
-\end{code}
-\caption{The interaction interface.}
-\label{fig:comp-types}
-\end{figure*}
+%% we agreed on not having this figure
+% \begin{figure*}
+% \centering
+% \begin{code}
+% createComponent :: Maybe NodeId -> Maybe ComponentId -> String -> SimM ComponentId   -- Nothing is self
+%
+% -- Synchronously invokes another component
+% invoke :: Maybe ComponentId -> ComponentId -> Dynamic -> SimM Dynamic  -- the invocation argument has to be like this
+%
+% ...
+% \end{code}
+% \caption{The interaction interface.}
+% \label{fig:comp-types}
+% \end{figure*}
 
 Components have several functions at their disposal to interact with the simulator and consequently interact with other components.
 % We show the types of these functions in Figure~\ref{fig:comp-types}.
@@ -239,7 +240,7 @@ instance Symantics RefMemAcc where
     mmId  <-- componentLookup "MemoryManager"
     fmap unmashal $ invoke mmId (mashal (Write i v))
 \end{code}
-\caption{Observing Memory Access - Partial definition}
+\caption{Observing memory access (partial definition).}
 \label{lst_observing_memory_access}
 \end{figure}
 
@@ -302,6 +303,8 @@ The implementation of \cd{SimM}, sketched in Figure~\ref{fig:code-simm}, enables
 To suspend a computation we can now merely write \cd{request componentId}, where the \cd{componentId} is the unique ID of the OS component we are expecting a message from.
 The execute a resumeable computation we issue \cd{resume computation}.
 
+
+\subsection{Coroutines}
 As one could infer from Figure~\ref{fig:code-simm}, the implementation makes use of the coroutines in the following way. \olcomment{explain it!}
 
 
@@ -310,13 +313,25 @@ As one could infer from Figure~\ref{fig:code-simm}, the implementation makes use
 
 \paragraph{Operating systems and simulators.}
 \olcomment{Related work from WATERS paper + more!}
+COTSon \cite{cotson} is a full system simulator that allows a developer to execute normal x86 code in a simulated environment.
+COTSon is far too detailed for our needs, and does not facilitate the easy exploration of a complete operating system.
 
-\citeauthor{house} describe a basic operating system implementation in Haskell \cite{house}.
+OMNeT++ \cite{omnet} is a C++-based discrete event simulator with focus on parallel systems. OMNeT++ is too static for our purposes, it disallows dynamic modules.
+
+
+\citeauthor{house} describe a basic operating system implementation in Haskell called House \cite{house}.
 This work is in a sense dual to ours: we simulate an OS.
-However, as we are also concerned with
+\citeauthor{house} modified GHC run-time system to allow code execution on bare metal.
+In House, OS modules are executed with the \hs{Hardware} monad, allowing direct interaction with real hardware. 
+This approach is comparable with our \hs{Simulator} monad.
+However, as we are more concerned with interaction of OS modules, House in not suitable for our purposes:  OS modules in House must be implemented in full detail.
+
+Barrelfish \cite{barrelfish} is an OS in which domain-specific languages are used, amongst other purposes, to define driver interfaces.
+These embedded languages are also implemented in Haskell.
+The approach used in Barrelfish is however to create parsers for their languages, in a contrast to our embedding approach.
 
 
-\paragraph{Domain-specific languages.}
+\paragraph{Embedded domain-specific languages.}
 For the concept of an eDSL see the papers by \citeauthor{hudak1} \cite{hudak1,hudak2}, the 1998 paper describes pure embedding.
 The literature on this topic is quite broad, an overview is presented, \eg by \citeauthor{dsl-survey} \cite{dsl-survey}.
 
