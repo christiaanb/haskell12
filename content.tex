@@ -202,19 +202,20 @@ The idea is to specify an application once in a self-created embedded language a
 
 Following the \emph{final tagless} \cite{final_tagless_embedding} encoding of embedded languages in Haskell, we use a type class to define the language constructs.
 As a running example we demonstrate a mini functional language with mutable references.\olcomment{do we?}
-A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics}) type class, defining our \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}.
+A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics} \cite{final_tagless_embedding}) type class, defining an \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}. 
+The arrow \cd{:->} is the function arrow in the embedded language, \eg \cd{repr (a :-> b)}, in a contrast to function arrow \cd{->} of the host language.
 
 \begin{figure}
 \centering
 \begin{code}
 class Symantics repr where
-  fun   :: (repr a -> repr b) -> repr (a :-> b)
+  lam   :: (repr a -> repr b) -> repr (a :-> b)
   app   :: repr (a :-> b) -> repr a -> repr b
 
   drf   :: repr (Ref a) -> repr a
   (=:)  :: repr (Ref a) -> repr a -> repr Void
 \end{code}
-\caption{Embedded language, a partial definition.}
+\caption{An embedded language, a fragment. Viz.~\cite{final_tagless_embedding}}
 \label{fig:embedded_language_interface}
 \end{figure}
 
