@@ -170,7 +170,6 @@ sends a message to another component and wait for the answer.
 Whenever a component uses this function it will be temporarily suspended by the simulator.
 Several simulator ticks might pass before the response.
 Once the response is available the simulator resumes the execution of the calling component.
-Having this synchronisation obviates the need to specify the behaviour of a component as a finite state machine---a standard approach in the area. \olcomment{is it clear, that FSM is standard approach, not coroutines?}
 \paragraph{\hs{invokeAsync}}
 sends a message to another component and register a handler with the simulator to process the response.
 In a contrast to \hs{invoke}, using this function will \emph{not} suspend the execution of the component.
@@ -189,6 +188,28 @@ When you want to \emph{invoke} a component, you need to know the unique \hs{Comp
 To give a concrete example, using the system from Figure~\ref{fig:system} as our context: \emph{Thread (\#6)} wants to invoke the instance of the \emph{Memory Manager} that is running on the same Node (\#2).
 As \emph{Thread (\#6)} was not involved with the instantiation of that OS module, it has no idea what the specific \hs{ComponentId} of the memory manager on Node \#2 is.
 It knows the unique global name of all memory managers, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
+
+\subsection{Synchronization between modules}
+\olcomment{is it clear, that FSM is standard approach, not coroutines?}\cbcomment{I hope the following subsection explains our use of coroutines better}
+A \emph{naive} approach to model synchronization between OS modules, one we explored initially, is to implement an OS module as a finite state machine (FSM).
+In state 'A' OS module 'Bob' could send a message to 'Alice' and enter state 'B'.
+Only when receiving a response from 'Alice', would 'Bob' progress from state 'B' to state 'C'.
+If we wanted, we could even implement OS modules as \emph{pure} functions, which, aside from returning an updated state, would also return a simulator event.
+One such event would then be sending a message to another component.
+
+When sending a message the FSM would enter a new state for that specific invocation of another component.
+As a result, designers of OS module descriptions would have to extend the dictionary of states for \emph{every} invocation their module makes.
+As one can imagine, the explicit FSM approach quickly resulted in overly verbose and unstructured OS module descriptions.
+
+As a solution we essentially mechanized\cbcomment{correct wording?} the creation of the FSM using the notion of \emph{suspendable} computations.
+When a developer uses the \hs{invoke} function, two things actually happen:
+\begin{itemize}
+  \item A message is send to the invoked component.
+  \item The remaining computation is suspended and stored by simulator, ready to be scheduled once a response to the invocation arrives.
+\end{itemize}
+Every call to \hs{invoke} hence corresponds to an explicit state transition, but without the burden of explicit state-keeping.
+We achieved suspendability using coroutines, more specifically, a Coroutine monad transformer.
+We return to the subject of the Coroutine monad transformer in Section~\ref{sec:impl-detail}.
 
 \section{A Domain-specific Language for \soosim}
 \label{sec:dsl}
