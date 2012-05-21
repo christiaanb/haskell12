@@ -30,7 +30,7 @@ The design decisions were:
 However, we additionally required a way to implement \emph{blocking} messaging as a means to provide \emph{synchronisation} between components.
 In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{when} in the sender the message is sent.
 % If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
-This means, we required the notion of a suspending computation---\emph{suspendable} at any moment of execution of the simulated component.\olcomment{check the grammar}
+This means we required the notion of \emph{suspending} a computation---\emph{suspendable} at any moment of execution of the simulated component.
 In the following we will show that using Haskell \cite{haskell-report} enabled us to implement this property in a nice way.
 The contributions of this paper include:
 \begin{itemize}
@@ -43,7 +43,7 @@ The contributions of this paper include:
 The remaining part of this paper is organised as follows.
 % Section~\ref{sec:soos-project} gives an overview of the SoOS project and of the role \soosim plays in the project.
 Section~\ref{sec:soosim-an-overview} described the structure of the \soosim simulator from the user's perspective.
-Section~\ref{sec:dsl} gives an implementation overview of the domain specific language, used to implement \soosim.
+Section~\ref{sec:dsl} gives an implementation overview of the domain specific language, used to implement application running within a \soosim simulated environment.
 Section~\ref{sec:impl-detail} discusses Haskell features from which our implementation especially benefited.
 Section~\ref{sec:related-work} covers related work.
 Section~\ref{sec:concl-future-work} concludes and gives an outlook for the further research.
@@ -52,7 +52,7 @@ Section~\ref{sec:concl-future-work} concludes and gives an outlook for the furth
 % \label{sec:soos-project}
 %
 % The SoOS project \olcomment{....... } \cite{soos}...
-\olcomment{Do we need an overview of the whole project then?}
+\olcomment{Do we need an overview of the whole project then?}\cbcomment{I don't think so}
 
 \section{\soosim: An Overview}
 \label{sec:soosim-an-overview}
@@ -121,7 +121,7 @@ We thus have the following general type signature for a component:
 component :: state -> SimEvent -> SimM state
 \end{code}
 
-The simulator monad \hs{SimM} is described in Figure~\ref{fig:code-simm} in Section~\ref{sec:impl-monads}. 
+The simulator monad \hs{SimM} is described in Figure~\ref{fig:code-simm} in Section~\ref{sec:impl-monads}.
 The user-defined internal \hs{state} can be used to store any information that needs to perpetuate across simulator ticks.
 \hs{state} should be read as a placeholder for any (user-defined) datatype; there is no actual predefined \hs{state} datatype.
 
@@ -202,7 +202,7 @@ The idea is to specify an application once in a self-created embedded language a
 
 Following the \emph{final tagless} \cite{final_tagless_embedding} encoding of embedded languages in Haskell, we use a type class to define the language constructs.
 As a running example we demonstrate a mini functional language with mutable references.\olcomment{do we?}
-A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics} \cite{final_tagless_embedding}) type class, defining an \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}. 
+A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics} \cite{final_tagless_embedding}) type class, defining an \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}.
 The arrow \cd{:->} is the function arrow in the embedded language, \eg \cd{repr (a :-> b)}, in a contrast to function arrow \cd{->} of the host language.
 
 \begin{figure}
@@ -296,7 +296,7 @@ instance Functor (RequestOrYield x f) where
 
 We use a monad called \cd{SimM} to capture the \emph{state} of the simulator.
 The implementation of \cd{SimM}, sketched in Figure~\ref{fig:code-simm}, enables us to reach the main implementation goal: the ultimate suspension and resume of the components upon message passing.
-To suspend a computation in the current component we can now merely write \cd{request componentId}, where the \cd{componentId} is the unique ID of some other component. 
+To suspend a computation in the current component we can now merely write \cd{request componentId}, where the \cd{componentId} is the unique ID of some other component.
 The suspending of a component is nothing else than sending a outgoing message in the name of the component and blocking until a response.
 \olcomment{Now I am confused who is suspended! Please check if the previous 2 sentences is correct!!!}
 The execute a resumeable computation we issue \cd{resume computation}.
@@ -304,13 +304,13 @@ The execute a resumeable computation we issue \cd{resume computation}.
 
 \subsection{Coroutines}
 \label{sec:impl-coroutines}
-As one could infer from Figure~\ref{fig:code-simm}, the implementation makes use of the coroutines~\cite{coroutines}. 
+As one could infer from Figure~\ref{fig:code-simm}, the implementation makes use of the coroutines~\cite{coroutines}.
 With this concept we capture the notion of multiple suspending and resuming computations.
 The need in such a behaviour arises naturally with the blocking message passing between components.
 We utilise \textsf{Control.Monad.Coroutine} to express coroutines.
 
 \subsection{Other features}
-We use dynamic types for as ``the other side'' of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.  
+We use dynamic types for as ``the other side'' of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
 We are not aware of any other way to implement this behaviour.
 
 \section{Related Work}
@@ -326,7 +326,7 @@ OMNeT++ \cite{omnet} is a C++-based discrete event simulator with focus on paral
 \citeauthor{house} describe a basic operating system implementation in Haskell called House \cite{house}.
 This work is in a sense dual to ours: we simulate an OS.
 \citeauthor{house} modified GHC run-time system to allow code execution on bare metal.
-In House, OS modules are executed within the \hs{Hardware} monad, allowing direct interaction with real hardware. 
+In House, OS modules are executed within the \hs{Hardware} monad, allowing direct interaction with real hardware.
 This approach is comparable with our \hs{Simulator} monad.\olcomment{\cd{Simulator} or \cd{SimMonad}?}
 However, as we are more concerned with interaction of OS modules, House in not suitable for our purposes:  OS modules in House must be implemented in full detail.
 
@@ -352,7 +352,7 @@ The latter corresponds more with our goals.\olcomment{sure?}
 We have presented the efforts required to implement \soosim, an OS simulator in Haskell.
 We note that the techniques more commonly used in the programming language research were highly applicable for our purposes.
 
-We have demonstrated how the utilisation of final tagless eDSL construction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, and coroutines \cite{coroutines} facilitated an abstract and concise implementation of an operating system simulator. 
+We have demonstrated how the utilisation of final tagless eDSL construction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, and coroutines \cite{coroutines} facilitated an abstract and concise implementation of an operating system simulator.
 \olcomment{These techniques belong to the typical repertoire of a programming language designer, but not of an operating systems researcher. --- emphasise somehow, that it is uncommon to use all these for such a task, this this work is cool.}
 
 \paragraph{Real life simulations.}
