@@ -368,8 +368,7 @@ These two papers have different goals: \citeauthor{final_tagless_embedding} impl
 The latter corresponds more with our goals.\olcomment{sure?}
 
 \paragraph{Suspendable computation.} We used coroutines monad transformer \cite{cmt} to express a suspendable computation. 
-Other approaches to this include iteratee/enumeratee approach, introduced in \cite{oleg-iteratee}, see, \eg an overview by \citeauthor{lato2010iteratee} \cite{lato2010iteratee}.
-Some background is available in a functional pearl by Ralf Hinze~\cite{Hinze:2000:DBM:357766.351258}. \olcomment{unsure if this paper fits!}
+Other approaches to this include the suspension monad implementations of iteratees/enumeratees. This approach was introduced in \cite{oleg-iteratee}, see, \eg an overview by \citeauthor{lato2010iteratee} \cite{lato2010iteratee}.
 See also Oleg Kiselyov's new paper \cite{springerlink:10.1007/978-3-642-29822-6_15} for the current instalment of iteratee-based IO in Haskell.
 
 \section{Conclusions and Future Work}
@@ -393,7 +392,7 @@ However, it would also require to use software transactional memory \cite{spring
 Examples of fruitful combinations with other concepts include papers by \citeauthor{Harris:2008:CMT:1378704.1378725} \cite{Harris:2008:CMT:1378704.1378725} and \citeauthor{Bieniusa:2010:BAA:1835698.1835714} \cite{Bieniusa:2010:BAA:1835698.1835714,springerlink:10.1007/978-3-642-25959-3_2}.
 Another option would be to use a \emph{parallel} Haskell like Multicore Haskell \cite{marlow:rsm}, \cd{Par} monad \cite{par-monad} or Eden \cite{eden}.
 The ``multiple writes'' issue, however, needs some further handling in this case.
-A yet further option is to make the coroutine execution concurrent using actors~\cite{Hewitt:1973:UMA:1624775.1624804,sulzmann2008actors}.
+Two further options are either to make the coroutine execution concurrent using actors~\cite{Hewitt:1973:UMA:1624775.1624804,sulzmann2008actors} or to switch to iteratees for expressing blocking communication and to utilise transformers from usual to parallel composable iteratees\footnote{See \url{http://projects.haskell.org/pipermail/iteratee/2011-July/000083.html} for details.}.
 
 % \appendix
 % \section{Appendix Title}
@@ -404,6 +403,8 @@ A yet further option is to make the coroutine execution concurrent using actors~
 
 %Acknowledgments, if needed.
 This work was supported by the S(o)OS project, sponsored by the European Commission under FP7-ICT-2009.8.1, Grant Agreement No.~248465.
+We thank Chung-chieh Shan and Oleg Kiselyov for valuable remarks on
+\cd{Dynamic} types and the parallel iteratees correspondingly.
 
 %%% Local Variables:
 %%% mode: latex
