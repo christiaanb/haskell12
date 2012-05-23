@@ -329,7 +329,7 @@ The execute a resumeable computation we issue \cd{resume computation}.
 As we mentioned above and as one could infer from Figure~\ref{fig:code-simm}, the implementation makes use of the coroutines~\cite{coroutines}.
 With this concept we capture the notion of multiple suspending and resuming computations.
 The need in such a behaviour arises naturally with the blocking message passing between components.
-We utilise \textsf{Control.Monad.Coroutine} to express coroutines.
+We utilise \textsf{Control.Monad.Coroutine} \cite{cmt} to express coroutines.
 
 \subsection{Other features}
 We use dynamic types for as ``the other side'' of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
@@ -367,6 +367,11 @@ The final tagless embedding of DSLs originates from the seminal paper by \citeau
 These two papers have different goals: \citeauthor{final_tagless_embedding} implement DSLs for higher-order languages, while \citeauthor{Hofer:2008:PED:1449913.1449935} focus on the possibility to plug in multiple implementations of a pure embedded DSL.
 The latter corresponds more with our goals.\olcomment{sure?}
 
+\paragraph{Suspendable computation.} We used coroutines monad transformer \cite{cmt} to express a suspendable computation. 
+Other approaches to this include iteratee/enumeratee approach, introduced in \cite{oleg-iteratee}, see, \eg an overview by \citeauthor{lato2010iteratee} \cite{lato2010iteratee}.
+Some background is available in a functional pearl by Ralf Hinze~\cite{Hinze:2000:DBM:357766.351258}. \olcomment{unsure if this paper fits!}
+See also Oleg Kiselyov's new paper \cite{springerlink:10.1007/978-3-642-29822-6_15} for the current instalment of iteratee-based IO in Haskell.
+
 \section{Conclusions and Future Work}
 \label{sec:concl-future-work}
 
@@ -374,7 +379,7 @@ The latter corresponds more with our goals.\olcomment{sure?}
 We have presented the efforts required to implement \soosim, an OS simulator in Haskell.
 We note that the techniques more commonly used in the programming language research were highly applicable for our purposes.
 
-We have demonstrated how the utilisation of final tagless eDSL construction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, and coroutines \cite{coroutines} facilitated an abstract and concise implementation of an operating system simulator.
+We have demonstrated how the utilisation of final tagless eDSL construction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, and coroutines \cite{coroutines,cmt} facilitated an abstract and concise implementation of an operating system simulator.
 \olcomment{These techniques belong to the typical repertoire of a programming language designer, but not of an operating systems researcher. --- emphasise somehow, that it is uncommon to use all these for such a task, this this work is cool.}
 
 \paragraph{Real life simulations.}
