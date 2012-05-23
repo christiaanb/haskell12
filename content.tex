@@ -7,7 +7,8 @@ OS and application software.
 
 The main issue is: it is in fact not desirable to keep the whole, monolithic, OS kernel on the each core of a multicore machine.
 Doing so has detrimental effects on the caches of the individual cores.\cbcomment{citation needed?}\olcomment{yes!}
-Moving to larger distributed systems, monolithic kernels hinder scalability as the entire internal state has to be synchronised amongst the copies.\cbcomment{I don't think we should say more about S(o)OS or its ideas / concepts in the intro.}
+Moving to larger distributed systems, monolithic kernels hinder scalability as the entire internal state has to be synchronised amongst the copies.
+% \cbcomment{I don't think we should say more about S(o)OS or its ideas / concepts in the intro.}
 % For example, we could dedicate some cores to an application and some cores to an OS.
 % One possible approach to this is the partitioning of the address space. \olcomment{is this so?}
 % In a simular manner, if we know that a core is occupied by a particular program, we can move the dynamic libraries, required for some other application to some other core's memory range.
@@ -52,7 +53,7 @@ Section~\ref{sec:concl-future-work} concludes and gives an outlook for the furth
 % \label{sec:soos-project}
 %
 % The SoOS project \olcomment{....... } \cite{soos}...
-\olcomment{Do we need an overview of the whole project then?}\cbcomment{I don't think so}
+% \olcomment{Do we need an overview of the whole project then?}\cbcomment{I don't think so} %% ok
 
 \section{\soosim: An Overview}
 \label{sec:soosim-an-overview}
@@ -190,10 +191,10 @@ As \emph{Thread (\#6)} was not involved with the instantiation of that OS module
 It knows the unique global name of all memory managers, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
 
 \subsection{Synchronization between modules}
-\olcomment{is it clear, that FSM is standard approach, not coroutines?}\cbcomment{I hope the following subsection explains our use of coroutines better}
-A \emph{naive} approach to model synchronization between OS modules, one we explored initially, is to implement an OS module as a finite state machine (FSM).
-In state 'A' OS module 'Bob' could send a message to 'Alice' and enter state 'B'.
-Only when receiving a response from 'Alice', would 'Bob' progress from state 'B' to state 'C'.
+% \olcomment{is it clear, that FSM is standard approach, not coroutines?}\cbcomment{I hope the following subsection explains our use of coroutines better} %% yes
+A \emph{naive} approach to model synchronization between OS modules is to implement an OS module as a finite state machine (FSM).
+In state 'X' OS module 'Bob' could send a message to 'Alice' and enter state 'Y'.
+Only when receiving a response from 'Alice', would 'Bob' progress from state 'Y' to state 'Z'.
 If we wanted, we could even implement OS modules as \emph{pure} functions, which, aside from returning an updated state, would also return a simulator event.
 One such event would then be sending a message to another component.
 
@@ -201,15 +202,15 @@ When sending a message the FSM would enter a new state for that specific invocat
 As a result, designers of OS module descriptions would have to extend the dictionary of states for \emph{every} invocation their module makes.
 As one can imagine, the explicit FSM approach quickly resulted in overly verbose and unstructured OS module descriptions.
 
-As a solution we essentially mechanized\cbcomment{correct wording?} the creation of the FSM using the notion of \emph{suspendable} computations.
+As a solution we essentially mechanised\cbcomment{correct wording?}\olcomment{guess so} the creation of the FSM using the notion of \emph{suspendable} computations.
 When a developer uses the \hs{invoke} function, two things actually happen:
 \begin{itemize}
   \item A message is send to the invoked component.
   \item The remaining computation is suspended and stored by simulator, ready to be scheduled once a response to the invocation arrives.
 \end{itemize}
 Every call to \hs{invoke} hence corresponds to an explicit state transition, but without the burden of explicit state-keeping.
-We achieved suspendability using coroutines, more specifically, a Coroutine monad transformer.
-We return to the subject of the Coroutine monad transformer in Section~\ref{sec:impl-detail}.
+We achieved suspendability using coroutines~\cite{coroutines}, more specifically, a coroutine monad transformer~\cite{cmt}.
+We return to the subject of the coroutine monad transformer in Section~\ref{sec:impl-detail}.
 
 \section{A Domain-specific Language for \soosim}
 \label{sec:dsl}
@@ -325,7 +326,7 @@ The execute a resumeable computation we issue \cd{resume computation}.
 
 \subsection{Coroutines}
 \label{sec:impl-coroutines}
-As one could infer from Figure~\ref{fig:code-simm}, the implementation makes use of the coroutines~\cite{coroutines}.
+As we mentioned above and as one could infer from Figure~\ref{fig:code-simm}, the implementation makes use of the coroutines~\cite{coroutines}.
 With this concept we capture the notion of multiple suspending and resuming computations.
 The need in such a behaviour arises naturally with the blocking message passing between components.
 We utilise \textsf{Control.Monad.Coroutine} to express coroutines.
