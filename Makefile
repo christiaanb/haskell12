@@ -4,3 +4,6 @@ soosim.pdf : soosim.tex content.tex jabref.bib haskell2012.bib
 paper : soosim.tex content.tex jabref.bib haskell2012.bib
 	latexmk -pdf soosim
 
+clean :
+	latexmk -C soosim
+
