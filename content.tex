@@ -202,7 +202,7 @@ When sending a message the FSM would enter a new state for that specific invocat
 As a result, designers of OS module descriptions would have to extend the dictionary of states for \emph{every} invocation their module makes.
 As one can imagine, the explicit FSM approach quickly resulted in overly verbose and unstructured OS module descriptions.
 
-As a solution we essentially mechanised\cbcomment{correct wording?}\olcomment{guess so} the creation of the FSM using the notion of \emph{suspendable} computations.
+As a solution we essentially mechanised the creation of the FSM using the notion of \emph{suspendable} computations.
 When a developer uses the \hs{invoke} function, two things actually happen:
 \begin{itemize}
   \item A message is send to the invoked component.
@@ -225,7 +225,7 @@ The idea is to specify an application once in a self-created embedded language a
 Following the \emph{final tagless} \cite{final_tagless_embedding} encoding of embedded languages in Haskell, we use a type class to define the language constructs.
 As a running example we demonstrate a mini functional language with mutable references.\olcomment{do we?}
 A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics} \cite{final_tagless_embedding}) type class, defining an \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}.
-The arrow \cd{:->} is the function arrow in the embedded language, \eg \cd{repr (a :-> b)}, in a contrast to function arrow \cd{->} of the host language.
+The arrow \cd{:->} is the function arrow in the embedded language, \eg \cd{repr (a :-> b)}, in contrast to the function arrow \cd{->} of the host language.
 
 \begin{figure}
 \centering
@@ -241,9 +241,11 @@ class Symantics repr where
 \label{fig:embedded_language_interface}
 \end{figure}
 
-One interaction we might now want to observe is the applications use of mutable references and the subsequent communication with the memory manager OS module.
+One interaction we might now want to observe is the application's use of mutable references and the subsequent communication with the memory manager OS module.
 For this purpose we create a \hs{newtype RefMemAcc} wrapping the simulator monad, and define an instance of the \hs{Symantics} type-class for it.
-As we define most of the language constructs to behave like their Haskell counterparts, the language constructs dealing with mutable references are implemented as invocations of the memory manager (see Figure~\ref{lst_observing_memory_access}).\olcomment{I did not got this sentence, so I modified it the way I think is correct. Please check!}
+
+We can define most language constructs to behave like their haskell counterpart, e.g., the \hs{app} construct instance is defined using monadic bind ($\mathit{>>=}$).
+However, instead of using a Haskell reference type + functions (e.g. \hs{IORef}) for the definitions of the mutable reference aspect of our language, we implement these constructs as invocations of the memory manager (see Figure~\ref{lst_observing_memory_access}).
 
 \begin{figure}
 \centering
@@ -338,7 +340,7 @@ instance Functor (RequestOrYield x f) where
 \end{figure}
 
 We use a monad called \cd{SimM} to capture the \emph{state} of the simulator.
-The implementation of \cd{SimM}, sketched in Figure~\ref{fig:code-simm}, enables us to reach the main implementation goal: the ultimate suspension and resume of the components upon message passing.
+The implementation of \cd{SimM}, sketched in Figure~\ref{fig:code-simm}, enables us to reach the main implementation goal: the ultimate suspension and resumption of the components upon message passing.
 To suspend a computation in the current component we can now merely write \cd{request componentId}, where the \cd{componentId} is the unique ID of some other component.
 The suspending of a component is nothing else than sending a outgoing message in the name of the component and blocking until a response.
 \olcomment{Now I am confused who is suspended! Please check if the previous 2 sentences is correct!!!}
