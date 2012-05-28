@@ -190,9 +190,9 @@ To give a concrete example, using the system from Figure~\ref{fig:system} as our
 As \emph{Thread (\#6)} was not involved with the instantiation of that OS module, it has no idea what the specific \hs{ComponentId} of the memory manager on Node \#2 is.
 It knows the unique global name of all memory managers, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
 
-\subsection{Synchronization between modules}
+\subsection{Synchronisation between modules}
 % \olcomment{is it clear, that FSM is standard approach, not coroutines?}\cbcomment{I hope the following subsection explains our use of coroutines better} %% yes
-A \emph{naive} approach to model synchronization between OS modules is to implement an OS module as a finite state machine (FSM).
+A \emph{naive} approach to model synchronisation between OS modules is to implement an OS module as a finite state machine (FSM).
 In state 'X' OS module 'Bob' could send a message to 'Alice' and enter state 'Y'.
 Only when receiving a response from 'Alice', would 'Bob' progress from state 'Y' to state 'Z'.
 If we wanted, we could even implement OS modules as \emph{pure} functions, which, aside from returning an updated state, would also return a simulator event.
@@ -416,7 +416,7 @@ We note that the techniques more commonly used in the programming language resea
 
 We have demonstrated how the utilisation of final tagless eDSL construction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, \cd{Dynamic} types \cite{Abadi:1991:DTS:103135.103138}, and coroutines \cite{coroutines,cmt} facilitated an abstract and concise implementation of an operating system simulator.
 % \olcomment{These techniques belong to the typical repertoire of a programming language designer, but not of an operating systems researcher. --- emphasise somehow, that it is uncommon to use all these for such a task, which makes our work stand out , this this work is cool.}
-It is uncommon to use all these features for such a task --- a fact that emphasises the novelity of our work.
+It is uncommon to use all these features for such a task --- a fact that emphasises the novelty of our work.
 
 \paragraph{Real life simulations.}
 The major goal of the project is to simulate the behaviour of a real life application and to draw conclusions therefrom.
