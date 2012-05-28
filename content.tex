@@ -6,7 +6,7 @@ One part of the project requires to simulate the interactions between software c
 OS and application software.
 
 The main issue is: it is in fact not desirable to keep the whole, monolithic, OS kernel on the each core of a multicore machine.
-Doing so has detrimental effects on the caches of the individual cores.\cbcomment{citation needed?}\olcomment{yes!}
+Doing so has detrimental effects on the caches of the individual cores.\cbcomment{citation needed!}
 Moving to larger distributed systems, monolithic kernels hinder scalability as the entire internal state has to be synchronised amongst the copies.
 % \cbcomment{I don't think we should say more about S(o)OS or its ideas / concepts in the intro.}
 % For example, we could dedicate some cores to an application and some cores to an OS.
@@ -220,7 +220,8 @@ Nor do we want to be forced to describe our application in a monadic style.
 Additionally, we want to be in control which interactions between OS and application are exactly simulated, without having to change either the descriptions of the OS modules or the application when we want to observe different aspects.
 
 For the above reasons we have chosen to make use of embedded languages for the definitions of our applications.
-The idea is to specify an application once in a self-created embedded language and define different interpretations for the embedded language constructs as the observations of the interaction between application and OS \cite{Hofer:2008:PED:1449913.1449935}. \olcomment{the cited paper is about different interpretations of the same code!}
+The idea is to specify an application once in a self-created embedded language and define different interpretations for the embedded language constructs as the observations of the interaction between application and OS \cite{Hofer:2008:PED:1449913.1449935}. 
+% \olcomment{the cited paper is about different interpretations of the same code!}
 
 Following the \emph{final tagless} \cite{final_tagless_embedding} encoding of embedded languages in Haskell, we use a type class to define the language constructs.
 As a running example we demonstrate a mini functional language with mutable references.\olcomment{do we?}
@@ -298,6 +299,8 @@ instance ComponentIface  SchedulerState where
 \cite{Hofer:2008:PED:1449913.1449935}
 
 - I am refreshing this paper ATM.
+
+- 2006: typed interpreter of a typed language cannot be tagless. final tagless paper says: wrong!
 }
 
 \section{Features We Used}
