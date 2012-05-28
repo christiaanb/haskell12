@@ -332,7 +332,7 @@ The need in such a behaviour arises naturally with the blocking message passing 
 We utilise \textsf{Control.Monad.Coroutine} \cite{cmt} to express coroutines.
 
 \subsection{Other features}
-We use dynamic types for as ``the other side'' of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
+We use dynamic types \cite{Abadi:1991:DTS:103135.103138} for as ``the other side'' of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
 We are not aware of any other way to implement this behaviour.
 
 \section{Related Work}
@@ -371,6 +371,19 @@ The latter corresponds more with our goals.\olcomment{sure?}
 Other approaches to this include the suspension monad implementations of iteratees/enumeratees. This approach was introduced in \cite{oleg-iteratee}, see, \eg an overview by \citeauthor{lato2010iteratee} \cite{lato2010iteratee}.
 See also Oleg Kiselyov's new paper \cite{springerlink:10.1007/978-3-642-29822-6_15} for the current instalment of iteratee-based IO in Haskell.
 
+\paragraph{Haskell experience reports.} \olcomment{Do we need this
+  section?} 
+Haskell has been successfully used to implement a range of applications far from typical programming language research.
+This is not surprising for a general purpose language, but nevertheless we would like to list most interesting applications. 
+We already mentioned House \cite{house} in the previous section.
+
+Haskell has been used to facilitate a formal verification of a
+microkernel \cite{Klein:2009:ERS:1631687.1596566}, to implement
+commercial mission-critical applications
+\cite{Sampson:2009:ERH:1631687.1596578}, to manage a Linux
+distribution \cite{Beshers:2007:ERU:1291220.1291184}, to configure
+realtime OS components \cite{Jones:2008:ERP:1411203.1411219}, etc.
+
 \section{Conclusions and Future Work}
 \label{sec:concl-future-work}
 
@@ -378,12 +391,14 @@ See also Oleg Kiselyov's new paper \cite{springerlink:10.1007/978-3-642-29822-6_
 We have presented the efforts required to implement \soosim, an OS simulator in Haskell.
 We note that the techniques more commonly used in the programming language research were highly applicable for our purposes.
 
-We have demonstrated how the utilisation of final tagless eDSL construction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, and coroutines \cite{coroutines,cmt} facilitated an abstract and concise implementation of an operating system simulator.
-\olcomment{These techniques belong to the typical repertoire of a programming language designer, but not of an operating systems researcher. --- emphasise somehow, that it is uncommon to use all these for such a task, this this work is cool.}
+We have demonstrated how the utilisation of final tagless eDSL construction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, \cd{Dynamic} types \cite{Abadi:1991:DTS:103135.103138}, and coroutines \cite{coroutines,cmt} facilitated an abstract and concise implementation of an operating system simulator.
+% \olcomment{These techniques belong to the typical repertoire of a programming language designer, but not of an operating systems researcher. --- emphasise somehow, that it is uncommon to use all these for such a task, which makes our work stand out , this this work is cool.}
+It is uncommon to use all these features for such a task --- a fact that emphasises the novelity of our work.
 
 \paragraph{Real life simulations.}
 The major goal of the project is to simulate the behaviour of a real life application and to draw conclusions therefrom.
-This work is still ongoing.
+%This work is still ongoing.
+We are currently actively researching these issues.
 
 \paragraph{Concurrency.}
 One aspect of the future work is the concurrent \soosim.
