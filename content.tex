@@ -245,8 +245,9 @@ class Symantics repr where
 One interaction we might now want to observe is the application's use of mutable references and the subsequent communication with the memory manager OS module.
 For this purpose we create a \hs{newtype RefMemAcc} wrapping the simulator monad, and define an instance of the \hs{Symantics} type-class for it.
 
-We can define most language constructs to behave like their haskell counterpart, e.g., the \hs{app} construct instance is defined using monadic bind ($\mathit{>>=}$).
-However, instead of using a Haskell reference type + functions (e.g. \hs{IORef}) for the definitions of the mutable reference aspect of our language, we implement these constructs as invocations of the memory manager (see Figure~\ref{lst_observing_memory_access}).
+We can define most language constructs to behave like their haskell counterpart, e.g., the \hs{app} construct instance is defined using monadic bind (\textsf{$\gg$=}).
+%($\mathit{>>=}$).
+However, instead of using a Haskell-based implementation like \textsf{Data.IORef} for the definition of the mutable reference aspect of our language, we implement these constructs as invocations of the memory manager (see Figure~\ref{lst_observing_memory_access}).
 
 \begin{figure}
 \centering
