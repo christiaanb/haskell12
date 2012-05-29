@@ -358,10 +358,30 @@ With this concept we capture the notion of multiple suspending and resuming comp
 The need in such a behaviour arises naturally with the blocking message passing between components.
 We utilise \textsf{Control.Monad.Coroutine} \cite{cmt} to express coroutines.
 
-\subsection{Other Features}
+\subsection{Dynamic Types}
 We use dynamic types \cite{Abadi:1991:DTS:103135.103138} for as ``the other side'' of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
-\olcomment{more!!!}
+
+% \cbcomment{The use-case for existentials+type-classes is to get an OO-like way of programming; please correct me if I'm wrong.
+% Just take a look at: http://www.haskell.org/haskellwiki/Existential_type
+% This approach is perfect if you know upfront what kind of operations you want to perform on the data-types.
+% The wiki demonstrates this with an example of a type-class that determines the perimeter and area of different datatypes representing geometric shapes.
+% And indeed, you can put different shapes in a homogeneous collection, and calculate the area and perimeter for the different types of shapes in this collection.
+
+% The use case in SoOSiM is however far different: we do NOT know, upfront, how the data-types will be used.
+% The information stored in these values can and should be be manipulated in any kind of way.
+% Trying to define a type-class 'Foo' would either be too large, or too restrictive.
+
+% So I really think that 'Dynamic' is the 'answer' to our problem, although it is an ugly one.}
+
+If we knew upfront what kind of operations the users might want to perform on the data types, we could have used existential types and type classes, \viz \cite{Laufer:1994:PTI:186025.186031,Kiselyov:2004:STH:1017472.1017488}.
+However, this is not our case. 
+We need to transmit values of heterogeneous types, and the information on how these values should be used is stored in the values themselves! 
+This information should be be manipulated in any kind of way.
+Trying to define a type class for this setting would yield either a too large, or a too restrictive definition.
 We are not aware of any other way to implement this behaviour.
+
+We utilise \textsf{Data.Dynamic} to convert transmitted values of a
+dynamic type into values of concrete monomorphic types.
 
 \section{Related Work}
 \label{sec:related-work}
