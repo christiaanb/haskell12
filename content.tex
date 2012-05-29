@@ -307,15 +307,17 @@ instance ComponentIface  SchedulerState where
 \section{Features We Used}
 \label{sec:impl-detail}
 
+\subsection{Existential Types}
+We employ existential type to store the differently typed states of all the components running in our simulated environment.
+Components are subsequently implemented as type class instances, giving us a straightforward way to access the existentially quantified values in our collection of states.
 
 \subsection{Type classes}
-
 Type classes are naturally used for the eDSL encoding from the previous section \cite{Hall:1996:TCH:227699.227700,final_tagless_embedding}.
 
 Beyond this, we use type classes to express many other useful abstractions.
 For instance, an \emph{interface} for the component of the OS is a type class.
 Thus, each interacting ``building block'' in the simulated software is an instance of that particular type class.
-This enables great flexibility, including an option to extend the kinds of simulated objects by third party.
+Although initially used solely for the purpose of dealing with existentially quantified values, this \hs{ComponentIface} type class enables great flexibility, including an option to extend the kinds of simulated objects by third party.
 
 \subsection{Monads}
 \label{sec:impl-monads}
