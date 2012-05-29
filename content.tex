@@ -6,7 +6,7 @@ One part of the project requires to simulate the interactions between software c
 OS and application software.
 
 The main issue is: it is in fact not desirable to keep the whole, monolithic, OS kernel on the each core of a multicore machine.
-Doing so has detrimental effects on the caches of the individual cores.\cbcomment{citation needed!}
+Doing so has detrimental effects on the caches of the individual cores \cite{Temam:1994:CIP:183019.183047,Rafique:2006:ASO:1152154.1152160}.\olcomment{citations ok?}
 Moving to larger distributed systems, monolithic kernels hinder scalability as the entire internal state has to be synchronised amongst the copies.
 % \cbcomment{I don't think we should say more about S(o)OS or its ideas / concepts in the intro.}
 % For example, we could dedicate some cores to an application and some cores to an OS.
