@@ -21,7 +21,7 @@ This execution environment thus differs from contemporary operating systems wher
 
 While creating new operating system concepts and regarding their interaction with the programmability of large-scale systems, we found that existing simulation packages do not seem to have the right abstractions for fast design exploration \cite{cotson,omnet}.
 The ability to simulate separate components of the OS and of the application was the main goal to develop the OS simulator \soosim \cite{Baaij:2012}.
-\soosim is also available from Hackage.\footnote{Issue \cd{cabal install SoOSiM} to install \soosim. See also:
+It is also available from Hackage.\footnote{Issue \cd{cabal install SoOSiM} to install \soosim. See also:
 \url{http://github.com/christiaanb/SoOSiM}.}
 The design decisions were:
 \begin{itemize}
@@ -29,13 +29,13 @@ The design decisions were:
 \item To have global \emph{ticks}, designating an abstract notion of time.
 \end{itemize}
 However, we additionally required a way to implement \emph{blocking} messaging as a means to provide \emph{synchronisation} between components.
-In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{when} in the sender the message is sent.
+In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{when}\olcomment{I stumbled against this again: when or where?} in the sender the message is sent.
 % If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
-This means we required the notion of \emph{suspending} a computation---\emph{suspendable} at any moment of execution of the simulated component.
-In the following we will show that using Haskell \cite{haskell-report} enabled us to implement this property in a nice way.
+This means we required the notion of suspending a computation---\emph{suspendable} at any moment of execution of the simulated component.
+In the following we will show that using Haskell\nolinebreak[3] \cite{haskell-report} enabled us to implement this property in a nice way.
 The contributions of this paper include:
 \begin{itemize}
-\item A short overview of the SoOS project
+\item A short overview of the \soosim project.
 \item The description of the embedded domain-specific language (eDSL) used to implement OS components in \soosim.
 \item The description of \emph{a} eDSL to describe applications that will run on within a \soosim \emph{simulated} system.
 \item The list of Haskell language features, we found particularly useful in this project.
@@ -73,7 +73,7 @@ A \emph{component} represents an executable object: such as a thread, applicatio
 Components communicate with each other either using direct messaging, or through the local memory of a node.
 Having both explicit messaging and shared memories, \soosim supports the two well known methods of communication.
 Because multiple components can send messages to one component, all components have a message queue.
-All components in a simulated system, even those hosted within the same node, are executed concurrently.
+All components in a simulated system, even those hosted within the same node, are executed concurrently.\olcomment{are meant to be executed concurrently? can be executed concurrently? or indeed \emph{are} executed concurrently?}
 The simulator poses no restrictions as to which components can communicate with each other, nor to which node's local memory they can read from and write to.
 A user of \soosim would have to model those restrictions explicitly if required.
 A schematic overview of an example system can be seen in Figure~\ref{fig:system}.
@@ -143,7 +143,7 @@ The \hs{ComponentIface} requires the instantiation of the following values to co
 Note, we are aiming at a high level of abstraction for the behavioural descriptions of our OS modules, where the focus is mainly on the interaction with other OS modules and application threads.
 
 
-\subsection{Interaction with the simulator}
+\subsection{Interaction with the Simulator}
 
 %% we agreed on not having this figure
 % \begin{figure*}
@@ -184,13 +184,13 @@ performs a read at a specified address of a node's local memory.
 writes a new value at a specified address of a node's local memory.
 \paragraph{\hs{componentLookup}.}
 This function performs a lookup of the unique identifier of a component on a specified node.
-Components have two unique identifiers, their global \emph{name} (as specified in the \hs{CompIface} instance), and a \hs{ComponentId} that is a unique number corresponding to a specific instance of a component.
-When you want to \emph{invoke} a component, you need to know the unique \hs{ComponentId} of the specific instance.
+Components have two unique identifiers, their global \emph{name} (as specified in the \hs{ComponentIface} instance), and a \hs{ComponentId} that is a unique number corresponding to a specific instance of a component.
+When a programmer wants to \emph{invoke} a component, she needs to know the unique \mbox{\hs{ComponentId}} of the specific instance.
 To give a concrete example, using the system from Figure~\ref{fig:system} as our context: \emph{Thread (\#6)} wants to invoke the instance of the \emph{Memory Manager} that is running on the same Node (\#2).
 As \emph{Thread (\#6)} was not involved with the instantiation of that OS module, it has no idea what the specific \hs{ComponentId} of the memory manager on Node \#2 is.
 It knows the unique global name of all memory managers, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
 
-\subsection{Synchronisation between modules}
+\subsection{Synchronisation between Modules}
 % \olcomment{is it clear, that FSM is standard approach, not coroutines?}\cbcomment{I hope the following subsection explains our use of coroutines better} %% yes
 A \emph{naive} approach to model synchronisation between OS modules is to implement an OS module as a finite state machine (FSM).
 In state 'X' OS module 'Bob' could send a message to 'Alice' and enter state 'Y'.
@@ -212,7 +212,7 @@ Every call to \hs{invoke} hence corresponds to an explicit state transition, but
 We achieved suspendability using coroutines~\cite{coroutines}, more specifically, a coroutine monad transformer~\cite{cmt}.
 We return to the subject of the coroutine monad transformer in Section~\ref{sec:impl-detail}.
 
-\section{A Domain-specific Language for \soosim}
+\section{A Domain-Specific Language for \soosim}
 \label{sec:dsl}
 One of the purposes of \soosim is to observe the interaction between application and OS.
 We however do not want to \emph{pollute} our application descriptions with with calls to the simulator functions.
@@ -220,11 +220,11 @@ Nor do we want to be forced to describe our application in a monadic style.
 Additionally, we want to be in control which interactions between OS and application are exactly simulated, without having to change either the descriptions of the OS modules or the application when we want to observe different aspects.
 
 For the above reasons we have chosen to make use of embedded languages for the definitions of our applications.
-The idea is to specify an application once in a self-created embedded language and define different interpretations for the embedded language constructs as the observations of the interaction between application and OS \cite{Hofer:2008:PED:1449913.1449935}. 
+The idea is to specify an application once in a self-created embedded language and define different interpretations for the embedded language constructs as the observations of the interaction between application and OS\nolinebreak[3]  \cite{Hofer:2008:PED:1449913.1449935}. 
 % \olcomment{the cited paper is about different interpretations of the same code!}
 
 Following the \emph{final tagless} \cite{final_tagless_embedding} encoding of embedded languages in Haskell, we use a type class to define the language constructs.
-As a running example we demonstrate a mini functional language with mutable references.\olcomment{do we?}
+As an example we demonstrate a mini functional language with mutable references.\olcomment{was: "running example". IMO not the case!}
 A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics} \cite{final_tagless_embedding}) type class, defining an \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}.
 The arrow \cd{:->} is the function arrow in the embedded language, \eg \cd{repr (a :-> b)}, in contrast to the function arrow \cd{->} of the host language.
 
@@ -308,7 +308,7 @@ instance ComponentIface  SchedulerState where
 \label{sec:impl-detail}
 
 
-\subsection{Type classes}
+\subsection{Type Classes}
 
 Type classes are naturally used for the eDSL encoding from the previous section \cite{Hall:1996:TCH:227699.227700,final_tagless_embedding}.
 
@@ -348,7 +348,7 @@ The implementation of \cd{SimM}, sketched in Figure~\ref{fig:code-simm}, enables
 To suspend a computation in the current component we can now merely write \cd{request componentId}, where the \cd{componentId} is the unique ID of some other component.
 The suspending of a component is nothing else than sending a outgoing message in the name of the component and blocking until a response.
 \olcomment{Now I am confused who is suspended! Please check if the previous 2 sentences is correct!!!}
-The execute a resumeable computation we issue \cd{resume computation}.
+The execute a resumeable computation we issue \cd{resume} \mbox{\cd{computation}.} %% hackery to get spaces right
 
 
 \subsection{Coroutines}
@@ -358,8 +358,9 @@ With this concept we capture the notion of multiple suspending and resuming comp
 The need in such a behaviour arises naturally with the blocking message passing between components.
 We utilise \textsf{Control.Monad.Coroutine} \cite{cmt} to express coroutines.
 
-\subsection{Other features}
+\subsection{Other Features}
 We use dynamic types \cite{Abadi:1991:DTS:103135.103138} for as ``the other side'' of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
+\olcomment{more!!!}
 We are not aware of any other way to implement this behaviour.
 
 \section{Related Work}
@@ -396,10 +397,9 @@ The latter corresponds more with our goals.\olcomment{sure?}
 
 \paragraph{Suspendable computation.} We used coroutines monad transformer \cite{cmt} to express a suspendable computation. 
 Other approaches to this include the suspension monad implementations of iteratees/enumeratees. This approach was introduced in \cite{oleg-iteratee}, see, \eg an overview by \citeauthor{lato2010iteratee} \cite{lato2010iteratee}.
-See also Oleg Kiselyov's new paper \cite{springerlink:10.1007/978-3-642-29822-6_15} for the current instalment of iteratee-based IO in Haskell.
+See also Oleg Kiselyov's new paper \cite{springerlink:10.1007/978-3-642-29822-6_15} for the current description of iteratee-based IO in Haskell.
 
-\paragraph{Haskell experience reports.} \olcomment{Do we need this
-  section?} 
+\paragraph{Haskell experience reports.}
 Haskell has been successfully used to implement a range of applications far from typical programming language research.
 This is not surprising for a general purpose language, but nevertheless we would like to list most interesting applications. 
 We already mentioned House \cite{house} in the previous section.
