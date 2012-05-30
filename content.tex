@@ -5,8 +5,8 @@ In the SoOS project\footnote{See \url{http://www.soos-project.eu/} and \cite{soo
 One part of the project requires to simulate the interactions between software components of an operating system (in the following: OS) and between
 OS and application software.
 
-The main issue is: it is in fact not desirable to keep the whole, monolithic, OS kernel on the each core of a multicore machine.
-Doing so has detrimental effects on the caches of the individual cores \cite{Temam:1994:CIP:183019.183047,Rafique:2006:ASO:1152154.1152160}.\olcomment{citations ok?}
+The key point is: it is not desirable to keep the whole, monolithic, OS kernel on each core of a multicore machine.
+Doing so has detrimental effects on the caches of the individual cores \olcomment{find a better reference!}.
 Moving to larger distributed systems, monolithic kernels hinder scalability as the entire internal state has to be synchronised amongst the copies.
 % \cbcomment{I don't think we should say more about S(o)OS or its ideas / concepts in the intro.}
 % For example, we could dedicate some cores to an application and some cores to an OS.
@@ -29,7 +29,7 @@ The design decisions were:
 \item To have global \emph{ticks}, designating an abstract notion of time.
 \end{itemize}
 However, we additionally required a way to implement \emph{blocking} messaging as a means to provide \emph{synchronisation} between components.
-In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{when}\olcomment{I stumbled against this again: when or where?} in the sender the message is sent.
+In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{where} in the code of the sender the blocking \cd{invoke} method is called.
 % If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
 This means we required the notion of suspending a computation---\emph{suspendable} at any moment of execution of the simulated component.
 In the following we will show that using Haskell\nolinebreak[3] \cite{haskell-report} enabled us to implement this property in a nice way.
@@ -73,7 +73,7 @@ A \emph{component} represents an executable object: such as a thread, applicatio
 Components communicate with each other either using direct messaging, or through the local memory of a node.
 Having both explicit messaging and shared memories, \soosim supports the two well known methods of communication.
 Because multiple components can send messages to one component, all components have a message queue.
-All components in a simulated system, even those hosted within the same node, are executed concurrently.\olcomment{are meant to be executed concurrently? can be executed concurrently? or indeed \emph{are} executed concurrently?}
+All components in a simulated system, even those hosted within the same node, are executed concurrently from the component's point of view.
 The simulator poses no restrictions as to which components can communicate with each other, nor to which node's local memory they can read from and write to.
 A user of \soosim would have to model those restrictions explicitly if required.
 A schematic overview of an example system can be seen in Figure~\ref{fig:system}.
@@ -348,8 +348,7 @@ instance Functor (RequestOrYield x f) where
 We use a monad called \cd{SimM} to capture the \emph{state} of the simulator.
 The implementation of \cd{SimM}, sketched in Figure~\ref{fig:code-simm}, enables us to reach the main implementation goal: the ultimate suspension and resumption of the components upon message passing.
 To suspend a computation in the current component we can now merely write \cd{request componentId}, where the \cd{componentId} is the unique ID of some other component.
-The suspending of a component is nothing else than sending a outgoing message in the name of the component and blocking until a response.
-\olcomment{Now I am confused who is suspended! Please check if the previous 2 sentences is correct!!!}
+The suspending of a component is nothing else than sending a outgoing message in the name of the component and blocking the sender until a response.
 The execute a resumeable computation we issue \cd{resume} \mbox{\cd{computation}.} %% hackery to get spaces right
 
 
@@ -399,7 +398,7 @@ OMNeT++ \cite{omnet} is a C++-based discrete event simulator with focus on paral
 This work is in a sense dual to ours: we simulate an OS.
 \citeauthor{house} modified GHC run-time system to allow code execution on bare metal.
 In House, OS modules are executed within the \hs{Hardware} monad, allowing direct interaction with real hardware.
-This approach is comparable with our \hs{Simulator} monad.\olcomment{\cd{Simulator} or \cd{SimMonad}?}
+This approach is comparable with our \hs{SimM} monad.
 However, as we are more concerned with interaction of OS modules, House in not suitable for our purposes:  OS modules in House must be implemented in full detail.
 
 Barrelfish \cite{barrelfish} is an OS in which domain-specific languages are used, amongst other purposes, to define driver interfaces.
@@ -414,8 +413,8 @@ The literature on this topic is quite broad, an overview is presented, \eg by \c
 
 The final tagless embedding of DSLs originates from the seminal paper by \citeauthor{final_tagless_embedding} \cite{final_tagless_embedding}.
 \citeauthor{Hofer:2008:PED:1449913.1449935} \cite{Hofer:2008:PED:1449913.1449935} presented a paper that compared to the work by \citeauthor{final_tagless_embedding} \cite{final_tagless_embedding} is more composable, allows subtyping, and is done in Scala \cite{odersky2008programming}.
-These two papers have different goals: \citeauthor{final_tagless_embedding} implement DSLs for higher-order languages, while \citeauthor{Hofer:2008:PED:1449913.1449935} focus on the possibility to plug in multiple implementations of a pure embedded DSL.
-The latter corresponds more with our goals.\olcomment{sure?}
+These two papers have different goals: \citeauthor{final_tagless_embedding} implement DSLs for higher-order languages, while \citeauthor{Hofer:2008:PED:1449913.1449935} focus on the possibility to plug in multiple interpretations of a pure embedded DSL.
+The latter corresponds more with our goals: we want control over what we observe in the particular instance.
 
 \paragraph{Suspendable computation.} We used coroutines monad transformer \cite{cmt} to express a suspendable computation.
 Other approaches to this include the suspension monad implementations of iteratees/enumeratees. This approach was introduced in \cite{oleg-iteratee}, see, \eg an overview by \citeauthor{lato2010iteratee} \cite{lato2010iteratee}.
