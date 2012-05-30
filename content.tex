@@ -39,6 +39,8 @@ The contributions of this paper include:
 \item The description of the embedded domain-specific language (eDSL) used to implement OS components in \soosim.
 \item The description of \emph{a} eDSL to describe applications that will run on within a \soosim \emph{simulated} system.
 \item The list of Haskell language features, we found particularly useful in this project.
+\item \olcomment{in case of success: The way to model "suspending
+    computation" with heterogeneous data without using dynamic types.}
 \end{itemize}
 
 The remaining part of this paper is organised as follows.
@@ -224,7 +226,7 @@ The idea is to specify an application once in a self-created embedded language a
 % \olcomment{the cited paper is about different interpretations of the same code!}
 
 Following the \emph{final tagless} \cite{final_tagless_embedding} encoding of embedded languages in Haskell, we use a type class to define the language constructs.
-As an example we demonstrate a mini functional language with mutable references.\olcomment{was: "running example". IMO not the case!}
+As an example we demonstrate a mini functional language with mutable references.\olcomment{was: "running example".}
 A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics} \cite{final_tagless_embedding}) type class, defining an \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}.
 The arrow \cd{:->} is the function arrow in the embedded language, \eg \cd{repr (a :-> b)}, in contrast to the function arrow \cd{->} of the host language.
 
@@ -245,7 +247,7 @@ class Symantics repr where
 One interaction we might now want to observe is the application's use of mutable references and the subsequent communication with the memory manager OS module.
 For this purpose we create a \hs{newtype RefMemAcc} wrapping the simulator monad, and define an instance of the \hs{Symantics} type-class for it.
 
-We can define most language constructs to behave like their haskell counterpart, e.g., the \hs{app} construct instance is defined using monadic bind (\textsf{$\gg$=}).
+We can define most language constructs to behave like their Haskell counterpart, e.g., the \hs{app} construct instance is defined using monadic bind (\bind).
 %($\mathit{>>=}$).
 However, instead of using a Haskell-based implementation like \textsf{Data.IORef} for the definition of the mutable reference aspect of our language, we implement these constructs as invocations of the memory manager (see Figure~\ref{lst_observing_memory_access}).
 
@@ -386,13 +388,26 @@ We use dynamic types \cite{Abadi:1991:DTS:103135.103138} for as ``the other side
 
 If we knew upfront what kind of operations the users might want to perform on the data types, we could have used existential types and type classes, \viz \cite{Laufer:1994:PTI:186025.186031,Kiselyov:2004:STH:1017472.1017488}.
 However, this is not our case.
-We need to transmit values of heterogeneous types, and the information on how these values should be used is stored in the values themselves!
-This information should be be manipulated in any kind of way.
-Trying to define a type class for this setting would yield either a too large, or a too restrictive definition.
-We are not aware of any other way to implement this behaviour.
-
-We utilise \textsf{Data.Dynamic} to convert transmitted values of a
+\olcomment{I connect the dynamic types to communication, as we need the coroutines for blocking!}
+We need to transmit synchronously values of heterogeneous types. 
+% and the information on how these values should be used is stored in the values themselves!
+% This information should be be manipulated in any kind of way.
+The types in the coroutine monad transformer are too restrictive.
+Trying to define a type class or a sum type for this setting would yield either a too large, or a too restrictive definition.
+%We are not aware of any other way to implement this behaviour.
+%
+We utilised \textsf{Data.Dynamic} to convert transmitted values of a
 dynamic type into values of concrete monomorphic types.
+\olcomment{only if it works out:}
+However, recently we have found a better solution that allows us to refrain from dynamic type. We discuss it below.
+
+\subsection{Parameterised Monads}
+\olcomment{only if it works out, section is still in progress!}
+The parameterised monads\footnote{See \url{http://www.haskell.org/pipermail/haskell-prime/2006-February/000498.html}.} effectively split the monad definition into two type classes, thus allowing more generic type signatures for monad operations, esp.\ for \bind\nolinebreak[4] \cite{monad-parametrisable}. With these it is possible to discard \cd{Dynamic} types in our case. 
+
+\paragraph{What we did.} We implemented the coroutine monad transformer for the parameterised monads \olcomment{show some code?}.
+
+\paragraph{What we miss.} Since GHC seems to assume that each bind has the type \cd{Monad m => m a -> (a -> m b) -> m b} when desugaring the \cd{do}-notation, we were forced to use explicit \bind instead.
 
 \section{Related Work}
 \label{sec:related-work}
@@ -450,6 +465,7 @@ We have presented the efforts required to implement \soosim, an OS simulator in 
 We note that the techniques more commonly used in the programming language research were highly applicable for our purposes.
 
 We have demonstrated how the utilisation of final tagless eDSL construction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, \cd{Dynamic} types \cite{Abadi:1991:DTS:103135.103138}, and coroutines \cite{coroutines,cmt} facilitated an abstract and concise implementation of an operating system simulator.
+\olcomment{in case of success: We found a way to replace \cd{Dynamic} types with parameterised monads \cite{monad-parametrisable} in our setting.}
 % \olcomment{These techniques belong to the typical repertoire of a programming language designer, but not of an operating systems researcher. --- emphasise somehow, that it is uncommon to use all these for such a task, which makes our work stand out , this this work is cool.}
 It is uncommon to use all these features for such a task --- a fact that emphasises the novelty of our work.
 
