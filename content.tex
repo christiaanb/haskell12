@@ -292,17 +292,27 @@ instance ComponentIface  SchedulerState where
 \olcomment{so what?}
 \end{figure}
 
-\subsection{Final Tagless}
+% \subsection{Final Tagless}
+%
+% \olcomment{- Final tagless \cite{final_tagless_embedding}
+%
+% - Tillmann embedded DSL with type classes
+% \cite{Hofer:2008:PED:1449913.1449935}
+%
+% - I am refreshing this paper ATM.
+%
+% - 2006: typed interpreter of a typed language cannot be tagless. final tagless paper says: wrong!
+% }
 
-\olcomment{- Final tagless \cite{final_tagless_embedding}
-
-- Tillmann embedded DSL with type classes
-\cite{Hofer:2008:PED:1449913.1449935}
-
-- I am refreshing this paper ATM.
-
-- 2006: typed interpreter of a typed language cannot be tagless. final tagless paper says: wrong!
-}
+\paragraph{Final tagless embedding.}
+\citeauthor{final_tagless_embedding} have demonstrated how a typed interpreter of a typed language can be tagless \cite{final_tagless_embedding}. 
+This approach does not use GADTs or dependent types. 
+The target language types are represented as host language types, object terms are encoded as calls to host language functions. With type classes \citeauthor{final_tagless_embedding} make it possible to express, \eg an interpreter and an compiler of the same language in a flexible manner. 
+\citeauthor{Hofer:2008:PED:1449913.1449935} do a similar work \cite{Hofer:2008:PED:1449913.1449935}, but focus on different interpretations.
+This matches our intentions.
+Hold on our above example of a small language with mutable references.
+If we want to observe memory interactions in a more detail, we embrace an additional implementation of the language, where the functions for the memory interaction are exactly studied and basically ignore the observation of other parts of the language.
+In a similar manner we can introduce further implementation of the same language with different properties.
 
 \section{Features We Used}
 \label{sec:impl-detail}
