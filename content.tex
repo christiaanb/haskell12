@@ -274,25 +274,25 @@ instance Symantics RefMemAcc where
 \end{figure}
 
 
-\begin{figure}
-\centering
-\begin{code}
-data SchedulerState = ... -- basically obtains two lists
-
-scheduler :: a -> ComponentInput -> SimM a
-scheduler = ... -- implementation omitted
-
-instance ComponentIface  SchedulerState where
-  initState           =  SchedulerState [] []
-  componentName _     =  "Scheduler"
-  componentBehaviour  =  scheduler
-\end{code}
-% createComponentRequest :: String -> SimM ComponentId
-% createComponentRequest =  ... -- implementation omitted
-\caption{Registering a \cd{scheduler} component.}
-\label{fig:code-scheduler}
-\olcomment{so what?}
-\end{figure}
+% \begin{figure}
+% \centering
+% \begin{code}
+% data SchedulerState = ... -- basically obtains two lists
+%
+% scheduler :: a -> ComponentInput -> SimM a
+% scheduler = ... -- implementation omitted
+%
+% instance ComponentIface  SchedulerState where
+%   initState           =  SchedulerState [] []
+%   componentName _     =  "Scheduler"
+%   componentBehaviour  =  scheduler
+% \end{code}
+% % createComponentRequest :: String -> SimM ComponentId
+% % createComponentRequest =  ... -- implementation omitted
+% \caption{Registering a \cd{scheduler} component.}
+% \label{fig:code-scheduler}
+% \olcomment{so what?}
+% \end{figure}
 
 % \subsection{Final Tagless}
 %
