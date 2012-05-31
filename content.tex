@@ -399,7 +399,7 @@ Trying to define a type class or a sum type for this setting would yield either 
 We utilised \textsf{Data.Dynamic} to convert transmitted values of a dynamic type into values of concrete monomorphic types.
 % \olcomment{only if it works out:}
 % However, recently we have found a better solution that allows us to refrain from dynamic type. We discuss it below.
-\olcomment{here goes the real reason, check if all above still applies}
+% \olcomment{here goes the real reason, check if all above still applies}
 An attempt to sort the dynamic types out with the parameterised monad also fails, as detailed in the next section.
 
 \subsection{Parameterised Monads}
@@ -409,6 +409,7 @@ class PMonad m where
 return :: a -> m s s a
 (>>=)  :: m s1 s2 a -> (a -> m s2 s3 b) -> m s1 s3 b
 \end{code}
+If we could change the from one to another intermediate type in the coroutine, we would need to dynamic types.
 This approach works fine with the state monad
 \begin{code}
 newtype PState s1 s2 a 
@@ -419,13 +420,17 @@ return a = PState $ \s -> (a, s)
 m >>= k  = PState $ \s -> let (a, s') = runState m s
                          in runState (k a) s'
 \end{code}
-but it fails for the coroutines. The pivotal issue is: if we introduce different types for the intermediate states of the coroutine, we end up adding more and more types --- the coroutine definition is recursive. In this (non proper Haskell) code
+but it fails for the coroutines. 
+The pivotal issue is: if we introduce different types for the intermediate states of the coroutine, we end up adding more and more types --- the coroutine definition is recursive. 
+In this (non proper Haskell) code
 \begin{code}
 newtype Coroutine m o i r 
   = Coroutine { resume :: m (Either (o, i 
      -> Coroutine m i2 o r)  r) }
 \end{code}
-we need to reference \hs{i2} on the left hand side. Using some more advanced tricks, like a type class for all the chain \hs{i}, \hs{i2}, \dots\ does not really help: all the types on the RHS still need to be listed on the LHS, thus exploding the definition.
+we make an attempt to reach our goal. 
+However, to make this code valid Haskell, we need to reference \hs{i2} on the left hand side. 
+Using some more advanced tricks, like a type class for all the chain \hs{i}, \hs{i2}, \dots\ does not really help: all the types on the RHS still need to be listed on the LHS, thus exploding the definition.
 
 %% this is for the case it works. It does not.
 % \paragraph{What we did.} We implemented the coroutine monad transformer for the parameterised monads \olcomment{show some code?}.
