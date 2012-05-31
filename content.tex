@@ -30,12 +30,13 @@ The design decisions were:
 However, we additionally required a way to implement \emph{blocking} messaging as a means to provide \emph{synchronisation} between components.
 In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{where} in the code of the sender the blocking \hs{invoke} method is called.
 % If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
-This means we required the notion of suspending a computation---\emph{suspendable} at any moment of execution of the simulated component.
+This means we required the notion of suspending a computation---it should be \emph{suspendable} at any moment of execution of the simulated component.
 In the following we will show that using Haskell\nolinebreak[3] \cite{haskell-report} enabled us to implement this property in a nice way.
 The contributions of this paper include:
 \begin{itemize}
 \item A short overview of the \soosim project.
 \item The description of the embedded domain-specific language (eDSL) used to implement OS components in \soosim.
+\olcomment{Do \hs{createComponent} etc. really form a DSL? Say `interface'?}
 \item The description of \emph{a} eDSL to describe applications that will run on a \soosim \emph{simulated} system.
 \item The list of Haskell language features, we found particularly useful in this project.
 % \item \olcomment{in case of success: The way to model "suspending
@@ -326,7 +327,7 @@ This approach does not use GADTs or dependent types.
 The target language types are represented as host language types, object terms are encoded as calls to host language functions. With type classes \citeauthor{final_tagless_embedding} make it possible to express, \eg an interpreter and an compiler of the same language in a flexible manner.
 \citeauthor{Hofer:2008:PED:1449913.1449935} do a similar work \cite{Hofer:2008:PED:1449913.1449935}, but focus on different interpretations.
 This matches our intentions.
-Hold on our above example of a small language with mutable references.
+We use our above example of a small language with mutable references.
 If we want to observe memory interactions in a more detail, we embrace an additional implementation of the language, where the functions for the memory interaction are exactly studied and basically ignore the observation of other parts of the language.
 In a similar manner we can introduce further implementation of the same language with different properties.
 
@@ -431,7 +432,7 @@ class PMonad m where
 return :: a -> m s s a
 (>>=)  :: m s1 s2 a -> (a -> m s2 s3 b) -> m s1 s3 b
 \end{code}
-If we could change the from one to another intermediate type in the coroutine, we would need to dynamic types.
+If we could change the from one to another intermediate type in the coroutine, we would need no dynamic types.
 This approach works fine with the state monad
 \begin{code}
 newtype PState s1 s2 a
@@ -451,8 +452,10 @@ newtype Coroutine m o i r
      -> Coroutine m i2 o r)  r) }
 \end{code}
 we make an attempt to reach our goal.
-However, to make this code valid Haskell, we need to reference \hs{i2} on the left hand side: \hs{Coroutine m i i2 o r}.
-In the type of the \hs{resume} function we need to reference \hs{Coroutine} correctly, hence we write \hs{Coroutine m i2 i3 o r} there, and so on.
+Let us abbreviate left and right hand side of the above equation with LHS and RHS.
+However, to make this code valid Haskell, we need to reference \hs{i2} on the LHS: \hs{Coroutine m i i2 o r}.
+In the type of the \hs{resume} function on the RHS we need to reference \hs{Coroutine} correctly, hence we write \hs{Coroutine m i2 i3 o r} there. 
+We need to add \hs{i3} on the LHS, and so on.
 Using some more advanced tricks, like a type class for all the chain \hs{i}, \hs{i2}, \hs{i3}, \dots\ does not really help: all the types on the RHS still need to be listed on the LHS, thus exploding the definition.
 
 %% this is for the case it works. It does not.
