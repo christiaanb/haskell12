@@ -209,8 +209,8 @@ It knows the unique global name of all memory managers, so it can use the \hs{co
 \subsection{Synchronisation between Modules}
 % \olcomment{is it clear, that FSM is standard approach, not coroutines?}\cbcomment{I hope the following subsection explains our use of coroutines better} %% yes
 A \emph{naive} approach to model synchronisation between OS modules is to implement an OS module as a finite state machine (FSM).
-In state 'X' OS module 'Bob' could send a message to 'Alice' and enter state 'Y'.
-Only when receiving a response from 'Alice', would 'Bob' progress from state 'Y' to state 'Z'.
+In state `X' OS module `Bob' could send a message to `Alice' and enter state `Y'.
+Only when receiving a response from `Alice', would `Bob' progress from state `Y' to state `Z'.
 If we wanted, we could even implement OS modules as \emph{pure} functions, which, aside from returning an updated state, would also return a simulator event.
 One such event would then be sending a message to another component.
 
@@ -342,7 +342,7 @@ Type classes are naturally used for the eDSL encoding from the previous section 
 
 Beyond this, we use type classes to express many other useful abstractions.
 For instance, an \emph{interface} for the component of the OS is a type class.
-Thus, each interacting ``building block'' in the simulated software is an instance of that particular type class.
+Thus, each interacting `building block' in the simulated software is an instance of that particular type class.
 Although initially used solely for the purpose of dealing with existentially quantified values, this \hs{ComponentIface} type class enables great flexibility, including an option to extend the kinds of simulated objects by third party.
 
 \subsection{Monads}
@@ -389,7 +389,7 @@ The need in such a behaviour arises naturally with the blocking message passing 
 We utilise \textsf{Control.Monad.Coroutine} \cite{cmt} to express coroutines.
 
 \subsection{Dynamic Types}
-We use dynamic types \cite{Abadi:1991:DTS:103135.103138} as ``the other side'' of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
+We use dynamic types \cite{Abadi:1991:DTS:103135.103138} as `the other side' of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
 
 The \emph{origin} for the need of dynamic types lies in the suspension functor or our coroutines.
 More specifically, the \hs{response} field, that designates the type of the response returned after an invocation.
@@ -531,7 +531,7 @@ One option is to use Concurrent Haskell \cite{ConcHs}, it provides (concurrent) 
 However, it would also require to use software transactional memory \cite{springerlink:10.1007/s004460050028} because of multiple writes to the same data.
 Examples of fruitful combinations with other concepts include papers by \citeauthor{Harris:2008:CMT:1378704.1378725} \cite{Harris:2008:CMT:1378704.1378725} and \citeauthor{Bieniusa:2010:BAA:1835698.1835714} \cite{Bieniusa:2010:BAA:1835698.1835714,springerlink:10.1007/978-3-642-25959-3_2}.
 Another option would be to use a \emph{parallel} Haskell like Multicore Haskell \cite{marlow:rsm}, \hs{Par} monad \cite{par-monad} or Eden \cite{eden}.
-The ``multiple writes'' issue, however, needs some further handling in this case.
+The `multiple writes' issue, however, needs some further handling in this case.
 Two further options are either to make the coroutine execution concurrent using actors~\cite{Hewitt:1973:UMA:1624775.1624804,sulzmann2008actors} or to switch to iteratees for expressing blocking communication and to utilise transformers from usual to parallel composable iteratees\footnote{See \url{http://projects.haskell.org/pipermail/iteratee/2011-July/000083.html} for details.}.
 
 % \appendix
