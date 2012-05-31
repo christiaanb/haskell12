@@ -1,7 +1,15 @@
-soosim.pdf : soosim.tex content.tex jabref.bib haskell2012.bib
-	latexmk -pdf -pvc -r latexmkrc soosim
+main : styled.tex jabref.bib haskell2012.bib
+	latexmk -pdf -pvc -r latexmkrc styled
 
-paper : soosim.tex content.tex jabref.bib haskell2012.bib
+soosim.pdf : styled.tex jabref.bib haskell2012.bib
+	rm -f soosim.pdf
+	make styled.pdf
+	ln styled.pdf soosim.pdf
+
+#soosim.pdf : soosim.tex content.tex jabref.bib haskell2012.bib
+#	latexmk -pdf -pvc -r latexmkrc soosim
+
+old : soosim.tex content.tex jabref.bib haskell2012.bib
 	latexmk -pdf soosim
 
 clean :
