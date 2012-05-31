@@ -40,7 +40,7 @@ The contributions of this paper include:
 % \item \olcomment{in case of success: The way to model "suspending
 %     computation" with heterogeneous data without using dynamic types.}
 \end{itemize}
-\soosim is also available from Hackage.\footnote{Issue \hs{cabal install SoOSiM} to install \soosim. See also:
+\soosim is also available from Hackage.\footnote{Issue \textsf{cabal install SoOSiM} to install \soosim. See also:
 \url{http://github.com/christiaanb/SoOSiM}.}
 
 The remaining part of this paper is organised as follows.
@@ -423,9 +423,9 @@ but it fails for the coroutines. The pivotal issue is: if we introduce different
 \begin{code}
 newtype Coroutine m o i r 
   = Coroutine { resume :: m (Either (o, i 
-     -> Coroutine m i' o r) r) }
+     -> Coroutine m i2 o r)  r) }
 \end{code}
-we need to reference \hs{i'} on the left hand side. Using some more advanced tricks, like a type class for all the chain \hs{i}, \hs{i2}, \dots\ does not really help: all the types on the RHS still need to be listed on the LHS, thus exploding the definition.
+we need to reference \hs{i2} on the left hand side. Using some more advanced tricks, like a type class for all the chain \hs{i}, \hs{i2}, \dots\ does not really help: all the types on the RHS still need to be listed on the LHS, thus exploding the definition.
 
 %% this is for the case it works. It does not.
 % \paragraph{What we did.} We implemented the coroutine monad transformer for the parameterised monads \olcomment{show some code?}.

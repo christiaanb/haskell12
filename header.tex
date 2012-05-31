@@ -54,6 +54,8 @@
 %include polycode.fmt
 %% lhs2latex
 %format :-> = "\ensuremath{\rightarrowtail}"
+%format <- = "\ensuremath{\in}"
+%format <-- = "\ensuremath{\leftarrow}"
 
 %%%%%%%%%%% code faerben
 % Coloured Code
@@ -303,8 +305,8 @@
 \newcommand{\hl}[1]{\textcolor{Red}{#1}}% prints in red
 
 %%% kommentare
-%\newcommand{\comm}[2]{}
-\newcommand{\comm}[2]{\hl{\(\spadesuit\){\bfseries #1: }}{\sffamily #2}\hl{\(\spadesuit\)}}
+\newcommand{\comm}[2]{}
+%\newcommand{\comm}[2]{\hl{\(\spadesuit\){\bfseries #1: }}{\sffamily #2}\hl{\(\spadesuit\)}}
 \newcommand{\olcomment}[1]{\comm{OL}{#1}}
 \newcommand{\cbcomment}[1]{\comm{CB}{#1}}
 \newcommand{\jkcomment}[1]{\comm{JK}{#1}}
@@ -328,13 +330,13 @@
 
 \authorinfo{Oleg Lobachev}
            {Scuola Superiore Sant'Anna\\Pisa, Italy}
-           {{o.lobachev@@sssup.it}}
+           {\href{mailto:o.lobachev@@sssup.it}{o.lobachev@@sssup.it}}
 \authorinfo{Christiaan Baaij\and Jan Kuper}
            {University of Twente\\Twente, Netherlands}
-           {\{c.p.r.baaij, {j.kuper}\}@@utwente.nl}
+           {\{\href{mailto:c.p.r.baaij@@utwente.nl}{c.p.r.baaij}, \href{mailto:j.kuper@@utwente.nl}{j.kuper}\}@@utwente.nl}
 \authorinfo{Juri Lelli\and Giuseppe Lipari}
            {Scuola Superiore Sant'Anna\\Pisa, Italy}
-           {\{{j.lelli}, {g.lipari}\}@@sssup.it}
+           {\{\href{mailto:j.lelli@@sssup.it}{j.lelli}, \href{mailto:g.lipari@@sssup.it}{g.lipari}\}@@sssup.it}
 
 
 \maketitle
