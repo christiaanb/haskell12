@@ -37,8 +37,8 @@ The contributions of this paper include:
 \item The description of the embedded domain-specific language (eDSL) used to implement OS components in \soosim.
 \item The description of \emph{a} eDSL to describe applications that will run on a \soosim \emph{simulated} system.
 \item The list of Haskell language features, we found particularly useful in this project.
-\item \olcomment{in case of success: The way to model "suspending
-    computation" with heterogeneous data without using dynamic types.}
+% \item \olcomment{in case of success: The way to model "suspending
+%     computation" with heterogeneous data without using dynamic types.}
 \end{itemize}
 \soosim is also available from Hackage.\footnote{Issue \cd{cabal install SoOSiM} to install \soosim. See also:
 \url{http://github.com/christiaanb/SoOSiM}.}
@@ -396,18 +396,41 @@ The types in the coroutine monad transformer are too restrictive.
 Trying to define a type class or a sum type for this setting would yield either a too large, or a too restrictive definition.
 %We are not aware of any other way to implement this behaviour.
 %
-We utilised \textsf{Data.Dynamic} to convert transmitted values of a
-dynamic type into values of concrete monomorphic types.
-\olcomment{only if it works out:}
-However, recently we have found a better solution that allows us to refrain from dynamic type. We discuss it below.
+We utilised \textsf{Data.Dynamic} to convert transmitted values of a dynamic type into values of concrete monomorphic types.
+% \olcomment{only if it works out:}
+% However, recently we have found a better solution that allows us to refrain from dynamic type. We discuss it below.
+\olcomment{here goes the real reason, check if all above still applies}
+An attempt to sort the dynamic types out with the parameterised monad also fails, as detailed in the next section.
 
 \subsection{Parameterised Monads}
-\olcomment{only if it works out, section is still in progress!}
-The parameterised monads\footnote{See \url{http://www.haskell.org/pipermail/haskell-prime/2006-February/000498.html}.} effectively split the monad definition into two type classes, thus allowing more generic type signatures for monad operations, esp.\ for \bind\nolinebreak[4] \cite{monad-parametrisable}. With these it is possible to discard \cd{Dynamic} types in our case. 
+The parameterised monads\footnote{See \url{http://www.haskell.org/pipermail/haskell-prime/2006-February/000498.html}.}  allow more generic type signatures for monad operations, esp.\ for \bind\nolinebreak[4] \cite{monad-parametrisable}:
+\begin{code}
+class PMonad m where
+return :: a -> m s s a
+(>>=)  :: m s1 s2 a -> (a -> m s2 s3 b) -> m s1 s3 b
+\end{code}
+This approach works fine with the state monad
+\begin{code}
+newtype PState s1 s2 a = PState { runPState :: s1 -> (a,s2) }
 
-\paragraph{What we did.} We implemented the coroutine monad transformer for the parameterised monads \olcomment{show some code?}.
+instance PMonad PState where
+return a = PState $ \s -> (a, s)
+m >>= k  = PState $ \s -> let
+(a, s') = runState m s
+in runState (k a) s'
+\end{code}
+but it fails for the coroutines. The pivotal issue is: if we introduce different types for the intermediate states of the coroutine, we end up adding more and more types --- the coroutine definition is recursive. In this (non proper Haskell) code
+\begin{code}
+newtype Coroutine m o i r 
+  = Coroutine { resume :: m (Either (o, i 
+     -> Coroutine m i' o r) r) }
+\end{code}
+we need to reference \cd{i'} on the left hand side. Using some more advanced tricks, like a type class for all the chain \cd{i}, \cd{i2}, \dots\ does not really help: all the types on the RHS still need to be listed on the LHS, thus exploding the definition.
 
-\paragraph{What we miss.} Since GHC seems to assume that each bind has the type \cd{Monad m => m a -> (a -> m b) -> m b} when desugaring the \cd{do}-notation, we were forced to use explicit \bind instead.
+%% this is for the case it works. It does not.
+% \paragraph{What we did.} We implemented the coroutine monad transformer for the parameterised monads \olcomment{show some code?}.
+%
+% \paragraph{What we miss.} Since GHC seems to assume that each bind has the type \cd{Monad m => m a -> (a -> m b) -> m b} when desugaring the \cd{do}-notation, we were forced to use explicit \bind instead.
 
 \section{Related Work}
 \label{sec:related-work}
@@ -465,7 +488,7 @@ We have presented the efforts required to implement \soosim, an OS simulator in 
 We note that the techniques more commonly used in the programming language research were highly applicable for our purposes.
 
 We have demonstrated how the utilisation of final tagless eDSL construction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, \cd{Dynamic} types \cite{Abadi:1991:DTS:103135.103138}, and coroutines \cite{coroutines,cmt} facilitated an abstract and concise implementation of an operating system simulator.
-\olcomment{in case of success: We found a way to replace \cd{Dynamic} types with parameterised monads \cite{monad-parametrisable} in our setting.}
+% \olcomment{in case of success: We found a way to replace \cd{Dynamic} types with parameterised monads \cite{monad-parametrisable} in our setting.}
 % \olcomment{These techniques belong to the typical repertoire of a programming language designer, but not of an operating systems researcher. --- emphasise somehow, that it is uncommon to use all these for such a task, which makes our work stand out , this this work is cool.}
 It is uncommon to use all these features for such a task --- a fact that emphasises the novelty of our work.
 
