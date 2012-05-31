@@ -27,7 +27,7 @@ The design decisions were:
 \item To have global \emph{ticks}, designating an abstract notion of time.
 \end{itemize}
 However, we additionally required a way to implement \emph{blocking} messaging as a means to provide \emph{synchronisation} between components.
-In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{where} in the code of the sender the blocking \cd{invoke} method is called.
+In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{where} in the code of the sender the blocking \hs{invoke} method is called.
 % If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
 This means we required the notion of suspending a computation---\emph{suspendable} at any moment of execution of the simulated component.
 In the following we will show that using Haskell\nolinebreak[3] \cite{haskell-report} enabled us to implement this property in a nice way.
@@ -40,7 +40,7 @@ The contributions of this paper include:
 % \item \olcomment{in case of success: The way to model "suspending
 %     computation" with heterogeneous data without using dynamic types.}
 \end{itemize}
-\soosim is also available from Hackage.\footnote{Issue \cd{cabal install SoOSiM} to install \soosim. See also:
+\soosim is also available from Hackage.\footnote{Issue \hs{cabal install SoOSiM} to install \soosim. See also:
 \url{http://github.com/christiaanb/SoOSiM}.}
 
 The remaining part of this paper is organised as follows.
@@ -228,7 +228,7 @@ The idea is to specify an application once in a self-created embedded language a
 Following the \emph{final tagless} \cite{final_tagless_embedding} encoding of embedded languages in Haskell, we use a type class to define the language constructs.
 As an example we demonstrate a mini functional language with mutable references.\olcomment{was: "running example".}
 A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics} \cite{final_tagless_embedding}) type class, defining an \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}.
-The arrow \cd{:->} is the function arrow in the embedded language, \eg \cd{repr (a :-> b)}, in contrast to the function arrow \cd{->} of the host language.
+The arrow \hs{:->} is the function arrow in the embedded language, \eg \hs{repr (a :-> b)}, in contrast to the function arrow \hs{->} of the host language.
 
 \begin{figure}
 \centering
@@ -247,7 +247,7 @@ class Symantics repr where
 One interaction we might now want to observe is the application's use of mutable references and the subsequent communication with the memory manager OS module.
 For this purpose we create a \hs{newtype RefMemAcc} wrapping the simulator monad, and define an instance of the \hs{Symantics} type-class for it.
 
-We can define most language constructs to behave like their Haskell counterpart, e.g., the \hs{app} construct instance is defined using monadic bind (\bind).
+We can define most language constructs to behave like their Haskell counterpart, e.g., the \hs{app} construct instance is defined using monadic bind (\hs{>>=}\xspace).
 %($\mathit{>>=}$).
 However, instead of using a Haskell-based implementation like \textsf{Data.IORef} for the definition of the mutable reference aspect of our language, we implement these constructs as invocations of the memory manager (see Figure~\ref{lst_observing_memory_access}).
 
@@ -289,7 +289,7 @@ instance Symantics RefMemAcc where
 % \end{code}
 % % createComponentRequest :: String -> SimM ComponentId
 % % createComponentRequest =  ... -- implementation omitted
-% \caption{Registering a \cd{scheduler} component.}
+% \caption{Registering a \hs{scheduler} component.}
 % \label{fig:code-scheduler}
 % \olcomment{so what?}
 % \end{figure}
@@ -335,7 +335,7 @@ Although initially used solely for the purpose of dealing with existentially qua
 \label{sec:impl-monads}
 \begin{figure}
 \centering
-\begin{code*}
+\begin{code}
 type SimMonad =  StateT SimState IO
 data SimState = ...
 
@@ -352,16 +352,16 @@ data RequestOrYield request response x
 instance Functor (RequestOrYield x f) where
   fmap f (Request x g) = Request x (f . g)
   fmap f (Yield y)     = Yield (f y)
-\end{code*}
-\caption{Implementing \cd{SimM}.}
+\end{code}
+\caption{Implementing \hs{SimM}.}
 \label{fig:code-simm}
 \end{figure}
 
-We use a monad called \cd{SimM} to capture the \emph{state} of the simulator.
-The implementation of \cd{SimM}, sketched in Figure~\ref{fig:code-simm}, enables us to reach the main implementation goal: the ultimate suspension and resumption of the components upon message passing.
-To suspend a computation in the current component we can now merely write \cd{request componentId}, where the \cd{componentId} is the unique ID of some other component.
+We use a monad called \hs{SimM} to capture the \emph{state} of the simulator.
+The implementation of \hs{SimM}, sketched in Figure~\ref{fig:code-simm}, enables us to reach the main implementation goal: the ultimate suspension and resumption of the components upon message passing.
+To suspend a computation in the current component we can now merely write \hs{request componentId}, where the \hs{componentId} is the unique ID of some other component.
 The suspending of a component is nothing else than sending a outgoing message in the name of the component and blocking the sender until a response.
-The execute a resumeable computation we issue \cd{resume} \mbox{\cd{computation}.} %% hackery to get spaces right
+The execute a resumeable computation we issue \hs{resume} \mbox{\hs{computation}.} %% hackery to get spaces right
 
 
 \subsection{Coroutines}
@@ -403,7 +403,7 @@ We utilised \textsf{Data.Dynamic} to convert transmitted values of a dynamic typ
 An attempt to sort the dynamic types out with the parameterised monad also fails, as detailed in the next section.
 
 \subsection{Parameterised Monads}
-The parameterised monads\footnote{See \url{http://www.haskell.org/pipermail/haskell-prime/2006-February/000498.html}.}  allow more generic type signatures for monad operations, esp.\ for \bind\nolinebreak[4] \cite{monad-parametrisable}:
+The parameterised monads\footnote{See \url{http://www.haskell.org/pipermail/haskell-prime/2006-February/000498.html}.}  allow more generic type signatures for monad operations, esp.\ for \hs{>>=}\xspace\nolinebreak[4] \cite{monad-parametrisable}:
 \begin{code}
 class PMonad m where
 return :: a -> m s s a
@@ -411,13 +411,13 @@ return :: a -> m s s a
 \end{code}
 This approach works fine with the state monad
 \begin{code}
-newtype PState s1 s2 a = PState { runPState :: s1 -> (a,s2) }
+newtype PState s1 s2 a 
+  = PState { runPState :: s1 -> (a, s2) }
 
 instance PMonad PState where
 return a = PState $ \s -> (a, s)
-m >>= k  = PState $ \s -> let
-(a, s') = runState m s
-in runState (k a) s'
+m >>= k  = PState $ \s -> let (a, s') = runState m s
+                         in runState (k a) s'
 \end{code}
 but it fails for the coroutines. The pivotal issue is: if we introduce different types for the intermediate states of the coroutine, we end up adding more and more types --- the coroutine definition is recursive. In this (non proper Haskell) code
 \begin{code}
@@ -425,12 +425,12 @@ newtype Coroutine m o i r
   = Coroutine { resume :: m (Either (o, i 
      -> Coroutine m i' o r) r) }
 \end{code}
-we need to reference \cd{i'} on the left hand side. Using some more advanced tricks, like a type class for all the chain \cd{i}, \cd{i2}, \dots\ does not really help: all the types on the RHS still need to be listed on the LHS, thus exploding the definition.
+we need to reference \hs{i'} on the left hand side. Using some more advanced tricks, like a type class for all the chain \hs{i}, \hs{i2}, \dots\ does not really help: all the types on the RHS still need to be listed on the LHS, thus exploding the definition.
 
 %% this is for the case it works. It does not.
 % \paragraph{What we did.} We implemented the coroutine monad transformer for the parameterised monads \olcomment{show some code?}.
 %
-% \paragraph{What we miss.} Since GHC seems to assume that each bind has the type \cd{Monad m => m a -> (a -> m b) -> m b} when desugaring the \cd{do}-notation, we were forced to use explicit \bind instead.
+% \paragraph{What we miss.} Since GHC seems to assume that each bind has the type \hs{Monad m => m a -> (a -> m b) -> m b} when desugaring the \hs{do}-notation, we were forced to use explicit \hs{>>=}\xspace instead.
 
 \section{Related Work}
 \label{sec:related-work}
@@ -487,8 +487,8 @@ realtime OS components \cite{Jones:2008:ERP:1411203.1411219}, etc.
 We have presented the efforts required to implement \soosim, an OS simulator in Haskell.
 We note that the techniques more commonly used in the programming language research were highly applicable for our purposes.
 
-We have demonstrated how the utilisation of final tagless eDSL construction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, \cd{Dynamic} types \cite{Abadi:1991:DTS:103135.103138}, and coroutines \cite{coroutines,cmt} facilitated an abstract and concise implementation of an operating system simulator.
-% \olcomment{in case of success: We found a way to replace \cd{Dynamic} types with parameterised monads \cite{monad-parametrisable} in our setting.}
+We have demonstrated how the utilisation of final tagless eDSL construction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, \hs{Dynamic} types \cite{Abadi:1991:DTS:103135.103138}, and coroutines \cite{coroutines,cmt} facilitated an abstract and concise implementation of an operating system simulator.
+% \olcomment{in case of success: We found a way to replace \hs{Dynamic} types with parameterised monads \cite{monad-parametrisable} in our setting.}
 % \olcomment{These techniques belong to the typical repertoire of a programming language designer, but not of an operating systems researcher. --- emphasise somehow, that it is uncommon to use all these for such a task, which makes our work stand out , this this work is cool.}
 It is uncommon to use all these features for such a task --- a fact that emphasises the novelty of our work.
 
@@ -502,7 +502,7 @@ One aspect of the future work is the concurrent \soosim.
 One option is to use Concurrent Haskell \cite{ConcHs}, it provides (concurrent) green threads.
 However, it would also require to use software transactional memory \cite{springerlink:10.1007/s004460050028} because of multiple writes to the same data.
 Examples of fruitful combinations with other concepts include papers by \citeauthor{Harris:2008:CMT:1378704.1378725} \cite{Harris:2008:CMT:1378704.1378725} and \citeauthor{Bieniusa:2010:BAA:1835698.1835714} \cite{Bieniusa:2010:BAA:1835698.1835714,springerlink:10.1007/978-3-642-25959-3_2}.
-Another option would be to use a \emph{parallel} Haskell like Multicore Haskell \cite{marlow:rsm}, \cd{Par} monad \cite{par-monad} or Eden \cite{eden}.
+Another option would be to use a \emph{parallel} Haskell like Multicore Haskell \cite{marlow:rsm}, \hs{Par} monad \cite{par-monad} or Eden \cite{eden}.
 The ``multiple writes'' issue, however, needs some further handling in this case.
 Two further options are either to make the coroutine execution concurrent using actors~\cite{Hewitt:1973:UMA:1624775.1624804,sulzmann2008actors} or to switch to iteratees for expressing blocking communication and to utilise transformers from usual to parallel composable iteratees\footnote{See \url{http://projects.haskell.org/pipermail/iteratee/2011-July/000083.html} for details.}.
 
@@ -516,7 +516,7 @@ Two further options are either to make the coroutine execution concurrent using 
 %Acknowledgments, if needed.
 This work was supported by the S(o)OS project, sponsored by the European Commission under FP7-ICT-2009.8.1, Grant Agreement No.~248465.
 We thank Chung-chieh Shan and Oleg Kiselyov for valuable remarks on
-\cd{Dynamic} types and the parallel iteratees correspondingly.
+\hs{Dynamic} types and the parallel iteratees correspondingly.
 
 %%% Local Variables:
 %%% mode: latex
