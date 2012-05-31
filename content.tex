@@ -24,7 +24,8 @@ The ability to simulate separate components of the OS and of the application was
 The design decisions were:
 \begin{itemize}
 \item To simulate message passing and shared memories as the main forms of communication between software components.
-\item To have global \emph{ticks}, designating an abstract notion of time.
+\item To have global \emph{ticks}, designating an abstract notion of progress.
+\item To observe the number of ticks a component is: active, waiting for a response after invoking another component, or idle.
 \end{itemize}
 However, we additionally required a way to implement \emph{blocking} messaging as a means to provide \emph{synchronisation} between components.
 In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{where} in the code of the sender the blocking \hs{invoke} method is called.
@@ -68,7 +69,12 @@ In \soosim, the hardware platform is described as a set of nodes.
 Each \emph{node} represents a physical computing object: such as a core, complete CPU, memory controller, etc.
 Every node has a local memory of potentially infinite size.
 The layout and connectivity properties of the nodes are not part of the system description.
-If such a level of detail is required, it would have to be modelled explicitly by the user. \jlcomment{How?} \olcomment{Is it possible to model these within \soosim, using various DSL implementations? If yes, say "In our design, embedded DSLs facilitate such definitions. See Section ... for details."}
+If such a level of detail is required, it would have to be modelled explicitly by the user.
+\jlcomment{How?}
+\olcomment{Is it possible to model these within \soosim, using various DSL implementations? If yes, say "In our design, embedded DSLs facilitate such definitions. See Section ... for details."}
+\cbcomment{By creating a component, which would reside on each node, that handles the messaging.
+Meaning that if you want to communicate with a component, you would invoke the messenger component, instead of the component itself.
+The messenger module would then keep an internal state, representing the connectivity of all the nodes, and forward the message accordingly.}
 
 Each \emph{node} hosts a set of components.
 A \emph{component} represents an executable object: such as a thread, application, OS module, etc.
@@ -93,32 +99,40 @@ A schematic overview of an example system can be seen in Figure~\ref{fig:system}
 Basic requirements that we would have towards any simulator include the facilities to straightforwardly simulate the instantiation of application threads and OS modules.
 Aside from the fact that the S(o)OS-envisioned system will be dynamic as a result of loading OS modules on-the-fly, large-scale systems also tend to be dynamic in the sense that computing nodes can disappear (failure), or
 appear (hot-swap).
-Hence, we also require that our simulator facilitates the straightforward creation and destruction of computing elements.
+Hence, we also require that our simulator facilitates the straightforward creation and destruction of computing elements, represented by \emph{nodes} in \soosim.
 Our current need for a simulator rests mostly in formalising the S(o)OS concept, and examining the interaction between our envisioned OS modules and the application threads.
 As such, being able to extract highly accurate performance figures from a simulated system is not a key requirement.
 We do, however, wish to be able to observe all interactions among application threads and OS modules.
 Additionally, we wish to be able to \emph{zoom in} on particular aspects of the behaviour of an application: such as memory access, messaging, etc.
 
-The simulator progresses all components concurrently in one discrete step called a \emph{tick}.
-During a tick, the simulator passes the content that is at the head of the message queue of each individual component.
-If the message queue of a component is empty, a component will be executed with a \emph{null} message.
-If desired, a component can inform the simulator that it does not want to receive these null messages.
+The simulator \emph{attempts} to progress all components concurrently in one discrete step called a \emph{tick}.
+If a component is waiting for a response from an invoked component, but none is available, a component will remain in a waiting state.
+During a tick, the simulator progresses a component by one of the following means:
+\begin{itemize}
+  \item If a component is in a waiting state, and a response is available in the message queue, the component will be executed with this response message.
+  \item If a component is not in a waiting state, and the message queue is not empty, the component will be executed by passing it the message that is at the head of the message queue.
+  \item If a component is not in a waiting state, and the message queue is empty, the component will be executed by passing it a \emph{null} message.
+\end{itemize}
+When desired, a component can inform the simulator that it does not want to receive these null messages.
 In that case the component will not be executed by the simulator during a \emph{tick}.
 
+The simulator keeps several statistics with regards to the components, including how many ticks a component was either: \emph{active}, \emph{waiting}, or \emph{idle}.
+When a component makes progress during a tick, is considered \emph{active}.
+When a component does not make progress because the response it was waiting for was not yet available, the component is designated as \emph{waiting}.
+A component not making progress because it has an empty message queue, and having indicated that it does not want to receive \emph{null} messages, is designated as \emph{idle}.
 
 \subsection{OS Component Descriptions}
-
 The OS components are also specified in Haskell, each component is modelled as a function.
 In case of \soosim, such a function is executed within the context of the simulator, this means: in a \emph{monad}.
 
-Because the function is executed within the monad, it can have \emph{side-effects} such as sending messages to other components, or reading the memory of a local memory.
+Because the function is executed within the monad, it can have \emph{side-effects} such as sending messages to other components, or reading the local memory of a node.
 In addition, the function can be temporarily suspended at (almost) any point in the code.
 \soosim needs to be able to suspend the execution of a function so that it may emulate synchronous message passing between components, a subject we will further elaborate later on.
 
-We describe a component as a function that receives a user-defined internal state as its first argument and a value of type \hs{SimEvent} as its second argument.
+We describe a component as a function that receives a user-defined internal state as its first argument, and a value of type \hs{SimEvent} as its second argument.
 The result of this function is the internal state.
 A value of type \hs{SimEvent} is either message from another component, or a null message.
-We thus have the following general type signature for a component:
+We thus have the following \emph{general} type signature for a component:
 %\numbersoff
 \begin{code}
 component :: state -> SimEvent -> SimM state
@@ -207,8 +221,8 @@ As one can imagine, the explicit FSM approach quickly resulted in overly verbose
 As a solution we essentially mechanised the creation of the FSM using the notion of \emph{suspendable} computations.
 When a developer uses the \hs{invoke} function, two things actually happen:
 \begin{itemize}
-  \item A message is send to the invoked component.
-  \item The remaining computation is suspended and stored by simulator, ready to be scheduled once a response to the invocation arrives.
+  \item A message is send to the invoked component (callee).
+  \item The remaining computation of the caller is suspended and stored by simulator, ready to be scheduled once a response to the invocation arrives.
 \end{itemize}
 Every call to \hs{invoke} hence corresponds to an explicit state transition, but without the burden of explicit state-keeping.
 We achieved suspendability using coroutines~\cite{coroutines}, more specifically, a coroutine monad transformer~\cite{cmt}.
@@ -307,9 +321,9 @@ instance Symantics RefMemAcc where
 % }
 
 \paragraph{Final tagless embedding.}
-\citeauthor{final_tagless_embedding} have demonstrated how a typed interpreter of a typed language can be tagless \cite{final_tagless_embedding}. 
-This approach does not use GADTs or dependent types. 
-The target language types are represented as host language types, object terms are encoded as calls to host language functions. With type classes \citeauthor{final_tagless_embedding} make it possible to express, \eg an interpreter and an compiler of the same language in a flexible manner. 
+\citeauthor{final_tagless_embedding} have demonstrated how a typed interpreter of a typed language can be tagless \cite{final_tagless_embedding}.
+This approach does not use GADTs or dependent types.
+The target language types are represented as host language types, object terms are encoded as calls to host language functions. With type classes \citeauthor{final_tagless_embedding} make it possible to express, \eg an interpreter and an compiler of the same language in a flexible manner.
 \citeauthor{Hofer:2008:PED:1449913.1449935} do a similar work \cite{Hofer:2008:PED:1449913.1449935}, but focus on different interpretations.
 This matches our intentions.
 Hold on our above example of a small language with mutable references.
@@ -336,22 +350,25 @@ Although initially used solely for the purpose of dealing with existentially qua
 \begin{figure}
 %\centering
 \begin{code}
-type SimMonad =  StateT SimState IO
-data SimState = ...
+type SimMonad  =  StateT SimState IO
+data SimState  = ...
 
 newtype SimM a
-  = SimM { runSimM :: Coroutine
-      (RequestOrYield Unique Dynamic)
-      SimMonad a }
+  = SimM { runSimM ::
+               Coroutine
+                 (RequestOrYield CompID Dynamic)
+                 SimMonad
+                 a
+         }
     deriving (Functor, Monad)
 
 data RequestOrYield request response x
-  = Request request (response -> x)
-  | Yield   x
+  =  Request request (response -> x)
+  |  Yield   x
 
 instance Functor (RequestOrYield x f) where
-  fmap f (Request x g) = Request x (f . g)
-  fmap f (Yield y)     = Yield (f y)
+  fmap f (Request x g)  = Request x (f . g)
+  fmap f (Yield y)      = Yield (f y)
 \end{code}
 \caption{Implementing \hs{SimM}.}
 \label{fig:code-simm}
@@ -374,6 +391,11 @@ We utilise \textsf{Control.Monad.Coroutine} \cite{cmt} to express coroutines.
 \subsection{Dynamic Types}
 We use dynamic types \cite{Abadi:1991:DTS:103135.103138} as ``the other side'' of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
 
+The \emph{origin} for the need of dynamic types lies in the suspension functor or our coroutines.
+More specifically, the \hs{response} field, that designates the type of the response returned after an invocation.
+This field would be different for every component we want to invoke, as components should be able to communicate datatypes of any kind.
+We have only been able to encode this aspect in the suspension functor using dynamic types.
+
 % \cbcomment{The use-case for existentials+type-classes is to get an OO-like way of programming; please correct me if I'm wrong.
 % Just take a look at: http://www.haskell.org/haskellwiki/Existential_type
 % This approach is perfect if you know upfront what kind of operations you want to perform on the data-types.
@@ -389,7 +411,7 @@ We use dynamic types \cite{Abadi:1991:DTS:103135.103138} as ``the other side'' o
 If we knew upfront what kind of operations the users might want to perform on the data types, we could have used existential types and type classes, \viz \cite{Laufer:1994:PTI:186025.186031,Kiselyov:2004:STH:1017472.1017488}.
 However, this is not our case.
 \olcomment{I connect the dynamic types to communication, as we need the coroutines for blocking!}
-We need to transmit synchronously values of heterogeneous types. 
+We need to transmit synchronously values of heterogeneous types.
 % and the information on how these values should be used is stored in the values themselves!
 % This information should be be manipulated in any kind of way.
 The types in the coroutine monad transformer are too restrictive.
@@ -412,7 +434,7 @@ return :: a -> m s s a
 If we could change the from one to another intermediate type in the coroutine, we would need to dynamic types.
 This approach works fine with the state monad
 \begin{code}
-newtype PState s1 s2 a 
+newtype PState s1 s2 a
   = PState { runPState :: s1 -> (a, s2) }
 
 instance PMonad PState where
@@ -420,15 +442,15 @@ return a = PState $ \s -> (a, s)
 m >>= k  = PState $ \s -> let (a, s') = runState m s
                          in runState (k a) s'
 \end{code}
-but it fails for the coroutines. 
-The pivotal issue is: if we introduce different types for the intermediate states of the coroutine, we end up adding more and more types --- the coroutine definition is recursive. 
+but it fails for the coroutines.
+The pivotal issue is: if we introduce different types for the intermediate states of the coroutine, we end up adding more and more types --- the coroutine definition is recursive.
 In this (non proper Haskell) code
 \begin{code}
-newtype Coroutine m o i r 
-  = Coroutine { resume :: m (Either (o, i 
+newtype Coroutine m o i r
+  = Coroutine { resume :: m (Either (o, i
      -> Coroutine m i2 o r)  r) }
 \end{code}
-we make an attempt to reach our goal. 
+we make an attempt to reach our goal.
 However, to make this code valid Haskell, we need to reference \hs{i2} on the left hand side: \hs{Coroutine m i i2 o r}.
 In the type of the \hs{resume} function we need to reference \hs{Coroutine} correctly, hence we write \hs{Coroutine m i2 i3 o r} there, and so on.
 Using some more advanced tricks, like a type class for all the chain \hs{i}, \hs{i2}, \hs{i3}, \dots\ does not really help: all the types on the RHS still need to be listed on the LHS, thus exploding the definition.
