@@ -1,0 +1,357 @@
+%-----------------------------------------------------------------------------
+%
+%               Template for sigplanconf LaTeX Class
+%
+% Name:         sigplanconf-template.tex
+%
+% Purpose:      A template for sigplanconf.cls, which is a LaTeX 2e class
+%               file for SIGPLAN conference proceedings.
+%
+% Guide:        Refer to "Author's Guide to the ACM SIGPLAN Class,"
+%               sigplanconf-guide.pdf
+%
+% Author:       Paul C. Anagnostopoulos
+%               Windfall Software
+%               978 371-2316
+%               paul@windfall.com
+%
+% Created:      15 February 2005
+%
+%-----------------------------------------------------------------------------
+
+
+\documentclass[preprint]{sigplanconf}
+
+% The following \documentclass options may be useful:
+%
+% 10pt          To set in 10-point type instead of 9-point.
+% 11pt          To set in 11-point type instead of 9-point.
+% authoryear    To obtain author/year citation style instead of
+% numeric.
+
+%%%%%%%%%%%%%%%%%
+% includes      %
+%%%%%%%%%%%%%%%%%
+%%% fix latex
+\usepackage{fixltx2e}
+\usepackage{amsfonts,amsmath,amssymb,latexsym,stmaryrd}
+%%%%%%%% decide of pdflatex
+\usepackage{ifpdf}
+%%%%%%%% decide on xetex
+\usepackage{ifxetex}
+%% ifthenelse
+\usepackage{xifthen}
+
+\usepackage{url}
+\usepackage{doi}
+
+%% format the doi links:
+\renewcommand{\doitext}{DOI~}
+
+%% nicer micro-layout of text. cool if it works here
+\usepackage{microtype}
+
+%include polycode.fmt
+%% lhs2latex
+%format :-> = "\ensuremath{\rightarrowtail}"
+
+%%%%%%%%%%% code faerben
+% Coloured Code
+\usepackage[table,x11names,svgnames]{xcolor}
+\definecolor{middlegray}{rgb}{0.3,0.3,0.3}
+\definecolor{lightgray}{rgb}{0.7,0.7,0.7}
+\definecolor{Red}{rgb}{1,0,0}
+\definecolor{red}{rgb}{.8,0,0}
+\definecolor{blue}{rgb}{0,0,0.5}
+\definecolor{yac}{rgb}{0.5,0.5,0.1}
+
+%% additional symbols for the haskell markup
+\usepackage{colonequals} % for \equalscolon
+%% \twoheadrightarrow is an AMS arrow
+
+% %\if\istufte
+% \newcommand{\bindx}{$\gg$=}
+% \newcommand{\bind}{\textsf{\bindx}\xspace}
+
+% \usepackage{listings}
+% \lstloadlanguages{Haskell}
+% \lstnewenvironment{codeXX}
+%  {
+%    \lstset{style=steden,
+%     xleftmargin=0pt,
+%     xrightmargin=0pt,
+%   }} {}
+% \lstnewenvironment{codeX}
+%  {
+%    \lstset{style=steden,
+%     xleftmargin=0pt,
+%     xrightmargin=0pt,
+%   }} {}
+%  \lstdefinestyle{mypseudoc}{basicstyle=\sffamily,
+%     language=C,
+%     commentstyle=\color{darkgray}\sffamily\slshape,
+%     stringstyle=\color{yac}\sffamily,
+%     emph={par,repeat,until,not,size,all,map,takeWhile, subset,or},
+%     emphstyle={\bfseries},
+% %    emph={[2]size,all,map,takeWhile},
+% %    emphstyle={[2]\em}
+%     %    frame=lines,
+%     columns=fullflexible,
+%     lineskip=-0.1ex,
+% }
+% \lstnewenvironment{pseudoc}
+%  {
+%    \lstset{style=mypseudoc,
+%     % xleftmargin=10pt,
+%     % xrightmargin=10pt,
+%   }} {}
+
+
+% \newcommand{\pseudocd}[1]{\lstinline[style=mypseudoc,keepspaces=true,breaklines=true]|#1|}
+
+%  \lstdefinestyle{maple}{basicstyle=\ttfamily,
+%     keywordstyle=\color{blue}\bfseries\ttfamily,
+%     stringstyle=\color{yac}\ttfamily,
+%     escapechar={$}, %$
+%     showstringspaces=false,
+%     commentstyle=\color{darkgray}\ttfamily,
+%     emph={with,:=,:,..,RandomMatrix,Determinant},
+%     emphstyle={\color{blue}\bfseries},
+%     captionpos=b,
+%     lineskip=-0.1ex,
+%     frame=no,
+%     language=Octave,
+%     columns=fullflexible
+% }
+
+% \lstnewenvironment{maplec}
+%  {
+%    \lstset{style=maple,
+%     xleftmargin=30pt,
+%     xrightmargin=10pt,
+%   }} {}
+
+
+%  \lstdefinestyle{steden}{basicstyle=\sffamily,%\footnotesize,
+%     keywordstyle=\color{blue}\bfseries\sffamily,
+%     stringstyle=\color{yac}\sffamily,
+% %    escapechar={},
+% %    columns=flexible,
+%     columns=fullflexible,
+%     showstringspaces=false,
+%     commentstyle=\color{darkgray}\sl\sffamily,
+%     emph={process,new,parfill,multifill,release,fetch,releaseAll,fetchAll,spawn,processDC,\#},
+%     emphstyle={\color{blue}\bfseries},
+%     emph={[2]ChanName,Process,RD,Trans,NFData,reduce,fold,parMapDC,reduceDC,parMapAt,map_par,map_farm,map_wp,parMap,farm,ssf,workpool,par,pseq,StateT,PMonad,PState},
+%     emphstyle={[2]\color{blue}\bfseries},
+%     emphstyle={[3]\color{red}\bfseries},
+%     emph={[3]r0,rwhnf,rnf,rdeepseq,unsafePerformIO,IO,merge},
+%     captionpos=b,
+%     lineskip=-0.1ex,
+%     frame=none,
+%     language=Haskell,
+%     literate={= }{{$=$ }}2 % a hack for spacing, why do we need it?!
+%               {+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+% %             {`+`}{{$\;+\;$}}1  {`-`}{{$\;-\;$}}1 {`*`}{{$\;*\;$}}1
+% %% make it back
+%              {`+`}{{+}}1  {`-`}{{-}}1 {`*`}{{*}}1
+%              {>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1 {\\n}{{\textbackslash
+%              n}}2 {\\\\}{{\char`\\\char`\\}}1
+%              {-> }{{$\rightarrow$ }}3 {>=}{{$\geq$}}2 
+% %             {<-}{{$\leftarrow$}}2
+%              {<-}{{$\in$}}2 % the list comprehension <-
+%              {<--}{{$\leftarrow$}}2 % the monadic <-
+%              {<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2
+%              {\ .\ }{{ $\circ$ }}3
+%              {(.)}{{($\circ$)}}3
+% %%%             {\ |.\ }{{ . }}3
+%              {>>}{{>>}}2 {>>=}{{\bindx{}}}2 {/=}{{$\neq$}}2
+%              {|}{{$\mid$}}1
+% %%% vector operations
+%              {v+}{{$\overrightarrow{+}$}}1 {v-}{{$\overrightarrow{-}$}}1
+%              {v*}{{$\overrightarrow{\cdot}$}}1
+% %%% number fields
+%              {NN}{{$\N$}}1 {ZZ}{{$\Z$}}1 {QQ}{{$\Q$}}1
+%              {xdd}{{$\delta$}}1
+%              {xaa}{{$\alpha$}}1
+% %%% further hacks
+%              {`l_p`}{{l\textsubscript{p}}}2 {`=`}{{$=$}}1
+%              {p^k}{{p\textsuperscript{k}}}2
+%              {`p^k`}{{p\textsuperscript{k}}}2
+%              {`^2`}{{\textsuperscript{2}}}1
+%              {bottom}{{$\bot$}}1
+%              {:-> }{{$\twoheadrightarrow$ }}2
+%              {=:}{{$\equalscolon$}}2
+% %             {++}{{}}
+% %% do not highlight "reduce" in a special case
+%              {xreduce}{{reduce}}6
+%              }
+
+% \lstnewenvironment{code*}
+%    {
+%      \lstset{style=steden,
+%     }} {}
+% \newcommand{\cd}[1]{\lstinline[style=steden,keepspaces=true,
+% breaklines=true,basicstyle=\sffamily];#1;}
+% \newcommand{\scd}[1]{\texttt{#1}}
+% \newcommand{\hs}[1]{\cd{#1}}
+% %\newcommand{\scd}[1]{\protect\cd{#1}}
+% \newcommand{\inputcode}[1]{\lstinputlisting[style=steden,xleftmargin=0pt,
+%     xrightmargin=0pt]{#1}}
+
+% \lstnewenvironment{code}
+%    {
+%      \lstset{style=steden,
+%     frame=none,
+%     xleftmargin=0pt,
+%     xrightmargin=0pt,
+%     }} {}
+
+
+% Run command if a source-file has changed
+\newcommand{\executeiffilenewer}[3]{%
+\ifnum\pdfstrcmp{\pdffilemoddate{#1}}%
+{\pdffilemoddate{#2}}>0%
+{\immediate\write18{#3}}\fi%
+}
+
+\usepackage{import}
+\newcommand{\includesvg}[1]{%
+\executeiffilenewer{images/#1.svg}{images/#1.pdf}%
+{inkscape -z --file=images/#1.svg --export-pdf=images/#1.pdf --export-latex}%
+\import{images/}{#1.pdf_tex}%
+}
+
+% New caption environment for code listings
+\usepackage{float}
+\floatstyle{ruled}
+\newfloat{programlisting}{ht}{lop}
+\floatname{programlisting}{Listing}
+
+
+%%
+% For nicely typeset tabular material
+\usepackage{booktabs}
+
+%%
+% For graphics / images
+\usepackage{graphicx}
+\graphicspath{{img/},{images/}}
+
+%%
+% Prints a trailing space in a smart way.
+\usepackage{xspace}
+
+
+\newcommand{\hangleft}[1]{\makebox[0pt][r]{#1}}
+\newcommand{\hairsp}{\hspace{1pt}}% hair space
+\newcommand{\hairspn}{\hspace{1pt}\nolinebreak}% hair space with no break
+\newcommand{\hquad}{\hskip0.5em\relax}% half quad space
+\newcommand{\TODO}{\textcolor{red}{\bfseries TODO!}\xspace}
+%% Don't italicize either form in its standard use:
+\DeclareRobustCommand{\ie}{{i.\hairspn{}e.,}\nopagebreak[4] }
+\DeclareRobustCommand{\eg}{{e.\hairspn{}g.,}\nopagebreak[4] }
+\DeclareRobustCommand{\fe}{{f.\hairspn{}e.,}\nopagebreak[4] }
+\DeclareRobustCommand{\ad}{{A.\hairspn{}D.}\xspace}
+\DeclareRobustCommand{\bcc}{{A.\hairspn{}C.}\xspace}
+\DeclareRobustCommand{\wrt}{w.\hairsp{}r.\hairspn{}t.~}
+\DeclareRobustCommand{\etc}{etc.\ }
+\DeclareRobustCommand{\cf}{\textit{cf.}~}
+\DeclareRobustCommand{\viz}{\textit{viz.}~}
+\DeclareRobustCommand{\hof}{higher-or\-der function\xspace}
+
+%% the numberings
+\newcommand{\xth}{\textsuperscript{th}\xspace}
+\ifxetex
+  \newcommand{\st}{\textsuperscript{st}\xspace}
+\else
+  \ifpdf
+    \newcommand{\st}{\textsuperscript{st}\xspace}
+  \else
+    \renewcommand{\st}{\textsuperscript{st}\xspace}
+  \fi
+\fi
+\newcommand{\nd}{\textsuperscript{nd}\xspace}
+\newcommand{\xrd}{\textsuperscript{rd}\xspace}
+\providecommand{\th}{\xth}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% Graphics
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{tikz}
+%% optional arrows
+\usetikzlibrary{arrows}
+%% calculating and geometry
+\usetikzlibrary{calc}
+\usetikzlibrary{through}
+% \usetikzlibrary{shapes.symbols}
+\usetikzlibrary{shapes}
+%% decoration library
+\usetikzlibrary{decorations.pathmorphing}
+
+%% wrap figure
+\usepackage{wrapfig}
+
+
+%%%%%%%%%%%%%%%%%
+% defines       %
+%%%%%%%%%%%%%%%%%
+%\newcommand{\hl}[1]{\textcolor{Maroon}{#1}}% prints in red
+\newcommand{\hl}[1]{\textcolor{Red}{#1}}% prints in red
+
+%%% kommentare
+%\newcommand{\comm}[2]{}
+\newcommand{\comm}[2]{\hl{\(\spadesuit\){\bfseries #1: }}{\sffamily #2}\hl{\(\spadesuit\)}}
+\newcommand{\olcomment}[1]{\comm{OL}{#1}}
+\newcommand{\cbcomment}[1]{\comm{CB}{#1}}
+\newcommand{\jkcomment}[1]{\comm{JK}{#1}}
+\newcommand{\jlcomment}[1]{\comm{JL}{#1}}
+\newcommand{\glcomment}[1]{\comm{GL}{#1}}
+
+
+\newcommand{\soosim}{SoOSiM\xspace}
+
+\begin{document}
+
+\conferenceinfo{Haskell '12}{13\xth September, 2012, Copenhagen, Denmark.}
+\copyrightyear{2012}
+\copyrightdata{[to be supplied]}
+
+%\titlebanner{banner above paper title}        % These are ignored unless
+\preprintfooter{\today}   % 'preprint' option specified.
+
+\title{Experience report: \soosim, an OS simulator in Haskell}
+%\subtitle{Subtitle Text, if any}
+
+\authorinfo{Oleg Lobachev}
+           {Scuola Superiore Sant'Anna\\Pisa, Italy}
+           {{o.lobachev@@sssup.it}}
+\authorinfo{Christiaan Baaij\and Jan Kuper}
+           {University of Twente\\Twente, Netherlands}
+           {\{c.p.r.baaij, {j.kuper}\}@@utwente.nl}
+\authorinfo{Juri Lelli\and Giuseppe Lipari}
+           {Scuola Superiore Sant'Anna\\Pisa, Italy}
+           {\{{j.lelli}, {g.lipari}\}@@sssup.it}
+
+
+\maketitle
+
+\begin{abstract}
+This paper presents our experience from implementing \soosim --- an operating system simulator, written in Haskell. 
+We briefly discuss the goals and purposed usage of our simulator. 
+We examine in detail the language features, extensions, programming patterns and techniques, used to implement \soosim. 
+These include coroutines, type classes, monads, techniques for embedded domain-specific languages, and dynamic types.
+Coroutines were especially useful to implement synchronous communication model.
+% With the parameterised monads we were able to eliminate dynamic types from our code.
+%% unfortunately: no!
+\end{abstract}
+
+\category{D.3.3}{Programming Languages}{Language Constructs and Features}
+
+\terms{Design, Languages}
+
+\keywords
+simulation, type classes, ad-hoc polymorphism, finally tagless embedding, dynamic typing, monads
