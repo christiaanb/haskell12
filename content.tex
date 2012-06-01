@@ -25,7 +25,7 @@ The design decisions were:
 \begin{itemize}
 \item To simulate message passing and shared memories as the main forms of communication between software components.
 \item To have global \emph{ticks}, designating an abstract notion of progress.
-\item To observe the number of ticks a component is: active, waiting for a response after invoking another component, or idle.
+\item To observe the number of ticks a software component is: active, waiting for a response after invoking another component, or idle.
 \end{itemize}
 However, we additionally required a way to implement \emph{blocking} messaging as a means to provide \emph{synchronisation} between components.
 In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{where} in the code of the sender the blocking \hs{invoke} method is called.
@@ -35,16 +35,15 @@ In the following we will show that using Haskell\nolinebreak[3] \cite{haskell-re
 The contributions of this paper include:
 \begin{itemize}
 \item A short overview of the \soosim project.
-\item The description of the embedded domain-specific language (eDSL) used to implement OS components in \soosim.
+\item The description of the interface used to implement OS components in \soosim.
 \olcomment{Do \hs{createComponent} etc. really form a DSL? Say `interface'?}
+\cbcomment{I think DSL is wrong wording, interface is indeed better}
 \item The description of \emph{a} eDSL to describe applications that will run on a \soosim \emph{simulated} system.
 \item The list of Haskell language features, we found particularly useful in this project.
+\item A release of \soosim on Hackage.\footnote{Issue \textsf{cabal install SoOSiM} to install \soosim. See also: \url{http://github.com/christiaanb/SoOSiM}.}
 % \item \olcomment{in case of success: The way to model "suspending
 %     computation" with heterogeneous data without using dynamic types.}
 \end{itemize}
-\soosim is also available from Hackage.\footnote{Issue \textsf{cabal install SoOSiM} to install \soosim. See also:
-\url{http://github.com/christiaanb/SoOSiM}.}
-
 The remaining part of this paper is organised as follows.
 % Section~\ref{sec:soos-project} gives an overview of the SoOS project and of the role \soosim plays in the project.
 Section~\ref{sec:soosim-an-overview} described the structure of the \soosim simulator from the user's perspective.
@@ -70,7 +69,7 @@ In \soosim, the hardware platform is described as a set of nodes.
 Each \emph{node} represents a physical computing object: such as a core, complete CPU, memory controller, etc.
 Every node has a local memory of potentially infinite size.
 The layout and connectivity properties of the nodes are not part of the system description.
-If such a level of detail is required, it would have to be modelled explicitly by the user.
+% If such a level of detail is required, it would have to be modelled explicitly by the user.
 \jlcomment{How?}
 \olcomment{Is it possible to model these within \soosim, using various DSL implementations? If yes, say "In our design, embedded DSLs facilitate such definitions. See Section ... for details."}
 \cbcomment{By creating a component, which would reside on each node, that handles the messaging.
@@ -84,7 +83,7 @@ Having both explicit messaging and shared memories, \soosim supports the two wel
 Because multiple components can send messages to one component, all components have a message queue.
 All components in a simulated system, even those hosted within the same node, are executed concurrently from the component's point of view.
 The simulator poses no restrictions as to which components can communicate with each other, nor to which node's local memory they can read from and write to.
-A user of \soosim would have to model those restrictions explicitly if required.
+% A user of \soosim would have to model those restrictions explicitly if required.
 A schematic overview of an example system can be seen in Figure~\ref{fig:system}.
 
 %\def\svgwidth{\columnwidth}
