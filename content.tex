@@ -29,7 +29,6 @@ The design decisions were:
 \end{itemize}
 However, we additionally required a way to implement \emph{blocking} messaging as a means to provide \emph{synchronisation} between components.
 In other words, if a blocking message is sent, the sender is waiting for an answer---regardless \emph{where} in the code of the sender the blocking \hs{invoke} method is called.
-% If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
 This means we required the notion of suspending a computation---it should be \emph{suspendable} at any moment of execution of the simulated component.
 In the following we will show that using Haskell\nolinebreak[3] \cite{haskell-report} enabled us to implement this property in a nice way.
 The contributions of this paper include:
@@ -40,25 +39,16 @@ The contributions of this paper include:
 \cbcomment{I think DSL is wrong wording, interface is indeed better}
 \item The description of \emph{a} eDSL to describe applications that will run on a \soosim \emph{simulated} system.
 \item The list of Haskell language features, we found particularly useful in this project.
-% \item \olcomment{in case of success: The way to model "suspending
-%     computation" with heterogeneous data without using dynamic types.}
 \end{itemize}
 \soosim has been released on Hackage.\footnote{Issue \textsf{cabal install SoOSiM} to install \soosim. See also: \url{http://github.com/christiaanb/SoOSiM}.}
 %% release is not a paper contribution, unfortunately!
 
 The remaining part of this paper is organised as follows.
-% Section~\ref{sec:soos-project} gives an overview of the SoOS project and of the role \soosim plays in the project.
 Section~\ref{sec:soosim-an-overview} describes the structure of the \soosim simulator from the user's perspective.
 Section~\ref{sec:dsl} gives an implementation overview of the domain specific language, used to implement application running within a \soosim simulated environment.
 Section~\ref{sec:impl-detail} discusses Haskell features from which our implementation especially benefited.
 Section~\ref{sec:related-work} covers related work.
 Section~\ref{sec:concl-future-work} concludes and gives an outlook for the further research.
-
-% \section{SoOS Project}
-% \label{sec:soos-project}
-%
-% The SoOS project \olcomment{....... } \cite{soos}...
-% \olcomment{Do we need an overview of the whole project then?}\cbcomment{I don't think so} %% ok
 
 \section{\soosim: An Overview}
 \label{sec:soosim-an-overview}
@@ -72,11 +62,12 @@ Each \emph{node} represents a physical computing object: such as a core, a compl
 Every node has a local memory of potentially infinite size.
 The layout and connectivity properties of the nodes are not part of the system description.
 % If such a level of detail is required, it would have to be modelled explicitly by the user.
-\jlcomment{How?}
-\olcomment{Is it possible to model these within \soosim, using various DSL implementations? If yes, say "In our design, embedded DSLs facilitate such definitions. See Section ... for details."}
-\cbcomment{By creating a component, which would reside on each node, that handles the messaging.
-Meaning that if you want to communicate with a component, you would invoke the messenger component, instead of the component itself.
-The messenger module would then keep an internal state, representing the connectivity of all the nodes, and forward the message accordingly.}
+% \jlcomment{How?}
+% \olcomment{Is it possible to model these within \soosim, using various DSL implementations? If yes, say "In our design, embedded DSLs facilitate such definitions. See Section ... for details."}
+% \cbcomment{By creating a component, which would reside on each node, that handles the messaging.
+% Meaning that if you want to communicate with a component, you would invoke the messenger component, instead of the component itself.
+% The messenger module would then keep an internal state, representing the connectivity of all the nodes, and forward the message accordingly.}
+%% nice, but not now. maybe useful for an extended version
 
 Each \emph{node} hosts a set of components.
 A \emph{component} represents an executable object: such as a thread, application, OS module, etc.
@@ -85,7 +76,6 @@ Having both explicit messaging and shared memory,\olcomment{memory or memories?}
 Because multiple components can send messages to one component, each component has a message queue.
 All components in a simulated system, even those hosted within the same node, are executed concurrently from the component's point of view.
 The simulator poses neither restrictions as to which components can communicate with each other nor to which node's local memory they can read from and write to.
-% A user of \soosim would have to model those restrictions explicitly if required.
 A schematic overview of an example system can be seen in Figure~\ref{fig:system}.
 
 %\def\svgwidth{\columnwidth}
@@ -136,7 +126,6 @@ We describe a component as a function that receives a user-defined internal stat
 The result of this function is the internal state.
 A value of type \hs{SimEvent} is either message from another component or a null message.
 We thus have the following \emph{general} type signature for a component:
-%\numbersoff
 \begin{code}
 component :: state -> SimEvent -> SimM state
 \end{code}
@@ -164,23 +153,7 @@ We stress again that we are aiming at a high level of abstraction for the behavi
 
 \subsection{Interaction with the Simulator}
 
-%% we agreed on not having this figure
-% \begin{figure*}
-% \centering
-% \begin{code}
-% createComponent :: Maybe NodeId -> Maybe ComponentId -> String -> SimM ComponentId   -- Nothing is self
-%
-% -- Synchronously invokes another component
-% invoke :: Maybe ComponentId -> ComponentId -> Dynamic -> SimM Dynamic  -- the invocation argument has to be like this
-%
-% ...
-% \end{code}
-% \caption{The interaction interface.}
-% \label{fig:comp-types}
-% \end{figure*}
-
 Components have several functions at their disposal to interact with the simulator and consequently interact with other components.
-% We show the types of these functions in Figure~\ref{fig:comp-types}.
 The available functions are:
 \begin{itemize}
 \item {\hs{createComponent}}
@@ -208,12 +181,11 @@ Components have two unique identifiers, their global \emph{name} (as specified i
 When a programmer wants to \emph{invoke} a component, she needs to know the unique \mbox{\hs{ComponentId}} of the specific instance.
 To give a concrete example, using the system from Figure~\ref{fig:system} as our context: \emph{Thread (\#6)} wants to invoke the instance of the \emph{Memory Manager} that is running on the same Node (\#2).
 As \emph{Thread (\#6)} was not involved with the instantiation of that OS module, it has no idea what the specific \hs{ComponentId} of the memory manager on Node \#2 is.
-%It knows the unique global name of all memory managers, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
+% Was: It knows the unique global name of all memory managers, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
 It knows the unique global name of the memory manager in question, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
 \olcomment{is this correct?}
 
 \subsection{Synchronisation between Modules}
-% \olcomment{is it clear, that FSM is standard approach, not coroutines?}\cbcomment{I hope the following subsection explains our use of coroutines better} %% yes
 A \emph{naive} approach to model synchronisation between OS modules is to implement an OS module as a finite state machine (FSM).
 In state `X' OS module `Bob' could send a message to `Alice' and enter state `Y'.
 Only when receiving a response from `Alice', would `Bob' progress from state `Y' to state `Z'.
@@ -243,7 +215,6 @@ Additionally, we want to be in control which interactions between OS and applica
 
 For the above reasons we have decided to make use of embedded languages for the definitions of our applications.
 The idea is to specify an application once in a self-created embedded language and define different interpretations for the embedded language constructs as the observations of the interaction between application and OS\nolinebreak[3]  \cite{Hofer:2008:PED:1449913.1449935}.
-% \olcomment{the cited paper is about different interpretations of the same code!}
 
 Following the \emph{final tagless} \cite{final_tagless_embedding} encoding of embedded languages in Haskell, we use a type class to define the language constructs.
 As an example we demonstrate a mini functional language with mutable references.\olcomment{was: "running example".}
@@ -251,7 +222,6 @@ A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{
 The arrow \hs{:->} is the function arrow in the embedded language, \eg \hs{repr (a :-> b)}, in contrast to the function arrow \hs{->} of the host language.
 
 \begin{figure}
-%\centering
 \begin{code}
 class Symantics repr where
   lam   :: (repr a -> repr b) -> repr (a :-> b)
@@ -268,12 +238,10 @@ One interaction we might now want to observe is the application's use of mutable
 For this purpose we create a \hs{newtype RefMemAcc} wrapping the simulator monad, and define an instance of the \hs{Symantics} type-class for it.
 
 We can define most language constructs to behave like their Haskell counterpart, e.g., the \hs{app} construct instance is defined using monadic bind (\hs{>>=}\xspace).
-%($\mathit{>>=}$).
 However, for the definition of the mutable reference aspect of our embedded language, we implement these constructs as invocations of the memory manager (see Figure~\ref{lst_observing_memory_access}),
 instead of using a Haskell-based implementation like \textsf{Data.IORef}.
 
 \begin{figure}
-%\centering
 \begin{code}
 newtype RefMemAcc =  RMA SimM
 
@@ -294,38 +262,6 @@ instance Symantics RefMemAcc where
 \label{lst_observing_memory_access}
 \end{figure}
 
-
-% \begin{figure}
-% \centering
-% \begin{code}
-% data SchedulerState = ... -- basically obtains two lists
-%
-% scheduler :: a -> ComponentInput -> SimM a
-% scheduler = ... -- implementation omitted
-%
-% instance ComponentIface  SchedulerState where
-%   initState           =  SchedulerState [] []
-%   componentName _     =  "Scheduler"
-%   componentBehaviour  =  scheduler
-% \end{code}
-% % createComponentRequest :: String -> SimM ComponentId
-% % createComponentRequest =  ... -- implementation omitted
-% \caption{Registering a \hs{scheduler} component.}
-% \label{fig:code-scheduler}
-% \olcomment{so what?}
-% \end{figure}
-
-% \subsection{Final Tagless}
-%
-% \olcomment{- Final tagless \cite{final_tagless_embedding}
-%
-% - Tillmann embedded DSL with type classes
-% \cite{Hofer:2008:PED:1449913.1449935}
-%
-% - I am refreshing this paper ATM.
-%
-% - 2006: typed interpreter of a typed language cannot be tagless. final tagless paper says: wrong!
-% }
 
 \paragraph{Final tagless embedding.}
 \citeauthor{final_tagless_embedding} have demonstrated how a typed interpreter of a typed language can be tagless \cite{final_tagless_embedding}.
@@ -466,11 +402,6 @@ In the type of the \hs{resume} function on the RHS we need to reference \hs{Coro
 We need to add \hs{i3} on the LHS, and so on.
 Using some more advanced tricks, like a type class for all the chain \hs{i}, \hs{i2}, \hs{i3}, \dots\ does not really help: all the types on the RHS still need to be listed on the LHS, thus exploding the definition.
 
-%% this is for the case it works. It does not.
-% \paragraph{What we did.} We implemented the coroutine monad transformer for the parameterised monads \olcomment{show some code?}.
-%
-% \paragraph{What we miss.} Since GHC seems to assume that each bind has the type \hs{Monad m => m a -> (a -> m b) -> m b} when desugaring the \hs{do}-notation, we were forced to use explicit \hs{>>=}\xspace instead.
-
 \section{Related Work}
 \label{sec:related-work}
 
@@ -479,7 +410,6 @@ COTSon \cite{cotson} is a full system simulator that allows a developer to execu
 COTSon is far too detailed for our needs, and does not facilitate the easy exploration of a complete operating system.
 
 OMNeT++ \cite{omnet} is a C++-based discrete event simulator with focus on parallel systems. OMNeT++ is too static for our purposes, it disallows dynamic modules.
-
 
 \citeauthor{house} describe a basic operating system implementation in Haskell called House \cite{house}.
 This work is in a sense dual to ours: we simulate an OS.
@@ -527,13 +457,10 @@ We have presented the efforts required to implement \soosim, an OS simulator in 
 We note that the techniques more commonly used in the programming language research were highly applicable for our purposes.
 
 We have demonstrated how the utilisation of final tagless eDSL construction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, \hs{Dynamic} types \cite{Abadi:1991:DTS:103135.103138}, and coroutines \cite{coroutines,cmt} facilitated an abstract and concise implementation of an operating system simulator.
-% \olcomment{in case of success: We found a way to replace \hs{Dynamic} types with parameterised monads \cite{monad-parametrisable} in our setting.}
-% \olcomment{These techniques belong to the typical repertoire of a programming language designer, but not of an operating systems researcher. --- emphasise somehow, that it is uncommon to use all these for such a task, which makes our work stand out , this this work is cool.}
 It is uncommon to use all these features for such a task --- a fact that emphasises the novelty of our work.
 
 \paragraph{Real life simulations.}
 The major goal of the project is to simulate the behaviour of a real life application and to draw conclusions therefrom.
-%This work is still ongoing.
 We are currently actively researching these issues.
 
 \paragraph{Concurrency.}
