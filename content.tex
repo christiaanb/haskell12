@@ -397,8 +397,8 @@ An attempt to sort the dynamic types out with the parameterised monad also fails
 The parameterised monads\footnote{See \url{http://www.haskell.org/pipermail/haskell-prime/2006-February/000498.html}.}  allow more generic type signatures for monad operations, esp.\ for \hs{>>=}\xspace\nolinebreak[4] \cite{monad-parametrisable}:
 \begin{code}
 class PMonad m where
-return :: a -> m s s a
-(>>=)  :: m s1 s2 a -> (a -> m s2 s3 b) -> m s1 s3 b
+  return :: a -> m s s a
+  (>>=)  :: m s1 s2 a -> (a -> m s2 s3 b) -> m s1 s3 b
 \end{code}
 If we could switch from one  intermediate type to another in the coroutine, we would need no dynamic types.
 This approach works fine with the state monad
@@ -407,10 +407,10 @@ newtype PState s1 s2 a
   = PState { runPState :: s1 -> (a, s2) }
 
 instance PMonad PState where
-return a  = PState $ \s -> (a, s)
-m >>= k   = PState $ \s ->
-              let (a, s') = runState m s
-              in  runState (k a) s'
+  return a  = PState $ \s -> (a, s)
+  m >>= k   = PState $ \s ->
+                ^^ ^^ let (a, s') = runState m s
+                ^^ ^^ in  runState (k a) s'
 \end{code}
 but it fails for the coroutines.
 The pivotal issue is: if we introduce different types for the intermediate states of the coroutine, we end up adding more and more types --- the coroutine definition is recursive.
