@@ -252,6 +252,7 @@ class Symantics repr where
   (=:)  :: repr (Ref a) -> repr a -> repr Void
 \end{code}
 \caption{An embedded language, a fragment. Viz.~\cite{final_tagless_embedding}}
+\vspace{-1em}
 \label{fig:embedded_language_interface}
 \end{figure}
 
@@ -280,6 +281,7 @@ instance Symantics RefMemAcc where
     fmap unmashal $ invoke mmId (mashal (Write i v))
 \end{code}
 \caption{Observing memory access (partial definition).}
+\vspace{-1em}
 \label{lst_observing_memory_access}
 \end{figure}
 
@@ -313,18 +315,18 @@ Although initially used solely for the purpose of dealing with existentially qua
 \label{sec:impl-monads}
 \begin{figure}
 %\centering
+%format ^^ = "\ \ "
 \begin{code}
 type SimMonad  =  StateT SimState IO
 data SimState  = ...
 
 newtype SimM a
   = SimM { runSimM ::
-               Coroutine
-                 (RequestOrYield CompID Dynamic)
-                 SimMonad
-                 a
-         }
-    deriving (Functor, Monad)
+      ^^ ^^ Coroutine
+      ^^ ^^ ^^ ^^ (RequestOrYield ComponentID Dynamic)
+      ^^ ^^ ^^ ^^ SimMonad
+      ^^ ^^ ^^ ^^ a
+    } deriving (Functor, Monad)
 
 data RequestOrYield request response x
   =  Request request (response -> x)
@@ -334,7 +336,9 @@ instance Functor (RequestOrYield x f) where
   fmap f (Request x g)  = Request x (f . g)
   fmap f (Yield y)      = Yield (f y)
 \end{code}
+\vspace{-0.5em}
 \caption{Implementing \hs{SimM}.}
+\vspace{-1.5em}
 \label{fig:code-simm}
 \end{figure}
 
@@ -413,8 +417,11 @@ The pivotal issue is: if we introduce different types for the intermediate state
 In this (non proper Haskell) code
 \begin{code}
 newtype Coroutine m o i r
-  = Coroutine { resume :: m (Either (o, i
-     -> Coroutine m i2 o r)  r) }
+  =  Coroutine { resume ::
+       ^^ ^^  m (Either
+       ^^ ^^ ^^ ^^ ^^ ^^ (o, i -> Coroutine m i2 o r)
+       ^^ ^^ ^^ ^^ ^^ ^^ r
+     )}
 \end{code}
 we make an attempt to reach our goal.
 Let us abbreviate left and right hand side of the above equation with LHS and RHS correspondingly.
