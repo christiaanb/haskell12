@@ -1,7 +1,7 @@
 \section{Introduction}
 
 Simulation is often used to inspect various characteristics of a system.
-In the \soos project\footnote{See \url{http://www.soos-project.eu/} and \cite{soos} for details.} we inspect service-oriented aspects of operating systems.
+In the\soos project\footnote{See \url{http://www.soos-project.eu/} and \cite{soos} for details.} we inspect service-oriented aspects of operating systems.
 One part of the project requires to simulate the interactions between software components of an operating system (in the following: OS) and between
 OS and application software.
 
@@ -40,10 +40,12 @@ The contributions of this paper include:
 \cbcomment{I think DSL is wrong wording, interface is indeed better}
 \item The description of \emph{a} eDSL to describe applications that will run on a \soosim \emph{simulated} system.
 \item The list of Haskell language features, we found particularly useful in this project.
-\item A release of \soosim on Hackage.\footnote{Issue \textsf{cabal install SoOSiM} to install \soosim. See also: \url{http://github.com/christiaanb/SoOSiM}.}
 % \item \olcomment{in case of success: The way to model "suspending
 %     computation" with heterogeneous data without using dynamic types.}
 \end{itemize}
+\soosim has been released on Hackage.\footnote{Issue \textsf{cabal install SoOSiM} to install \soosim. See also: \url{http://github.com/christiaanb/SoOSiM}.}
+%% release is not a paper contribution, unfortunately!
+
 The remaining part of this paper is organised as follows.
 % Section~\ref{sec:soos-project} gives an overview of the SoOS project and of the role \soosim plays in the project.
 Section~\ref{sec:soosim-an-overview} describes the structure of the \soosim simulator from the user's perspective.
@@ -339,7 +341,7 @@ In a similar manner we can introduce further implementation of the same language
 \label{sec:impl-detail}
 
 \subsection{Existential Types}
-We employ an existential type to store the differently typed states of all the components running in our simulated environment.
+We employ existential types to store the differently typed states of all the components running in our simulated environment.
 Components are subsequently implemented as type class instances, giving us a straightforward way to access the existentially quantified values in our collection of states.
 
 \subsection{Type classes}
