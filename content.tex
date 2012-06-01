@@ -6,7 +6,7 @@ One part of the project requires to simulate the interactions between software c
 OS and application software.
 
 The key point is: it is not desirable to keep the whole, monolithic, OS kernel on each core of a multicore machine.
-Doing so has detrimental effects on the caches of the individual cores \olcomment{find a better reference!}.
+Doing so has detrimental effects on the caches of the individual cores.\olcomment{find a better reference!}
 Moving to larger distributed systems, monolithic kernels hinder scalability as the entire internal state has to be synchronised amongst the copies.\jlcomment{Restate the paragraph after finding the reference!}
 % \cbcomment{I don't think we should say more about S(o)OS or its ideas / concepts in the intro.}
 % For example, we could dedicate some cores to an application and some cores to an OS.
@@ -16,22 +16,22 @@ Moving to larger distributed systems, monolithic kernels hinder scalability as t
 
 Overcoming the aforementioned limitations of contemporary operating system designs is the motivation for the \soos project \cite{soos}.
 The project aims to research OS concepts and specific OS modules, which aid in scalability of the complete software stack (both OS and application) on future many-core systems.
-One of the key concepts of \soos is that only those OS modules needed by a application thread, are actually loaded into the (local) memory of a CPU core on which the thread will run.
+One of the key concepts of \soos is that only those OS modules needed by an application thread, are actually loaded into the (local) memory of a CPU core on which the thread will run.
 This execution environment thus differs from contemporary operating systems where every core runs a complete copy of the (monolithic) operating system.
 
 While creating new operating system concepts and regarding their interaction with the programmability of large-scale systems, we found that existing simulation packages do not seem to have the right abstractions for fast design exploration \cite{cotson,omnet}.
 The ability to simulate separate components of the OS and of the application was the main goal to develop the OS simulator \soosim \cite{Baaij:2012}.
 The design decisions were:
 \begin{itemize}
-\item To simulate message passing and shared memories as the main forms of communication between software components.
+\item To simulate \emph{message passing} and \emph{shared memory} as the main forms of communication between software components.
+\item Achieve \emph{synchronization} between components through \emph{blocking} messaging.
 \item To have global \emph{ticks}, designating an abstract notion of progress.
 \item To observe the number of ticks a software component is: active, waiting for a response after invoking another component, or idle.
 \end{itemize}
-However, we additionally required a way to implement \emph{blocking} messaging as a means to provide \emph{synchronisation} between components.
-In other words, if a blocking message is sent, the sender is waiting for the answer---regardless \emph{where} in the code of the sender the blocking \hs{invoke} method is called.
 % If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
+A note on blocking messaging: when a blocking message is sent, the sender waits for the answer---regardless \emph{where} in the code of the sender the blocking \hs{invoke} method is called.
 This means we required the notion of suspending a computation---it should be \emph{suspendable} at any moment of execution of the simulated component.
-In the following we will show that using Haskell\nolinebreak[3] \cite{haskell-report} enabled us to implement this property in a nice way.
+In the following we will show that using Haskell\cbcomment{I don't think we need to cite the haskell report for the haskell symposium} enabled us to implement this property in a nice way.
 The contributions of this paper include:
 \begin{itemize}
 \item A short overview of the \soosim simulator.
@@ -39,7 +39,7 @@ The contributions of this paper include:
 \olcomment{Do \hs{createComponent} etc. really form a DSL? Say `interface'?}
 \cbcomment{I think DSL is wrong wording, interface is indeed better}
 \item The description of \emph{a} eDSL to describe applications that will run on a \soosim \emph{simulated} system.
-\item The list of Haskell language features, we found particularly useful in this project.
+\item The list of Haskell language features we found particularly useful in this project.
 \item A release of \soosim on Hackage.\footnote{Issue \textsf{cabal install SoOSiM} to install \soosim. See also: \url{http://github.com/christiaanb/SoOSiM}.}
 % \item \olcomment{in case of success: The way to model "suspending
 %     computation" with heterogeneous data without using dynamic types.}
