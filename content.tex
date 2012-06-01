@@ -66,7 +66,7 @@ The purpose of \soosim is to provide a platform that allows a developer to obser
 For this reason the simulated hardware is highly abstract.
 
 In \soosim, the hardware platform is described as a set of nodes.
-Each \emph{node} represents a physical computing object: such as a core, \olcomment{a} complete CPU, \olcomment{a} memory controller, etc.
+Each \emph{node} represents a physical computing object: such as a core, a complete CPU, a memory controller, etc.
 Every node has a local memory of potentially infinite size.
 The layout and connectivity properties of the nodes are not part of the system description.
 % If such a level of detail is required, it would have to be modelled explicitly by the user.
@@ -79,7 +79,7 @@ The messenger module would then keep an internal state, representing the connect
 Each \emph{node} hosts a set of components.
 A \emph{component} represents an executable object: such as a thread, application, OS module, etc.
 Components communicate with each other either using direct messaging, or through the local memory of a node.
-Having both explicit messaging and shared memories,\olcomment{memory or memories?} \soosim supports the two well known methods of communication.
+Having both explicit messaging and shared memory,\olcomment{memory or memories?} \soosim supports the two well known methods of communication.
 Because multiple components can send messages to one component, all components have a message queue.
 All components in a simulated system, even those hosted within the same node, are executed concurrently from the component's point of view.
 The simulator poses neither restrictions as to which components can communicate with each other nor to which node's local memory they can read from and write to.
