@@ -1,7 +1,7 @@
 \section{Introduction}
 
 Simulation is often used to inspect various characteristics of a system.
-In the SoOS project\footnote{See \url{http://www.soos-project.eu/} and \cite{soos} for details.} we inspect service-oriented aspects of operating systems.
+In the \soos project\footnote{See \url{http://www.soos-project.eu/} and \cite{soos} for details.} we inspect service-oriented aspects of operating systems.
 One part of the project requires to simulate the interactions between software components of an operating system (in the following: OS) and between
 OS and application software.
 
@@ -14,9 +14,9 @@ Moving to larger distributed systems, monolithic kernels hinder scalability as t
 % In a simular manner, if we know that a core is occupied by a particular program, we can move the dynamic libraries, required for some other application to some other core's memory range.
 % A further issue is the scalability of the parallel system.
 
-Overcoming the aforementioned limitations of contemporary operating system designs is the motivation for the S(o)OS project \cite{soos}.
+Overcoming the aforementioned limitations of contemporary operating system designs is the motivation for the \soos project \cite{soos}.
 The project aims to research OS concepts and specific OS modules, which aid in scalability of the complete software stack (both OS and application) on future many-core systems.
-One of the key concepts of S(o)OS is that only those OS modules needed by a application thread, are actually loaded into the (local) memory of a CPU core on which the thread will run.
+One of the key concepts of \soos is that only those OS modules needed by a application thread, are actually loaded into the (local) memory of a CPU core on which the thread will run.
 This execution environment thus differs from contemporary operating systems where every core runs a complete copy of the (monolithic) operating system.
 
 While creating new operating system concepts and regarding their interaction with the programmability of large-scale systems, we found that existing simulation packages do not seem to have the right abstractions for fast design exploration \cite{cotson,omnet}.
@@ -34,7 +34,7 @@ This means we required the notion of suspending a computation---it should be \em
 In the following we will show that using Haskell\nolinebreak[3] \cite{haskell-report} enabled us to implement this property in a nice way.
 The contributions of this paper include:
 \begin{itemize}
-\item A short overview of the \soosim project.
+\item A short overview of the \soosim simulator.
 \item The description of the interface used to implement OS components in \soosim.
 \olcomment{Do \hs{createComponent} etc. really form a DSL? Say `interface'?}
 \cbcomment{I think DSL is wrong wording, interface is indeed better}
@@ -97,10 +97,10 @@ A schematic overview of an example system can be seen in Figure~\ref{fig:system}
 
 \paragraph{Agility.}
 Basic requirements that we would have towards any simulator include the facilities to straightforwardly simulate the instantiation of application threads and OS modules.
-Aside from the fact that the S(o)OS-envisioned system will be dynamic as a result of loading OS modules on-the-fly, large-scale systems also tend to be dynamic in the sense that computing nodes can disappear (failure), or
+Aside from the fact that the \soos-envisioned system will be dynamic as a result of loading OS modules on-the-fly, large-scale systems also tend to be dynamic in the sense that computing nodes can disappear (failure), or
 appear (hot-swap).
 Hence, we also require that our simulator facilitates the straightforward creation and destruction of computing elements, represented by \emph{nodes} in \soosim.
-Our current need for a simulator rests mostly in formalising the S(o)OS concept, and examining the interaction between our envisioned OS modules and the application threads.
+Our current need for a simulator rests mostly in formalising the \soos concept, and examining the interaction between our envisioned OS modules and the application threads.
 As such, being able to extract highly accurate performance figures from a simulated system is not a key requirement.
 We do, however, wish to be able to observe all interactions among application threads and OS modules.
 Additionally, we wish to be able to \emph{zoom in} on particular aspects of the behaviour of an application: such as memory access, messaging, etc.
@@ -547,7 +547,7 @@ Two further options are either to make the coroutine execution concurrent using 
 \acks
 
 %Acknowledgments, if needed.
-This work was supported by the S(o)OS project, sponsored by the European Commission under FP7-ICT-2009.8.1, Grant Agreement No.~248465.
+This work was supported by the \soos project, sponsored by the European Commission under FP7-ICT-2009.8.1, Grant Agreement No.~248465.
 We thank Chung-chieh Shan and Oleg Kiselyov for valuable remarks on
 \hs{Dynamic} types and the parallel iteratees correspondingly.
 
