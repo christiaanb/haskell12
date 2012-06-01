@@ -438,9 +438,10 @@ newtype PState s1 s2 a
   = PState { runPState :: s1 -> (a, s2) }
 
 instance PMonad PState where
-return a = PState $ \s -> (a, s)
-m >>= k  = PState $ \s -> let (a, s') = runState m s
-                         in runState (k a) s'
+return a  = PState $ \s -> (a, s)
+m >>= k   = PState $ \s ->
+              let (a, s') = runState m s
+              in  runState (k a) s'
 \end{code}
 but it fails for the coroutines.
 The pivotal issue is: if we introduce different types for the intermediate states of the coroutine, we end up adding more and more types --- the coroutine definition is recursive.
