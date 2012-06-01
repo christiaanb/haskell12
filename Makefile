@@ -1,5 +1,5 @@
 main : styled.tex jabref.bib haskell2012.bib
-	latexmk -pdf -pvc -r latexmkrc styled
+	latexmk -pdf -r latexmkrc styled
 
 soosim.pdf : styled.tex jabref.bib haskell2012.bib
 	rm -f soosim.pdf
