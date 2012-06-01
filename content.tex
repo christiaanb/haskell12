@@ -5,14 +5,23 @@ In the \soos project\footnote{See \url{http://www.soos-project.eu/} and \cite{so
 One part of the project requires to simulate the interactions between software components of an operating system (in the following: OS) and between
 OS and application software.
 
-The key point is: it is not desirable to keep the whole, monolithic, OS kernel on each core of a multicore machine.
-Doing so has detrimental effects on the caches of the individual cores.\olcomment{find a better reference!}
-Moving to larger distributed systems, monolithic kernels hinder scalability as the entire internal state has to be synchronised amongst the copies.\jlcomment{Restate the paragraph after finding the reference!}
+% The key point is: it is not desirable to keep the whole, monolithic, OS kernel on each core of a multicore machine.
+% Doing so has detrimental effects on the caches of the individual cores.\olcomment{find a better reference!}
+% Moving to larger distributed systems, monolithic kernels hinder scalability as the entire internal state has to be synchronised amongst the copies.\jlcomment{Restate the paragraph after finding the reference!}
 % \cbcomment{I don't think we should say more about S(o)OS or its ideas / concepts in the intro.}
 % For example, we could dedicate some cores to an application and some cores to an OS.
 % One possible approach to this is the partitioning of the address space. \olcomment{is this so?}
 % In a simular manner, if we know that a core is occupied by a particular program, we can move the dynamic libraries, required for some other application to some other core's memory range.
 % A further issue is the scalability of the parallel system.
+
+\olcomment{new: --- >}
+The key point is: common operating systems' designs have multiple drawbacks. 
+The systems feature central synchronisation points for resource management and distribution; these hinder further scalability. 
+Current commonly available OSes perform well on a handful of CPU cores, but they are not designed for thousands of cores! 
+(However, we want to mention the Barrelfish research project\nolinebreak[4]  \cite{Baumann:2009:MNO:1629575.1629579} featuring advanced ideas for manycore architectures.)
+Heterogeneous (\eg GPU+CPU, Cell BE), non-coherent architectures (\eg Intel SCC) and network-on-a-chip approaches are quite poorly supported. 
+The emerging cloud computing era requires much greater scalability and security than we saw before; this requires new OS design directions.
+\olcomment{< --- new}
 
 Overcoming the aforementioned limitations of contemporary operating system designs is the motivation for the \soos project \cite{soos}.
 The project aims to research OS concepts and specific OS modules, which aid in scalability of the complete software stack (both OS and application) on future many-core systems.
@@ -425,7 +434,7 @@ In House, OS modules are executed within the \hs{Hardware} monad, allowing direc
 This approach is comparable with our \hs{SimM} monad.
 However, as we are more concerned with interaction of OS modules, House in not suitable for our purposes:  OS modules in House must be implemented in full detail.
 
-Barrelfish \cite{barrelfish} is an OS in which domain-specific languages are used, amongst other purposes, to define driver interfaces.
+Barrelfish \cite{Baumann:2009:MNO:1629575.1629579} is an OS in which domain-specific languages are used, amongst other purposes, to define driver interfaces \cite{barrelfish}.
 These embedded languages are also implemented in Haskell.
 The approach used in Barrelfish is however to create parsers for their languages, in a contrast to our embedding approach.
 
@@ -489,7 +498,8 @@ Two further options are either to make the coroutine execution concurrent using 
 %Acknowledgments, if needed.
 This work was supported by the \soos project, sponsored by the European Commission under FP7-ICT-2009.8.1, Grant Agreement No.~248465.
 We thank Chung-chieh Shan and Oleg Kiselyov for valuable remarks on
-\hs{Dynamic} types and the parallel iteratees correspondingly.
+\hs{Dynamic} types and the parallel iteratees correspondingly. 
+We also thank Tommaso Cucinotta for a fruitful discussion.
 
 %%% Local Variables:
 %%% mode: latex
