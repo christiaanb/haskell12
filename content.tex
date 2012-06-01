@@ -66,7 +66,7 @@ The purpose of \soosim is to provide a platform that allows a developer to obser
 For this reason the simulated hardware is highly abstract.
 
 In \soosim, the hardware platform is described as a set of nodes.
-Each \emph{node} represents a physical computing object: such as a core, complete CPU, memory controller, etc.
+Each \emph{node} represents a physical computing object: such as a core, \olcomment{a} complete CPU, \olcomment{a} memory controller, etc.
 Every node has a local memory of potentially infinite size.
 The layout and connectivity properties of the nodes are not part of the system description.
 % If such a level of detail is required, it would have to be modelled explicitly by the user.
@@ -79,10 +79,10 @@ The messenger module would then keep an internal state, representing the connect
 Each \emph{node} hosts a set of components.
 A \emph{component} represents an executable object: such as a thread, application, OS module, etc.
 Components communicate with each other either using direct messaging, or through the local memory of a node.
-Having both explicit messaging and shared memories, \soosim supports the two well known methods of communication.
+Having both explicit messaging and shared memories,\olcomment{memory or memories?} \soosim supports the two well known methods of communication.
 Because multiple components can send messages to one component, all components have a message queue.
 All components in a simulated system, even those hosted within the same node, are executed concurrently from the component's point of view.
-The simulator poses no restrictions as to which components can communicate with each other, nor to which node's local memory they can read from and write to.
+The simulator poses neither restrictions as to which components can communicate with each other nor to which node's local memory they can read from and write to.
 % A user of \soosim would have to model those restrictions explicitly if required.
 A schematic overview of an example system can be seen in Figure~\ref{fig:system}.
 
@@ -104,6 +104,7 @@ Our current need for a simulator rests mostly in formalising the S(o)OS concept,
 As such, being able to extract highly accurate performance figures from a simulated system is not a key requirement.
 We do, however, wish to be able to observe all interactions among application threads and OS modules.
 Additionally, we wish to be able to \emph{zoom in} on particular aspects of the behaviour of an application: such as memory access, messaging, etc.
+We detail on this in Section~\ref{sec:dsl}.
 
 The simulator \emph{attempts} to progress all components concurrently in one discrete step called a \emph{tick}.
 If a component is waiting for a response from an invoked component, but none is available, a component will remain in a waiting state.
@@ -127,7 +128,7 @@ In case of \soosim, such a function is executed within the context of the simula
 
 Because the function is executed within the monad, it can have \emph{side-effects} such as sending messages to other components, or reading the local memory of a node.
 In addition, the function can be temporarily suspended at (almost) any point in the code.
-\soosim needs to be able to suspend the execution of a function so that it may emulate synchronous message passing between components, a subject we will further elaborate later on.
+\soosim needs to be able to suspend the execution of a function such that we able to emulate synchronous message passing between components, a subject further elaborated later on.
 
 We describe a component as a function that receives a user-defined internal state as its first argument, and a value of type \hs{SimEvent} as its second argument.
 The result of this function is the internal state.
@@ -140,7 +141,7 @@ component :: state -> SimEvent -> SimM state
 
 The simulator monad \hs{SimM} is described in Figure~\ref{fig:code-simm} in Section~\ref{sec:impl-monads}.
 The user-defined internal \hs{state} can be used to store any information that needs to perpetuate across simulator ticks.
-\hs{state} should be read as a placeholder for any (user-defined) datatype; there is no actual predefined \hs{state} datatype.
+The type \hs{state} should be read as a placeholder for any (user-defined) datatype; there is no actual predefined \hs{state} datatype.
 
 To include a component description in the simulator, the developer will have to create an instance of the \hs{ComponentIface} \emph{type class}.
 % A \emph{type class} in Haskell can be compared to an interface
@@ -156,7 +157,7 @@ The \hs{ComponentIface} requires the instantiation of the following values to co
   \item The monadic function describing the behaviour of the component.
 \end{itemize}
 
-Note, we are aiming at a high level of abstraction for the behavioural descriptions of our OS modules, where the focus is mainly on the interaction with other OS modules and application threads.
+We stress again that we are aiming at a high level of abstraction for the behavioural descriptions of our OS modules, where the focus is mainly on the interaction with other OS modules and application threads.
 
 
 \subsection{Interaction with the Simulator}
@@ -179,27 +180,28 @@ Note, we are aiming at a high level of abstraction for the behavioural descripti
 Components have several functions at their disposal to interact with the simulator and consequently interact with other components.
 % We show the types of these functions in Figure~\ref{fig:comp-types}.
 The available functions are:
-
-\paragraph{\hs{createComponent}}
+\begin{itemize}
+\item {\hs{createComponent}}
 instantiates a new component on a specified node.
-\paragraph{\hs{invoke}}
+\item {\hs{invoke}}
 sends a message to another component and wait for the answer.
 Whenever a component uses this function it will be temporarily suspended by the simulator.
 Several simulator ticks might pass before the response.
 Once the response is available the simulator resumes the execution of the calling component.
-\paragraph{\hs{invokeAsync}}
+\item {\hs{invokeAsync}}
 sends a message to another component and register a handler with the simulator to process the response.
 In a contrast to \hs{invoke}, using this function will \emph{not} suspend the execution of the component.
-\paragraph{\hs{respond}}
+\item {\hs{respond}}
 sends a message to another component as a response to an invocation.
-\paragraph{\hs{yield}}
+\item {\hs{yield}}
 informs the simulator that the component does not want to receive null messages.
-\paragraph{\hs{readMem}}
+\item {\hs{readMem}}
 performs a read at a specified address of a node's local memory.
-\paragraph{\hs{writeMem}}
+\item {\hs{writeMem}}
 writes a new value at a specified address of a node's local memory.
-\paragraph{\hs{componentLookup}.}
-This function performs a lookup of the unique identifier of a component on a specified node.
+\item The function {\hs{componentLookup}}
+performs a lookup of the unique identifier of a component on a specified node.
+\end{itemize}
 Components have two unique identifiers, their global \emph{name} (as specified in the \hs{ComponentIface} instance), and a \hs{ComponentId} that is a unique number corresponding to a specific instance of a component.
 When a programmer wants to \emph{invoke} a component, she needs to know the unique \mbox{\hs{ComponentId}} of the specific instance.
 To give a concrete example, using the system from Figure~\ref{fig:system} as our context: \emph{Thread (\#6)} wants to invoke the instance of the \emph{Memory Manager} that is running on the same Node (\#2).
