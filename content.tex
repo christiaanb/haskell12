@@ -140,7 +140,12 @@ In addition, the function can be temporarily suspended at (almost) any point in 
 
 We describe a component as a function that receives a user-defined internal state as its first argument and a value of type \hs{SimEvent} as its second argument.
 The result of this function is the internal state.
-A value of type \hs{SimEvent} is either message from another component or a null message.
+A value of type \hs{SimEvent} is either a message from another component or a null message:
+\begin{code}
+data SimEvent
+  =  Message ComponentId Dynamic
+  |  Null
+\end{code}
 We thus have the following \emph{general} type signature for a component:
 \begin{code}
 component :: State -> SimEvent -> SimM State
@@ -189,7 +194,7 @@ informs the simulator that the component does not want to receive null messages.
 \item {\hs{readMem}}
 performs a read at a specified address of a node's local memory.
 \item {\hs{writeMem}}
-writes a new value at a specified address of a node's local memory.
+writes a value at a specified address of a node's local memory.
 \item The function {\hs{componentLookup}}
 performs a lookup of the unique identifier of a component on a specified node.
 \end{itemize}
@@ -199,7 +204,7 @@ To give a concrete example, using the system from Figure~\ref{fig:system} as our
 As \emph{Thread (\#6)} was not involved with the instantiation of that OS module, it has no idea what the specific \hs{ComponentId} of the memory manager on Node \#2 is.
 % Was: It knows the unique global name of all memory managers, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
 It knows the unique global name of the memory manager in question, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
-\olcomment{is this correct?}
+\olcomment{is this correct?}\cbcomment{yes, it is}
 
 \subsection{Synchronisation between Modules}
 A \emph{naive} approach to model synchronisation between OS modules is to implement an OS module as a finite state machine (FSM).
