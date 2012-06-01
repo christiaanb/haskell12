@@ -76,8 +76,12 @@ Each \emph{node} hosts a set of components.
 A \emph{component} represents an executable object: such as a thread, application, OS module, etc.
 Components communicate with each other either using direct messaging, or through the local memory of a node.
 Having both explicit messaging and shared memory,\olcomment{memory or memories?} \soosim supports the two well known methods of communication.
-Because multiple components can send messages to one component, each component has a message queue.
-All components in a simulated system, even those hosted within the same node, are executed concurrently from the component's point of view.
+Components also have a message queue, because:
+\begin{itemize}
+  \item Multiple components can potentially send messages to the same component concurrently.
+  \item A component can receive messages while it is actually waiting for a response from another component.
+\end{itemize}
+All components in a simulated system, even those hosted within the same node, are executed concurrently, from the component's point of view.
 The simulator poses neither restrictions as to which components can communicate with each other nor to which node's local memory they can read from and write to.
 A schematic overview of an example system can be seen in Figure~\ref{fig:system}.
 
@@ -105,20 +109,20 @@ The simulator \emph{attempts} to progress all components concurrently in one dis
 If a component is waiting for a response from an invoked component, but none is available, a component will remain in a waiting state.
 During a tick, the simulator progresses a component by one of the following means:
 \begin{itemize}
-  \item If a component is in a waiting state, and a response is available in the message queue, the component will be executed with this response message.
-  \item If a component is not in a waiting state, and the message queue is not empty, the component will be executed by passing the message that is at the head of the message queue to it.
-  \item If a component is not in a waiting state, and the message queue is empty, the component will be executed by passing a \emph{null} message it.
+  \item If a component is blocked on an invocation of another component, and a response is available in the message queue, the component will be executed with this response message.
+  \item If a component is not blocked, and the message queue is not empty, the component will be executed by passing it the message that is at the head of the message queue.
+  \item If a component is not blocked, and the message queue is empty, the component will be executed by passing a \emph{null} message it.
 \end{itemize}
 When desired, a component can inform the simulator that it does not want to receive these null messages.
 In that case the component will not be executed by the simulator during a \emph{tick}.
 
-The simulator keeps several statistics with regards to the components, including how many ticks a component was either active or waiting or idle.
-When a component makes progress during a tick, is considered \emph{active}.
-When a component does not make progress because the response it was waiting for was not yet available, the component is designated as \emph{waiting}.
+The simulator keeps several statistics with regards to the components, including how many ticks a component was either: active, waiting, or idle.
+When a component makes progress during a tick, it is considered \emph{active}.
+When a component does not make progress because it is blocked on an invocation, and no response was available, the component is designated as \emph{waiting}.
 A component not making progress because it has an empty message queue, and having indicated that it does not want to receive \emph{null} messages, is designated as \emph{idle}.
 
 \subsection{OS Component Descriptions}
-The OS components are also specified in Haskell, each component is modelled as a function.
+Like the simulator itself, the OS components are also specified in Haskell. Every component is modelled as a function.
 In case of \soosim, such a function is executed within the context of the simulator, this means: in a \emph{monad}.
 
 Because the function is executed within the monad, it can have \emph{side-effects} such as sending messages to other components, or reading the local memory of a node.
@@ -130,12 +134,12 @@ The result of this function is the internal state.
 A value of type \hs{SimEvent} is either message from another component or a null message.
 We thus have the following \emph{general} type signature for a component:
 \begin{code}
-component :: state -> SimEvent -> SimM state
+component :: State -> SimEvent -> SimM State
 \end{code}
 
 The simulator monad \hs{SimM} is described in Figure~\ref{fig:code-simm} in Section~\ref{sec:impl-monads}.
 The user-defined internal \hs{state} can be used to store any information that needs to perpetuate across simulator ticks.
-The type \hs{state} should be read as a placeholder for any (user-defined) datatype; there is no actual predefined \hs{state} datatype.
+The type \hs{State} should be read as a place holder for any (user-defined) data type; there is no actual predefined \hs{State} data type.
 
 To include a component description in the simulator, the developer will have to create an instance of the \hs{ComponentIface} \emph{type class}.
 % A \emph{type class} in Haskell can be compared to an interface
@@ -162,7 +166,7 @@ The available functions are:
 \item {\hs{createComponent}}
 instantiates a new component on a specified node.
 \item {\hs{invoke}}
-sends a message to another component and wait for the answer.
+sends a message to another component and waits for the answer.
 Whenever a component uses this function it will be temporarily suspended by the simulator.
 Several simulator ticks might pass before the response.
 Once the response is available the simulator resumes the execution of the calling component.
