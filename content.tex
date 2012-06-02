@@ -100,6 +100,7 @@ A schematic overview of an example system can be seen in Figure~\ref{fig:system}
 %\includesvg{system}
 \includegraphics[width=0.7\linewidth]{system}
 \caption{System, abstracted.}
+\vspace{-1em}
 \label{fig:system}
 \end{figure}
 
@@ -251,6 +252,7 @@ class Symantics repr where
   drf   :: repr (Ref a) -> repr a
   (=:)  :: repr (Ref a) -> repr a -> repr Void
 \end{code}
+\vspace{-0.5em}
 \caption{An embedded language, a fragment. Viz.~\cite{final_tagless_embedding}}
 \vspace{-1em}
 \label{fig:embedded_language_interface}
@@ -280,6 +282,7 @@ instance Symantics RefMemAcc where
     mmId  <-- componentLookup "MemoryManager"
     fmap unmashal $ invoke mmId (mashal (Write i v))
 \end{code}
+\vspace{-0.5em}
 \caption{Observing memory access (partial definition).}
 \vspace{-1em}
 \label{lst_observing_memory_access}
@@ -325,7 +328,7 @@ newtype SimM a
       ^^ ^^ Coroutine
       ^^ ^^ ^^ ^^ (RequestOrYield ComponentID Dynamic)
       ^^ ^^ ^^ ^^ SimMonad
-      ^^ ^^ ^^ ^^ a
+      ^^ ^^ ^^ ^^ a 
     } deriving (Functor, Monad)
 
 data RequestOrYield request response x
@@ -420,8 +423,8 @@ newtype Coroutine m o i r
   =  Coroutine { resume ::
        ^^ ^^  m (Either
        ^^ ^^ ^^ ^^ ^^ ^^ (o, i -> Coroutine m i2 o r)
-       ^^ ^^ ^^ ^^ ^^ ^^ r
-     )}
+       ^^ ^^ ^^ ^^ ^^ ^^ r 
+       )}
 \end{code}
 we make an attempt to reach our goal.
 Let us abbreviate left and right hand side of the above equation with LHS and RHS correspondingly.
