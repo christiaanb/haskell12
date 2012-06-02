@@ -19,7 +19,7 @@ Common operating systems' designs have multiple drawbacks.
 The systems feature central synchronisation points for resource management and distribution; these hinder further scalability.
 Current commonly available OSes perform well on a handful of CPU cores, but they are not designed for thousands of cores!
 (However, we want to mention the Barrelfish research project\nolinebreak[4]  \cite{Baumann:2009:MNO:1629575.1629579} featuring advanced ideas for manycore architectures.)
-Heterogeneous (\eg GPU+CPU, Cell BE), non-coherent architectures (\eg Intel SCC) and network-on-a-chip approaches are quite poorly supported.
+Heterogeneous (\eg GPU+CPU, Cell BE), non-cache coherent architectures (\eg Intel SCC) and network-on-a-chip approaches are quite poorly supported.
 The emerging cloud computing era requires much greater scalability and security than we saw before; this requires new OS design directions.
 \olcomment{< --- new}
 
@@ -360,8 +360,8 @@ We utilise \textsf{Control.Monad.Coroutine} \cite{cmt} to express coroutines.
 \subsection{Dynamic Types}
 We use dynamic types \cite{Abadi:1991:DTS:103135.103138} as `the other side' of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
 
-The \emph{origin} for the need of dynamic types lies in the suspension functor or our coroutines.
-More specifically, the \hs{response} field, that designates the type of the response returned after an invocation.
+The \emph{origin} for the need of dynamic types lies in the suspension functor of our coroutines.
+More specifically, the \hs{response} field, that designates the type of the response returned after an invocation (see Figure~\ref{fig:code-simm}).
 This field would be different for every component we want to invoke, as components should be able to communicate data of any type. %% kind is the type of types, was not meant here as such, I assume
 We have only been able to encode this aspect in the suspension functor using dynamic types.
 
@@ -380,7 +380,7 @@ We have only been able to encode this aspect in the suspension functor using dyn
 If we knew upfront what kind of operations the users might want to perform on the data types, we could have used existential types and type classes, \viz \cite{Laufer:1994:PTI:186025.186031,Kiselyov:2004:STH:1017472.1017488}.
 However, this is not our case.
 \olcomment{I connect the dynamic types to communication, as we need the coroutines for blocking!}
-We need to transmit synchronously values of heterogeneous types.
+We need to synchronously transmit values of heterogeneous types.
 % and the information on how these values should be used is stored in the values themselves!
 % This information should be be manipulated in any kind of way.
 The types in the coroutine monad transformer are too restrictive.
@@ -461,7 +461,7 @@ The final tagless embedding of DSLs originates from the seminal paper by \citeau
 These two papers have different goals: \citeauthor{final_tagless_embedding} implement DSLs for higher-order languages, while \citeauthor{Hofer:2008:PED:1449913.1449935} focus on the possibility to plug in multiple interpretations of a pure embedded DSL.
 The latter corresponds more with our goals: we want to control  what we can observe in the particular instance.
 
-\paragraph{Suspendable computation.} We used coroutines monad transformer \cite{cmt} to express a suspendable computation.
+\paragraph{Suspendable computation.} We used coroutine monad transformer \cite{cmt} to express a suspendable computation.
 Other approaches to this include the suspension monad implementations of iteratees/enumeratees. This approach was introduced in \cite{oleg-iteratee}, see, \eg an overview by \citeauthor{lato2010iteratee} \cite{lato2010iteratee}.
 See also Oleg Kiselyov's new paper \cite{springerlink:10.1007/978-3-642-29822-6_15} for the current description of iteratee-based IO in Haskell.
 
