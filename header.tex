@@ -47,7 +47,7 @@
 %% ifthenelse
 \usepackage{xifthen}
 
-\usepackage[numbers,sectionbib]{natbib}
+\usepackage[numbers,sectionbib,sort&compress]{natbib}
 \usepackage{url}
 \usepackage{doi}
 
@@ -327,8 +327,8 @@
 \begin{document}
 
 
-\title{Experience report: \soosim, an OS simulator in Haskell}
-%\subtitle{Subtitle Text, if any}
+\title{\soosim, an OS simulator in Haskell}
+\subtitle{Experience report}
 
 % \authorinfo{Oleg Lobachev}
 %            {Scuola Superiore Sant'Anna\\Pisa, Italy}
@@ -366,7 +366,7 @@
 
 
 \begin{abstract}
-This paper presents our experience from implementing \soosim --- an operating system simulator, written in Haskell.
+This paper presents our experience from the implementation of \soosim{} --- an operating system simulator, written in Haskell.
 We briefly discuss the goals and purposed usage of our simulator.
 We examine in detail the language features, extensions, programming patterns and techniques, used to implement \soosim.
 These include coroutines, type classes, monads, techniques for embedded domain-specific languages, and dynamic types.

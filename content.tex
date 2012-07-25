@@ -40,7 +40,7 @@ The design decisions were:
 % If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
 A note on blocking messaging: when a blocking message is sent, the sender waits for an answer---regardless \emph{where} in the code of the sender the blocking \hs{invoke} method is called.
 This means we required the notion of suspending a computation---it should be \emph{suspendable} at any moment of execution of the simulated component.
-In the following we will show that using Haskell\cbcomment{I don't think we need to cite the haskell report for the haskell symposium} enabled us to implement this property in a nice way.
+In the following we will show that using Haskell \cite{haskell-report}\cbcomment{I don't think we need to cite the haskell report for the haskell symposium} enabled us to implement this property in a nice way.
 The contributions of this paper include:
 \begin{itemize}
 \item A short overview of the \soosim simulator.
