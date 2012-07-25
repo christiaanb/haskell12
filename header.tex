@@ -20,7 +20,8 @@
 %-----------------------------------------------------------------------------
 
 
-\documentclass[preprint]{sigplanconf}
+%\documentclass[preprint]{sigplanconf}
+\documentclass{llncs}
 
 % The following \documentclass options may be useful:
 %
@@ -32,6 +33,10 @@
 %%%%%%%%%%%%%%%%%
 % includes      %
 %%%%%%%%%%%%%%%%%
+%%% encoding
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
 %%% fix latex
 \usepackage{fixltx2e}
 \usepackage{amsfonts,amsmath,amssymb,latexsym,stmaryrd}
@@ -42,6 +47,7 @@
 %% ifthenelse
 \usepackage{xifthen}
 
+\usepackage{natbib}
 \usepackage{url}
 \usepackage{doi}
 
@@ -317,30 +323,47 @@
 \newcommand{\soosim}{SoOSiM\xspace}
 \newcommand{\soos}{S(o)OS\xspace}
 
+
 \begin{document}
 
-\conferenceinfo{Haskell '12}{13\xth September, 2012, Copenhagen, Denmark.}
-\copyrightyear{2012}
-\copyrightdata{[to be supplied]}
-
-%\titlebanner{banner above paper title}        % These are ignored unless
-\preprintfooter{\today}   % 'preprint' option specified.
 
 \title{Experience report: \soosim, an OS simulator in Haskell}
 %\subtitle{Subtitle Text, if any}
 
-\authorinfo{Oleg Lobachev}
-           {Scuola Superiore Sant'Anna\\Pisa, Italy}
-           {\href{mailto:o.lobachev@@sssup.it}{o.lobachev@@sssup.it}}
-\authorinfo{Christiaan Baaij\and Jan Kuper}
-           {University of Twente\\Twente, Netherlands}
-           {\{\href{mailto:c.p.r.baaij@@utwente.nl}{c.p.r.baaij}, \href{mailto:j.kuper@@utwente.nl}{j.kuper}\}@@utwente.nl}
-\authorinfo{Juri Lelli\and Giuseppe Lipari}
-           {Scuola Superiore Sant'Anna\\Pisa, Italy}
-           {\{\href{mailto:j.lelli@@sssup.it}{j.lelli}, \href{mailto:g.lipari@@sssup.it}{g.lipari}\}@@sssup.it}
+% \authorinfo{Oleg Lobachev}
+%            {Scuola Superiore Sant'Anna\\Pisa, Italy}
+%            {\href{mailto:o.lobachev@@sssup.it}{o.lobachev@@sssup.it}}
+% \authorinfo{Christiaan Baaij\and Jan Kuper}
+%            {University of Twente\\Twente, Netherlands}
+%            {\{\href{mailto:c.p.r.baaij@@utwente.nl}{c.p.r.baaij}, \href{mailto:j.kuper@@utwente.nl}{j.kuper}\}@@utwente.nl}
+% \authorinfo{Juri Lelli\and Giuseppe Lipari}
+%            {Scuola Superiore Sant'Anna\\Pisa, Italy}
+%            {\{\href{mailto:j.lelli@@sssup.it}{j.lelli}, \href{mailto:g.lipari@@sssup.it}{g.lipari}\}@@sssup.it}
 
+\author{Oleg Lobachev\inst{1} \and Christiaan Baaij\inst{2} \and Jan
+  Kuper\inst{2} \and Juri Lelli\inst{1} \and Giuseppe~Lipari\inst{1,3}} 
+\tocauthor{Oleg Lobachev, Christiaan Baaij, Jan Kuper, Juri Lelli, and
+  Giuseppe Lipari}
+
+
+\institute{Scuola Superiore Sant'Anna, Pisa, Italy\\
+  \email{\{\href{mailto:o.lobachev@@sssup.it}{o.lobachev},
+    \href{mailto:j.lelli@@sssup.it}{j.lelli},
+    \href{mailto:g.lipari@@sssup.it}{g.lipari}\}@@sssup.it} 
+  %\email{first.last@@sssup.it}
+  \and
+  University of Twente, Twente, Netherlands\\
+  \email{\{\href{mailto:c.p.r.baaij@@utwente.nl}{c.p.r.baaij},
+  \href{mailto:j.kuper@@utwente.nl}{j.kuper}\}@@utwente.nl}
+\and
+École Normale Supérieure de Cachan, Cachan, France\\
+%ENS de Cachan, Cachan, France\\
+\email{\href{mailto:giuseppe.lipari@@lsv.ens-cachan.fr}{giuseppe.lipari@@lsv.ens-cachan.fr}}
+}
 
 \maketitle
+
+
 
 \begin{abstract}
 This paper presents our experience from implementing \soosim --- an operating system simulator, written in Haskell.
@@ -350,9 +373,10 @@ These include coroutines, type classes, monads, techniques for embedded domain-s
 Coroutines were especially useful to implement synchronous communication model.
 \end{abstract}
 
-\category{D.3.3}{Programming Languages}{Language Constructs and Features}
+% \category{D.3.3}{Programming Languages}{Language Constructs and Features}
 
-\terms{Design, Languages}
+% \terms{Design, Languages}
 
-\keywords
-simulation, type classes, ad-hoc polymorphism, finally tagless embedding, dynamic typing, monads
+% \keywords
+% simulation, type classes, ad-hoc polymorphism, finally tagless embedding, dynamic typing, monads
+
