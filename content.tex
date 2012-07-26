@@ -14,14 +14,14 @@ OS and application software.
 % In a simular manner, if we know that a core is occupied by a particular program, we can move the dynamic libraries, required for some other application to some other core's memory range.
 % A further issue is the scalability of the parallel system.
 
-\olcomment{new: --- >}
+%\olcomment{new: --- >}
 Conventional operating systems often have multiple drawbacks due to their design.
 The systems feature central synchronisation points for resource management and distribution; these hinder further scalability.
 Current commonly available systems perform well on a handful of CPU cores, but they are not designed for thousands of cores!
 (However, we want to mention the Barrelfish research project\nolinebreak[4]  \cite{Baumann:2009:MNO:1629575.1629579} featuring advanced ideas for manycore architectures.)
 Heterogeneous (\eg GPU+CPU, Cell BE), non-cache coherent architectures (\eg Intel SCC) and network-on-a-chip approaches are quite poorly supported.
 The emerging cloud computing era requires much greater scalability and security than we saw before; this requires new OS design directions.
-\olcomment{< --- new}
+%\olcomment{< --- new}
 
 Overcoming the aforementioned limitations of contemporary operating system designs is the motivation for the \soos project \cite{soos}.
 The project aims to research OS concepts and specific OS modules, which aid in scalability of the complete software stack (both OS and application) on future many-core systems.
@@ -37,13 +37,15 @@ The design decisions were:
 \item To have global \emph{ticks}, designating an abstract notion of progress.
 \item To observe the number of ticks a software component is active, waiting (for a response after invoking another component), or idle.
 \end{itemize}
+An idle component basically has an empty receive queue. 
 % If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
 A note on blocking messaging: when a blocking message is sent, the sender waits for an answer---regardless \emph{where} in the code of the sender the blocking \hs{invoke} method is called.
 This means we required the notion of suspending a computation---it should be \emph{suspendable} at any moment of execution of the simulated component.
 In the following we will show that using Haskell \cite{haskell-report}\cbcomment{I don't think we need to cite the haskell report for the haskell symposium} enabled us to implement this property in a nice way.
-The contributions of this paper include:
+%The contributions of this paper include:
+This paper features:
 \begin{itemize}
-%\item A short overview of the \soosim simulator.
+\item A short overview of the \soosim simulator.
 \item The description of the interface used to implement OS components in \soosim.
 % \olcomment{Do \hs{createComponent} etc. really form a DSL? Say `interface'?}
 % \cbcomment{I think DSL is wrong wording, interface is indeed better}
@@ -56,6 +58,7 @@ The contributions of this paper include:
 \end{itemize}
 \soosim has been released on Hackage.\footnote{Issue \textsf{cabal install SoOSiM} to install \soosim. See also: \url{http://github.com/christiaanb/SoOSiM}.}
 %% release is not a paper contribution, unfortunately!
+\olcomment{what is our story? what do we want to tell?}
 
 The remaining part of this paper is organised as follows.
 Section~\ref{sec:soosim-an-overview} describes the structure of the \soosim simulator from the user's perspective.
@@ -83,17 +86,18 @@ The layout and connectivity properties of the nodes are not part of the system d
 % The messenger module would then keep an internal state, representing the connectivity of all the nodes, and forward the message accordingly.}
 %% nice, but not now. maybe useful for an extended version
 
-Each \emph{node} hosts a set of components.
+Each node hosts a set of components.
 A \emph{component} represents an executable object: such as a thread, application, OS module, etc.
 Components communicate with each other either using direct messaging, or through the local memory of a node.
-Having both explicit messaging and shared memory,\olcomment{memory or memories?} \soosim supports the two well known methods of communication.
+Having both explicit messaging and shared memory,% \olcomment{memory or memories?}
+\soosim supports the two most well known methods of communication.
 Components also have a message queue, because:
 \begin{itemize}
   \item Multiple components can potentially send messages to the same component concurrently.
   \item A component can receive messages while it is actually waiting for a response from another component.
 \end{itemize}
 All components in a simulated system, even those hosted within the same node, are executed concurrently, from the component's point of view.
-The simulator poses neither restrictions as to which components can communicate with each other nor to which node's local memory they can read from and write to.
+The simulator poses neither restrictions as to which components can communicate with each other nor to which node's local memory they can read from and write to.\olcomment{why?}
 A schematic overview of an example system can be seen in Figure~\ref{fig:system}.
 
 %\def\svgwidth{\columnwidth}
@@ -102,7 +106,7 @@ A schematic overview of an example system can be seen in Figure~\ref{fig:system}
 %\includesvg{system}
 \includegraphics[width=0.7\linewidth]{system}
 \caption{System, abstracted.}
-\vspace{-1em}
+%\vspace{-1em}
 \label{fig:system}
 \end{figure}
 
@@ -125,8 +129,9 @@ During a tick, the simulator progresses a component by one of the following mean
   \item If a component is not blocked, and the message queue is not empty, the component will be executed by passing it the message that is at the head of the message queue.
   \item If a component is not blocked, and the message queue is empty, the component will be executed by passing a \emph{null} message it.
 \end{itemize}
-When desired, a component can inform the simulator that it does not want to receive these null messages.
-In that case the component will not be executed by the simulator during a \emph{tick}.
+Null messages facilitate component execution:
+when desired, a component can inform the simulator that it does not want to receive these null messages.
+In this case the component will not be executed by the simulator during a \emph{tick}.
 
 The simulator keeps several statistics with regards to the components, including how many ticks a component was either: active, waiting, or idle.
 When a component makes progress during a tick, it is considered \emph{active}.
@@ -207,7 +212,7 @@ To give a concrete example, using the system from Figure~\ref{fig:system} as our
 As \emph{Thread (\#6)} was not involved with the instantiation of that OS module, it has no idea what the specific \hs{ComponentId} of the memory manager on Node \#2 is.
 % Was: It knows the unique global name of all memory managers, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
 It knows the unique global name of the memory manager in question, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
-\olcomment{is this correct?}\cbcomment{yes, it is}
+%\olcomment{is this correct?}\cbcomment{yes, it is}
 
 \subsection{Synchronisation between Modules}
 A \emph{naive} approach to model synchronisation between OS modules is to implement an OS module as a finite state machine (FSM).
@@ -241,11 +246,13 @@ For the above reasons we have decided to use embedded languages for the definiti
 The idea is to specify an application once in a self-created embedded language and to define different interpretations for the embedded language constructs as the observations of the interaction between application and OS\nolinebreak[3]  \cite{Hofer:2008:PED:1449913.1449935}.
 
 Following the \emph{final tagless} \cite{final_tagless_embedding} encoding of embedded languages in Haskell, we use a type class to define the language constructs.
-As an example we demonstrate a mini functional language with mutable references.\olcomment{was: "running example".}
+As an example we demonstrate a mini functional language with mutable references.
+%\olcomment{was: "running example".}
 A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics} \cite{final_tagless_embedding}) type class, defining an \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}.
 The arrow \hs{:->} is the function arrow in the embedded language, \eg \hs{repr (a :-> b)}, in contrast to the function arrow \hs{->} of the host language.
 
 \begin{figure}
+\olcomment{old}
 \begin{code}
 class Symantics repr where
   lam   :: (repr a -> repr b) -> repr (a :-> b)
@@ -254,10 +261,51 @@ class Symantics repr where
   drf   :: repr (Ref a) -> repr a
   (=:)  :: repr (Ref a) -> repr a -> repr Void
 \end{code}
-\vspace{-0.5em}
+%\vspace{-0.5em}
 \caption{An embedded language, a fragment. Viz.~\cite{final_tagless_embedding}}
-\vspace{-1em}
+%\vspace{-1em}
 \label{fig:embedded_language_interface}
+\end{figure}
+
+
+\begin{figure}
+\olcomment{new DSL}
+\begin{code}
+class EDSL exp where
+     lam :: (exp a -> exp b) -> exp (a :-> b)
+     app :: exp (a :-> b) -> exp a -> exp b
+
+     if_ :: exp BoolT -> exp a -> exp a -> exp a
+
+     ref :: exp a -> exp (Ref a)
+     deref :: exp (Ref a) -> exp a
+     update :: exp (Ref a) -> exp a -> exp UnitT
+
+     -- ...
+\end{code}
+\caption{An eDSL with mutable references}
+\label{fig:edsl-mutref}
+\end{figure}
+
+\begin{figure}
+\olcomment{new example: fib with mutable vars!}
+\begin{code}
+fibbo = fix $ \fib ->
+  lam $ \n ->
+    newvar 0 $ \n1 ->
+    newvar 0 $ \n2 ->
+    newvar 0 $ \n3 ->
+      update n1 n >:
+      if_ (lt (deref n1) 2)
+        1
+        ( update n2 (app fib ((deref n1) - 1)) >:
+          update n3 (app fib ((deref n1) - 2)) >:
+          (deref n2) + (deref n3)
+        )
+\end{code}%$
+\caption{Computing Fibonacci numbers in a langauge with mutable
+  references. The langauge itself is defined in Figure~\ref{fig:edsl-mutref}}
+\label{fig:edsl-fib}
 \end{figure}
 
 One interaction we might now want to observe is the application's use of mutable references and the subsequent communication with the memory manager OS module.
@@ -268,6 +316,7 @@ However, for the definition of the mutable reference aspect of our embedded lang
 instead of using a Haskell-based implementation like \textsf{Data.IORef}.
 
 \begin{figure}
+\olcomment{depricated?}
 \begin{code}
 newtype RefMemAcc =  RMA SimM
 
@@ -284,9 +333,9 @@ instance Symantics RefMemAcc where
     mmId  <-- componentLookup "MemoryManager"
     fmap unmarshal $ invoke mmId (marshal (Write i v))
 \end{code}
-\vspace{-0.5em}
+%\vspace{-0.5em}
 \caption{Observing memory access (partial definition).}
-\vspace{-1em}
+%\vspace{-1em}
 \label{lst_observing_memory_access}
 \end{figure}
 
@@ -343,11 +392,15 @@ instance Functor (RequestOrYield x f) where
   fmap f (Request x g)  = Request x (f . g)
   fmap f (Yield y)      = Yield (f y)
 \end{code}
-\vspace{-0.5em}
+%\vspace{-0.5em}
 \caption{Implementing \hs{SimM}.}
-\vspace{-1.5em}
+%\vspace{-1.5em}
 \label{fig:code-simm}
 \end{figure}
+
+\olcomment{is this a good place for a defintion?}  
+A monad can be defined with a Kleisli triple: combining a type constructor \hs{m}, a unit function \hs{return :: a -> m a}, and a bind function \hs{>>= :: m a -> (a -> m b) -> m b}, we obtain a monad.
+Monads capture the way of combining particular operations; the witty description is `programmable semicolon'.
 
 We use a monad called \hs{SimM} to capture the \emph{state} of the simulator.
 The implementation of \hs{SimM}\hspace{-1pt}, sketched in Figure~\ref{fig:code-simm}, enables us to reach the main implementation goal: the ultimate suspension and resumption of the components upon message passing.
@@ -360,12 +413,25 @@ To continue the execution of a resumable computation we issue \hs{resume} \mbox{
 \subsection{Coroutines}
 \label{sec:impl-coroutines}
 As we mentioned above and as one could infer from Figure~\ref{fig:code-simm}, the implementation uses coroutines~\cite{coroutines}.
-With this concept we capture the notion of multiple suspending and resuming computations.
+
+Coroutines are fragments of a program, much like subroutines. 
+However, a coroutine can be suspended at a particular point and entered again from this point. 
+Basically, a thread yielding to scheduler implements a similar behaviour.
+
+With this concept we naturally capture the notion of multiple suspending and resuming computations.
 The need in such a behaviour arises naturally with the blocking message passing between components.
 We utilise \textsf{Control.Monad.Coroutine} \cite{cmt} to express coroutines.
 
+With coroutines we can express blocking in a natural and distributed manner.
+No other components need to be notified, the suspending function is called after sending a synchronous message, the resume function is called after receiving an answer.
+
 \subsection{Dynamic Types}
-We use dynamic types \cite{Abadi:1991:DTS:103135.103138} as `the other side'\olcomment{a reviewer does not like this!} of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
+The dynamic types \cite{Abadi:1991:DTS:103135.103138} allow to combine
+a heterogeneously typed values under a single `umbrella' type, and
+subsequently to restore initial types. Such a behaviour disrupts to
+the certain degree the static type system of Haskell.
+
+We use dynamic types as `the other side'\olcomment{a reviewer does not like this!} of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
 
 The \emph{origin} for the need of dynamic types lies in the suspension functor of our coroutines, more specifically, in the \hs{response} field, that designates the type of the response returned after an invocation (see Figure~\ref{fig:code-simm}).
 This field would be different for every component we want to invoke, as components should be able to communicate data of any type. %% kind is the type of types, was not meant here as such, I assume
@@ -390,14 +456,22 @@ We need to synchronously transmit values of heterogeneous types.
 % and the information on how these values should be used is stored in the values themselves!
 % This information should be be manipulated in any kind of way.
 The types in the coroutine monad transformer are too restrictive.
-Trying to define a type class or a sum type for this setting would yield either a too large, or a too restrictive definition.
+Trying to define a type class or a sum type for this setting would yield either a too large\olcomment{explain!}, or a too restrictive definition.
+
+The `list' of the types we can send via a single channel should be extendable for the user, hence we cannot use a sum type.
+Using a type class relieves this problem, but forces constraints on the behaviour of its instances.
+Should be try to keep this type class as generic, as possible, we would obtain a reimplementation of \textsf{Data.Dynamic}.
+If we make the type class more special, is might be of a benefit for particular kind of simulated tasks, but would endanger the generality of the implementation.
+An attempt to sort the dynamic types out with the parameterised monad also fails, as detailed in the next section.
+
 %We are not aware of any other way to implement this behaviour.
 %
-We utilised \textsf{Data.Dynamic} to convert transmitted values of a dynamic type into values of concrete monomorphic types.
-% \olcomment{only if it works out:}
-% However, recently we have found a better solution that allows us to refrain from dynamic type. We discuss it below.
-% \olcomment{here goes the real reason, check if all above still applies}
-An attempt to sort the dynamic types out with the parameterised monad also fails, as detailed in the next section.
+
+
+Hence, we chose the most straightforward approach; we utilised \textsf{Data.Dynamic} to convert transmitted values of a dynamic type into values of concrete monomorphic types.
+With it, we can transmit heterogeneously typed values over a monomorphicly typed channel.
+The types are restored after the transition with the facilities of \textsf{Data.Dynamic}.
+A similar problem was faced by \citeauthor{grace-tfp} when building a graph-based tool for parallel message-passing programs, they used \hs{unsafeCoerce} \cite{grace-tfp}.
 
 \subsection{Parameterised Monads}
 The parameterised monads\footnote{See \url{http://www.haskell.org/pipermail/haskell-prime/2006-February/000498.html}.}  allow more generic type signatures for monad operations, esp.\ for \hs{>>=}\xspace\nolinebreak[4] \cite{monad-parametrisable}:
@@ -471,17 +545,18 @@ The latter corresponds more with our goals: we want to control  what we can obse
 Other approaches to this include the suspension monad implementations of iteratees/enumeratees. This approach was introduced in \cite{oleg-iteratee}, see, \eg an overview by \citeauthor{lato2010iteratee} \cite{lato2010iteratee}.
 See also Oleg Kiselyov's new paper \cite{springerlink:10.1007/978-3-642-29822-6_15} for the current description of iteratee-based IO in Haskell.
 
-\paragraph{Haskell experience reports.}
-Haskell has been successfully used to implement a range of applications far from typical programming language research.
-This is not surprising for a general purpose language, but nevertheless we would like to list most interesting applications.
-We already mentioned House \cite{house} in the previous section.
+% \paragraph{Haskell experience reports.}
+% Haskell has been successfully used to implement a range of applications far from typical programming language research.
+% This is not surprising for a general purpose language, but nevertheless we would like to list most interesting applications.
+% We already mentioned House \cite{house} in the previous section.
 
-Haskell has been used to facilitate a formal verification of a
-microkernel \cite{Klein:2009:ERS:1631687.1596566}, to implement
-commercial mission-critical applications
-\cite{Sampson:2009:ERH:1631687.1596578}, to manage a Linux
-distribution \cite{Beshers:2007:ERU:1291220.1291184}, to configure
-realtime OS components \cite{Jones:2008:ERP:1411203.1411219}, etc.
+% Haskell has been used to facilitate a formal verification of a
+% microkernel \cite{Klein:2009:ERS:1631687.1596566}, to implement
+% commercial mission-critical applications
+% \cite{Sampson:2009:ERH:1631687.1596578}, to manage a Linux
+% distribution \cite{Beshers:2007:ERU:1291220.1291184}, to configure
+% realtime OS components \cite{Jones:2008:ERP:1411203.1411219}, etc.
+
 
 \section{Conclusions and Future Work}
 \label{sec:concl-future-work}
