@@ -360,7 +360,9 @@ We employ existential types to store the differently typed states of all the com
 Components are subsequently implemented as type class instances, giving us a straightforward way to access the existentially quantified values in our collection of states.
 
 \subsection{Type Classes}
-Type classes are naturally used for the eDSL encoding from the previous section \cite{Hall:1996:TCH:227699.227700,final_tagless_embedding}.
+Type classes \cite{Hall:1996:TCH:227699.227700} are naturally used for
+the eDSL encoding \`a la \citeauthor{final_tagless_embedding} from the
+previous section \cite{final_tagless_embedding}.
 
 Beyond this, we use type classes to express many other useful abstractions.
 For instance, an \emph{interface} for the component of the OS is a type class.
@@ -474,7 +476,8 @@ The types are restored after the transition with the facilities of \textsf{Data.
 A similar problem was faced by \citeauthor{grace-tfp} when building a graph-based tool for parallel message-passing programs, they used \hs{unsafeCoerce} \cite{grace-tfp}.
 
 \subsection{Parameterised Monads}
-The parameterised monads\footnote{See \url{http://www.haskell.org/pipermail/haskell-prime/2006-February/000498.html}.}  allow more generic type signatures for monad operations, esp.\ for \hs{>>=}\xspace\nolinebreak[4] \cite{monad-parametrisable}:
+The parameterised monads\footnote{See also \url{http://www.haskell.org/pipermail/haskell-prime/2006-February/000498.html}.}  allow more generic type signatures for monad operations, esp.\ for \hs{>>=}\xspace\nolinebreak[4] \cite{CambridgeJournals:8240527,Ghani:2005:MAG:1090189.1086403,monad-parametrisable}:
+% Atkey:2009:PNC:1561017.1561022,
 \begin{code}
 class PMonad m where
   return :: a -> m s s a
