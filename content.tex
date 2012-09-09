@@ -41,7 +41,9 @@ An idle component basically has an empty receive queue.
 % If a blocking message is received, the reviever should suspend its current work and process the message.\olcomment{is this true?}
 A note on blocking messaging: when a blocking message is sent, the sender waits for an answer---regardless \emph{where} in the code of the sender the blocking \hs{invoke} method is called.
 This means we required the notion of suspending a computation---it should be \emph{suspendable} at any moment of execution of the simulated component.
-In the following we will show that using Haskell \cite{haskell-report}\cbcomment{I don't think we need to cite the haskell report for the haskell symposium} enabled us to implement this property in a nice way.
+In the following we will show that using Haskell \cite{haskell-report} 
+% \cbcomment{I don't think we need to cite the haskell report for the haskell symposium}
+enabled us to implement this property in a nice way.
 %The contributions of this paper include:
 This paper features:
 \begin{itemize}
@@ -52,13 +54,16 @@ This paper features:
 \item The description of \emph{an} eDSL to describe applications that will run on a \soosim \emph{simulated} system.
 % \item \olcomment{in case of success: The way to model "suspending
 %     computation" with heterogeneous data without using dynamic types.}
-\item The list of Haskell language features we found particularly
+\item We reason on Haskell language features we found particularly
   useful in this project. \olcomment{+ reasoning WHY they are useful,
     + explanation what are they}
 \end{itemize}
 \soosim has been released on Hackage.\footnote{Issue \textsf{cabal install SoOSiM} to install \soosim. See also: \url{http://github.com/christiaanb/SoOSiM}.}
 %% release is not a paper contribution, unfortunately!
-\olcomment{what is our story? what do we want to tell?}
+\olcomment{what is our story? what do we want to tell?}  The goal of
+this paper is to showcase how the sophisticated features from
+programming language research repertoire were usable in a quite
+applied and practical programming exercise.
 
 The remaining part of this paper is organised as follows.
 Section~\ref{sec:soosim-an-overview} describes the structure of the \soosim simulator from the user's perspective.
@@ -251,21 +256,21 @@ As an example we demonstrate a mini functional language with mutable references.
 A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics} \cite{final_tagless_embedding}) type class, defining an \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}.
 The arrow \hs{:->} is the function arrow in the embedded language, \eg \hs{repr (a :-> b)}, in contrast to the function arrow \hs{->} of the host language.
 
-\begin{figure}
-\olcomment{old}
-\begin{code}
-class Symantics repr where
-  lam   :: (repr a -> repr b) -> repr (a :-> b)
-  app   :: repr (a :-> b) -> repr a -> repr b
+% \begin{figure}
+% \olcomment{old}
+% \begin{code}
+% class Symantics repr where
+%   lam   :: (repr a -> repr b) -> repr (a :-> b)
+%   app   :: repr (a :-> b) -> repr a -> repr b
 
-  drf   :: repr (Ref a) -> repr a
-  (=:)  :: repr (Ref a) -> repr a -> repr Void
-\end{code}
-%\vspace{-0.5em}
-\caption{An embedded language, a fragment. Viz.~\cite{final_tagless_embedding}}
-%\vspace{-1em}
-\label{fig:embedded_language_interface}
-\end{figure}
+%   drf   :: repr (Ref a) -> repr a
+%   (=:)  :: repr (Ref a) -> repr a -> repr Void
+% \end{code}
+% %\vspace{-0.5em}
+% \caption{An embedded language, a fragment. Viz.~\cite{final_tagless_embedding}}
+% %\vspace{-1em}
+% \label{fig:embedded_language_interface}
+% \end{figure}
 
 
 \begin{figure}
@@ -280,7 +285,6 @@ class EDSL exp where
      ref :: exp a -> exp (Ref a)
      deref :: exp (Ref a) -> exp a
      update :: exp (Ref a) -> exp a -> exp UnitT
-
      -- ...
 \end{code}
 \caption{An eDSL with mutable references}
@@ -315,29 +319,29 @@ We can define most language constructs to behave like their Haskell counterpart,
 However, for the definition of the mutable reference aspect of our embedded language, we implement these constructs as invocations of the memory manager (see Figure~\ref{lst_observing_memory_access}),
 instead of using a Haskell-based implementation like \textsf{Data.IORef}.
 
-\begin{figure}
-\olcomment{depricated?}
-\begin{code}
-newtype RefMemAcc =  RMA SimM
+% \begin{figure}
+% \olcomment{depricated?}
+% \begin{code}
+% newtype RefMemAcc =  RMA SimM
 
-instance Symantics RefMemAcc where
+% instance Symantics RefMemAcc where
 
-  drf x = RMA $ do
-    i     <-- foo x
-    mmId  <-- componentLookup "MemoryManager"
-    fmap unmarshal $ invoke mmId (marshal (Read i))
+%   drf x = RMA $ do
+%     i     <-- foo x
+%     mmId  <-- componentLookup "MemoryManager"
+%     fmap unmarshal $ invoke mmId (marshal (Read i))
 
-  x =: y = RMA $ do
-    i     <-- foo x
-    v     <-- bar y
-    mmId  <-- componentLookup "MemoryManager"
-    fmap unmarshal $ invoke mmId (marshal (Write i v))
-\end{code}
-%\vspace{-0.5em}
-\caption{Observing memory access (partial definition).}
-%\vspace{-1em}
-\label{lst_observing_memory_access}
-\end{figure}
+%   x =: y = RMA $ do
+%     i     <-- foo x
+%     v     <-- bar y
+%     mmId  <-- componentLookup "MemoryManager"
+%     fmap unmarshal $ invoke mmId (marshal (Write i v))
+% \end{code}
+% %\vspace{-0.5em}
+% \caption{Observing memory access (partial definition).}
+% %\vspace{-1em}
+% \label{lst_observing_memory_access}
+% \end{figure}
 
 
 \paragraph{Final tagless embedding.}
@@ -433,7 +437,10 @@ a heterogeneously typed values under a single `umbrella' type, and
 subsequently to restore initial types. Such a behaviour disrupts to
 the certain degree the static type system of Haskell.
 
-We use dynamic types as `the other side'\olcomment{a reviewer does not like this!} of the type classes: we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
+We use dynamic types % as `the other side'\olcomment{a reviewer does
+                     % not like this!} of the type classes:
+because 
+we need to communicate heterogeneous types over a typed channel, and there is no option to know all the types-to-transmit at the moment of the channel definition.
 
 The \emph{origin} for the need of dynamic types lies in the suspension functor of our coroutines, more specifically, in the \hs{response} field, that designates the type of the response returned after an invocation (see Figure~\ref{fig:code-simm}).
 This field would be different for every component we want to invoke, as components should be able to communicate data of any type. %% kind is the type of types, was not meant here as such, I assume
