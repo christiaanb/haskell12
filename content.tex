@@ -145,7 +145,12 @@ A component not making progress because it has an empty message queue, and havin
 
 \subsection{OS Component Descriptions}
 Like the simulator itself, the OS components are also specified in Haskell. Every component is modelled as a function.
-In case of \soosim, such a function is executed within the context of the simulator, this means: in a \emph{monad}.
+In case of \soosim, such a function is executed within the context of
+the simulator, this means: in a monad.
+
+%\olcomment{is this a good place for a defintion?}  
+A \emph{monad} can be defined with a Kleisli triple: combining a type constructor \hs{m}, a unit function \hs{return :: a -> m a}, and a bind function \hs{>>= :: m a -> (a -> m b) -> m b}, we obtain a monad.
+Monads capture the way of combining particular operations; the witty description is `programmable semicolon'.
 
 Because the function is executed within the monad, it can have \emph{side-effects} such as sending messages to other components, or reading the local memory of a node.
 In addition, the function can be temporarily suspended at (almost) any point in the code.
@@ -164,7 +169,9 @@ We thus have the following \emph{general} type signature for a component:
 component :: State -> SimEvent -> SimM State
 \end{code}
 
-The simulator monad \hs{SimM} is described in Figure~\ref{fig:code-simm} in Section~\ref{sec:impl-monads}.\olcomment{BAD}
+The simulator monad \hs{SimM} is described in detail in
+Figure~\ref{fig:code-simm} in
+Section~\ref{sec:impl-monads}.\olcomment{forward reference, BAD}
 The user-defined internal \hs{state} can be used to store any information that needs to perpetuate across simulator ticks.
 The type \hs{State} should be read as a placeholder for any (user-defined) data type; there is no actual predefined \hs{State} data type.
 
@@ -221,8 +228,8 @@ It knows the unique global name of the memory manager in question, so it can use
 
 \subsection{Synchronisation between Modules}
 A \emph{naive} approach to model synchronisation between OS modules is to implement an OS module as a finite state machine (FSM).
-In state `X' OS module `Bob' could send a message to `Alice' and enter state `Y'.
-Only when receiving a response from `Alice', would `Bob' progress from state `Y' to state `Z'.
+In state `X' OS module `Alice' could send a message to `Bob' and enter state `Y'.
+Only when receiving a response from `Bob', would `Alice' progress from state `Y' to state `Z'.
 If we wanted, we could even have implemented OS modules as \emph{pure} functions, which, aside from returning an updated state, would also return a simulator event.
 One such event would then be sending a message to another component.
 
@@ -251,9 +258,9 @@ For the above reasons we have decided to use embedded languages for the definiti
 The idea is to specify an application once in a self-created embedded language and to define different interpretations for the embedded language constructs as the observations of the interaction between application and OS\nolinebreak[3]  \cite{Hofer:2008:PED:1449913.1449935}.
 
 Following the \emph{final tagless} \cite{final_tagless_embedding} encoding of embedded languages in Haskell, we use a type class to define the language constructs.
-As an example we demonstrate a mini functional language with mutable references.
+As an example we demonstrate a mini functional language with mutable references in Figure~\ref{fig:edsl-mutref}.
 %\olcomment{was: "running example".}
-A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics} \cite{final_tagless_embedding}) type class, defining an \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}.
+% A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics} \cite{final_tagless_embedding}) type class, defining an \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}.
 The arrow \hs{:->} is the function arrow in the embedded language, \eg \hs{repr (a :-> b)}, in contrast to the function arrow \hs{->} of the host language.
 
 % \begin{figure}
@@ -274,12 +281,16 @@ The arrow \hs{:->} is the function arrow in the embedded language, \eg \hs{repr 
 
 
 \begin{figure}
-\olcomment{new DSL}
+%\olcomment{new DSL}
 \begin{code}
 class EDSL exp where
      lam :: (exp a -> exp b) -> exp (a :-> b)
+     lam = lamS
+
+     lamS :: (exp a -> exp b) -> exp (a :-> b)
      app :: exp (a :-> b) -> exp a -> exp b
 
+     lt :: exp IntT -> exp IntT -> exp BoolT
      if_ :: exp BoolT -> exp a -> exp a -> exp a
 
      ref :: exp a -> exp (Ref a)
@@ -291,32 +302,72 @@ class EDSL exp where
 \label{fig:edsl-mutref}
 \end{figure}
 
-\begin{figure}
-\olcomment{new example: fib with mutable vars!}
-\begin{code}
-fibbo = fix $ \fib ->
-  lam $ \n ->
-    newvar 0 $ \n1 ->
-    newvar 0 $ \n2 ->
-    newvar 0 $ \n3 ->
-      update n1 n >:
-      if_ (lt (deref n1) 2)
-        1
-        ( update n2 (app fib ((deref n1) - 1)) >:
-          update n3 (app fib ((deref n1) - 2)) >:
-          (deref n2) + (deref n3)
-        )
-\end{code}%$
-\caption{Computing Fibonacci numbers in a langauge with mutable
-  references. The langauge itself is defined in Figure~\ref{fig:edsl-mutref}}
-\label{fig:edsl-fib}
-\end{figure}
+% \begin{figure}
+% \olcomment{new example: fib with mutable vars!}
+% \begin{code}
+% infixl 2 $$ -- similar to host's ($)
 
-One interaction we might now want to observe is the application's use of mutable references and the subsequent communication with the memory manager OS module.
-For this purpose we create a \hs{newtype RefMemAcc} wrapping the simulator monad, and define an instance of the \hs{Symantics} type-class for it.
+% let_ x y = (lam y)  `app` x
+% letS x y = (lamS y) `app` x
+
+% newvar x y = letS (ref x) y
+% x >: y     = letS x (\_ -> y)
+
+% infixr 5 >:
+
+% fix' = lam $ \f ->
+%          newvar (lam $ \r -> undefined) $ \r ->
+%            update r (lam $ \x -> f $$ (deref r) $$ x) >:
+%            deref r
+
+% fix f = app fix' (lam f)
+
+% fibbo = fix $ \fib ->
+%   lam $ \n ->
+%     newvar 0 $ \n1 ->
+%     newvar 0 $ \n2 ->
+%     newvar 0 $ \n3 ->
+%       update n1 n >:
+%       if_ (lt (deref n1) 2)
+%         1
+%         ( update n2 (app fib ((deref n1) - 1)) >:
+%           update n3 (app fib ((deref n1) - 2)) >:
+%           (deref n2) + (deref n3)
+%         )
+% \end{code}%$
+% \caption{Computing Fibonacci numbers in a langauge with mutable
+%   references. The langauge itself is defined in Figure~\ref{fig:edsl-mutref}}
+% \label{fig:edsl-fib}
+% \end{figure}
+
+\begin{figure}
+\begin{code}
+newtype S m a = S { unS :: m (Sem m a) }
+
+type SState = StateT Int Sim
+
+share :: SState a -> SState (SState a)
+share = ... -- implementation omitted
+
+instance EDSL (S SState) where -- partially shown
+  lamS f       = S . return $ (\x -> x >>= unS . f . S . return)
+  lam f        = S . return $ (\x -> share x >>= unS . f . S)
+  app x y      = S $ unS x >>= ($ (unS y))
+
+  -- ref and deref implementation massage the state
+\end{code}
+\caption{One of the instances of the EDSL type class}
+\label{fig:edsl-inst}
+\end{figure}
+% One interaction we might now want to observe is the application's use of mutable references and the subsequent communication with the memory manager OS module.
+% For this purpose we create a \hs{newtype RefMemAcc} wrapping the simulator monad, and define an instance of the \hs{Symantics} type-class for it.
 
 We can define most language constructs to behave like their Haskell counterpart, e.g., the \hs{app} construct instance is defined using monadic bind (\hs{>>=}\xspace).
-However, for the definition of the mutable reference aspect of our embedded language, we implement these constructs as invocations of the memory manager (see Figure~\ref{lst_observing_memory_access}),
+However, for the definition of the mutable reference aspect of our
+embedded language, we implement these constructs as % invocations of
+                                % the memory manager (see
+                                % Figure~\ref{lst_observing_memory_access}),
+state manipulations, 
 instead of using a Haskell-based implementation like \textsf{Data.IORef}.
 
 % \begin{figure}
@@ -351,15 +402,14 @@ The target language types are represented as host language types, object terms a
 \citeauthor{Hofer:2008:PED:1449913.1449935} do a similar work \cite{Hofer:2008:PED:1449913.1449935}, but focus on different interpretations.
 This matches our intentions.
 We use our above example of a small language with mutable references.
-If we want to observe memory interactions in more detail, we embrace
-an additional implementation of the language, where the functions for
-the memory interaction are exactly studied, leaving out of consideration other parts of the language.\olcomment{wording!}
-In a similar manner we can introduce further implementation of the same language with different properties.
+If we want to observe memory interactions in more detail, we embrace an additional implementation of the language, where the functions for the memory interaction are exactly studied, leaving out of consideration other parts of the detailed language implementation.
+In a similar manner we can introduce a further implementation of the same language with different properties.
 
 \section{Features We Used}
 \label{sec:impl-detail}
 
 \subsection{Existential Types}
+\olcomment{definition?}
 We employ existential types to store the differently typed states of all the components running in our simulated environment.
 Components are subsequently implemented as type class instances, giving us a straightforward way to access the existentially quantified values in our collection of states.
 
@@ -375,7 +425,7 @@ Although initially used solely for the purpose of dealing with existentially qua
 
 \subsection{Monads}
 \label{sec:impl-monads}
-\begin{figure}
+\begin{figure}[tb]
 %\centering
 %format ^^ = "\ \ "
 \begin{code}
@@ -404,9 +454,6 @@ instance Functor (RequestOrYield x f) where
 \label{fig:code-simm}
 \end{figure}
 
-\olcomment{is this a good place for a defintion?}  
-A monad can be defined with a Kleisli triple: combining a type constructor \hs{m}, a unit function \hs{return :: a -> m a}, and a bind function \hs{>>= :: m a -> (a -> m b) -> m b}, we obtain a monad.
-Monads capture the way of combining particular operations; the witty description is `programmable semicolon'.
 
 We use a monad called \hs{SimM} to capture the \emph{state} of the simulator.
 The implementation of \hs{SimM}\hspace{-1pt}, sketched in Figure~\ref{fig:code-simm}, enables us to reach the main implementation goal: the ultimate suspension and resumption of the components upon message passing.
@@ -460,16 +507,16 @@ We have only been able to encode this aspect in the suspension functor using dyn
 
 If we knew upfront what kind of operations the users might want to perform on the data types, we could have used existential types and type classes, \viz \cite{Laufer:1994:PTI:186025.186031,Kiselyov:2004:STH:1017472.1017488}.
 However, this is not our case.
-\olcomment{I connect the dynamic types to communication, as we need the coroutines for blocking!}
+% \olcomment{I connect the dynamic types to communication, as we need the coroutines for blocking!}
 We need to synchronously transmit values of heterogeneous types.
 % and the information on how these values should be used is stored in the values themselves!
 % This information should be be manipulated in any kind of way.
 The types in the coroutine monad transformer are too restrictive.
-Trying to define a type class or a sum type for this setting would yield either a too large\olcomment{explain!}, or a too restrictive definition.
+Trying to define a type class or a sum type for this setting would yield either a too large, or a too restrictive definition; trying to care for every possible usage we would either overdo it, or limit  future applications.
 
 The `list' of the types we can send via a single channel should be extendable for the user, hence we cannot use a sum type.
 Using a type class relieves this problem, but forces constraints on the behaviour of its instances.
-Should be try to keep this type class as generic, as possible, we would obtain a reimplementation of \textsf{Data.Dynamic}.
+If we would try to keep this type class as generic, as possible, we would obtain a reimplementation of \textsf{Data.Dynamic}.
 If we make the type class more special, is might be of a benefit for particular kind of simulated tasks, but would endanger the generality of the implementation.
 An attempt to sort the dynamic types out with the parameterised monad also fails, as detailed in the next section.
 
@@ -483,7 +530,7 @@ The types are restored after the transition with the facilities of \textsf{Data.
 A similar problem was faced by \citeauthor{grace-tfp} when building a graph-based tool for parallel message-passing programs, they used \hs{unsafeCoerce} \cite{grace-tfp}.
 
 \subsection{Parameterised Monads}
-The parameterised monads\footnote{See also \url{http://www.haskell.org/pipermail/haskell-prime/2006-February/000498.html}.}  allow more generic type signatures for monad operations, esp.\ for \hs{>>=}\xspace\nolinebreak[4] \cite{CambridgeJournals:8240527,Ghani:2005:MAG:1090189.1086403,monad-parametrisable}:
+Parameterised monads\footnote{See also \url{http://www.haskell.org/pipermail/haskell-prime/2006-February/000498.html}.}  allow more generic type signatures for monad operations, esp.\ for \hs{>>=}\xspace\nolinebreak[4] \cite{CambridgeJournals:8240527,Ghani:2005:MAG:1090189.1086403,monad-parametrisable}:
 % Atkey:2009:PNC:1561017.1561022,
 \begin{code}
 class PMonad m where
@@ -513,7 +560,8 @@ newtype Coroutine m o i r
        ^^ ^^ ^^ ^^ ^^ ^^ r 
        )}
 \end{code}
-we make an attempt to reach our goal.
+we make an attempt to reach our goal.\olcomment{what about existential
+types here?}
 Let us abbreviate left and right hand side of the above equation with LHS and RHS correspondingly.
 However, to make this code valid Haskell, we need to reference \hs{i2} on the LHS: \hs{Coroutine m i i2 o r}.
 In the type of the \hs{resume} function on the RHS we need to reference \hs{Coroutine} correctly, hence we write \hs{Coroutine m i2 i3 o r} there.
@@ -542,7 +590,7 @@ The approach used in Barrelfish is however to create parsers for their languages
 
 
 \paragraph{Embedded domain-specific languages.}
-Embedding programming languages was proposed by \citeauthor{Landin:1966:NPL:365230.365257} \cite{Landin:1966:NPL:365230.365257}.
+Embedding of programming languages was proposed by \citeauthor{Landin:1966:NPL:365230.365257} \cite{Landin:1966:NPL:365230.365257}.
 For the concept of an eDSL see the papers by \citeauthor{hudak1} \cite{hudak1,hudak2}, the 1998 paper describes pure embedding.
 The literature on this topic is quite broad, an overview is presented, \eg by \citeauthor{dsl-survey} \cite{dsl-survey}.
 
@@ -576,7 +624,7 @@ We have presented the efforts required to implement \soosim, an OS simulator in 
 We note that the techniques more commonly used in the programming language research were highly applicable for our purposes.
 
 We have demonstrated how the utilisation of final tagless eDSL construction \cite{final_tagless_embedding,Hofer:2008:PED:1449913.1449935}, type classes \cite{Hall:1996:TCH:227699.227700}, monads \cite{Wadler:1990:CM:91556.91592}, \hs{Dynamic} types \cite{Abadi:1991:DTS:103135.103138}, and coroutines \cite{coroutines,cmt} facilitated an abstract and concise implementation of an operating system simulator.
-It is uncommon to use all these features for such a task --- a fact that emphasises the novelty of our work.
+It is uncommon to use all these features for such a task in practise --- a fact that emphasises the novelty of our work.
 
 \paragraph{Real life simulations.}
 The major goal of the project is to simulate the behaviour of a real life application and to draw conclusions therefrom.
