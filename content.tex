@@ -33,7 +33,7 @@ The ability to simulate separate components of the OS and of the application was
 The design decisions were:
 \begin{itemize}
 \item To simulate \emph{message passing} and \emph{shared memory} as the main forms of communication between software components.
-\item Achieve \emph{synchronization} between components through \emph{blocking} messaging.
+\item Achieve \emph{synchronisation} between components through \emph{blocking} messaging.
 \item To have global \emph{ticks}, designating an abstract notion of progress.
 \item To observe the number of ticks a software component is active, waiting (for a response after invoking another component), or idle.
 \end{itemize}
@@ -94,7 +94,8 @@ The layout and connectivity properties of the nodes are not part of the system d
 Each node hosts a set of components.
 A \emph{component} represents an executable object: such as a thread, application, OS module, etc.
 Components communicate with each other either using direct messaging, or through the local memory of a node.
-Having both explicit messaging and shared memory,% \olcomment{memory or memories?}
+Having both explicit messaging and shared memory, 
+% \olcomment{memory or memories?}
 \soosim supports the two most well known methods of communication.
 Components also have a message queue, because:
 \begin{itemize}
@@ -149,7 +150,7 @@ In case of \soosim, such a function is executed within the context of
 the simulator, this means: in a monad.
 
 %\olcomment{is this a good place for a defintion?}  
-A \emph{monad} can be defined with a Kleisli triple: combining a type constructor \hs{m}, a unit function \hs{return :: a -> m a}, and a bind function \hs{>>= :: m a -> (a -> m b) -> m b}, we obtain a monad.
+A \emph{monad} can be defined with a Kleisli triple: combining a type constructor \hs{m}, a unit function \hs{return  ::  a -> m a}, and a bind function \hs{>>=  ::  m a -> (a -> m b) -> m b}, we obtain a monad.
 Monads capture the way of combining particular operations; the witty description is `programmable semicolon'.
 
 Because the function is executed within the monad, it can have \emph{side-effects} such as sending messages to other components, or reading the local memory of a node.
@@ -258,7 +259,7 @@ For the above reasons we have decided to use embedded languages for the definiti
 The idea is to specify an application once in a self-created embedded language and to define different interpretations for the embedded language constructs as the observations of the interaction between application and OS\nolinebreak[3]  \cite{Hofer:2008:PED:1449913.1449935}.
 
 Following the \emph{final tagless} \cite{final_tagless_embedding} encoding of embedded languages in Haskell, we use a type class to define the language constructs.
-As an example we demonstrate a mini functional language with mutable references in Figure~\ref{fig:edsl-mutref}.
+As an example we demonstrate a mini functional language with mutable references in Figures~\ref{fig:edsl-mutref} and~\ref{fig:edsl-inst}.
 %\olcomment{was: "running example".}
 % A partial specification of the \hs{Symantics} (a pun on \emph{syntax} and \emph{semantics} \cite{final_tagless_embedding}) type class, defining an \emph{embedded language}, is shown in Figure~\ref{fig:embedded_language_interface}.
 The arrow \hs{:->} is the function arrow in the embedded language, \eg \hs{repr (a :-> b)}, in contrast to the function arrow \hs{->} of the host language.
@@ -296,7 +297,7 @@ class EDSL exp where
      ref :: exp a -> exp (Ref a)
      deref :: exp (Ref a) -> exp a
      update :: exp (Ref a) -> exp a -> exp UnitT
-     -- ...
+-- ...
 \end{code}
 \caption{An eDSL with mutable references}
 \label{fig:edsl-mutref}
@@ -341,6 +342,7 @@ class EDSL exp where
 % \end{figure}
 
 \begin{figure}
+\olcomment{WTF is \hs{Sem} and \hs{Sim}? Explain!}
 \begin{code}
 newtype S m a = S { unS :: m (Sem m a) }
 
@@ -354,7 +356,7 @@ instance EDSL (S SState) where -- partially shown
   lam f        = S . return $ (\x -> share x >>= unS . f . S)
   app x y      = S $ unS x >>= ($ (unS y))
 
-  -- ref and deref implementation massage the state
+-- ref and deref implementation massage the state
 \end{code}
 \caption{One of the instances of the EDSL type class}
 \label{fig:edsl-inst}
@@ -407,7 +409,8 @@ In a similar manner we can introduce a further implementation of the same langua
 
 \section{Features We Used}
 \label{sec:impl-detail}
-
+Now we discuss language features that contributed significantly to the
+\soosim implementation.
 \subsection{Existential Types}
 \olcomment{definition?}
 We employ existential types to store the differently typed states of all the components running in our simulated environment.
@@ -546,8 +549,8 @@ newtype PState s1 s2 a
 instance PMonad PState where
   return a  = PState $ \s -> (a, s)
   m >>= k   = PState $ \s ->
-                ^^ ^^ let (a, s') = runState m s
-                ^^ ^^ in  runState (k a) s'
+                ^^ ^^ let (a, s') = runPState m s
+                ^^ ^^ in  runPState (k a) s'
 \end{code}
 but it fails for the coroutines.
 The pivotal issue is: if we introduce different types for the intermediate states of the coroutine, we end up adding more and more types --- the coroutine definition is recursive.
@@ -567,6 +570,7 @@ However, to make this code valid Haskell, we need to reference \hs{i2} on the LH
 In the type of the \hs{resume} function on the RHS we need to reference \hs{Coroutine} correctly, hence we write \hs{Coroutine m i2 i3 o r} there.
 We need to add \hs{i3} on the LHS, and so on.
 Using some more advanced tricks, like a type class for all the chain \hs{i}, \hs{i2}, \hs{i3}, \dots\ does not really help: all the types on the RHS still need to be listed on the LHS, thus exploding the definition.
+\olcomment{check this again!}
 
 \section{Related Work}
 \label{sec:related-work}
