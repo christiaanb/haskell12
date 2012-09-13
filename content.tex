@@ -410,10 +410,16 @@ In a similar manner we can introduce a further implementation of the same langua
 \section{Features We Used}
 \label{sec:impl-detail}
 Now we discuss language features that contributed significantly to the
-\soosim implementation.
+\soosim implementation. We use existential types, type classes,
+monads, coroutines, and dynamic types. We decided against using
+parameterised monads and a further usage of existential types, as
+detailed in Section~\ref{sec:param-monads-disc}.
 \subsection{Existential Types}
-\olcomment{definition?}
-We employ existential types to store the differently typed states of all the components running in our simulated environment.
+%\olcomment{definition?}
+We employ existential types to store the differently typed states of
+all the components running in our simulated environment; consult
+\citeauthor{CambridgeJournals:1350264}
+\cite{CambridgeJournals:1350264} for details.
 Components are subsequently implemented as type class instances, giving us a straightforward way to access the existentially quantified values in our collection of states.
 
 \subsection{Type Classes}
@@ -494,7 +500,7 @@ we need to communicate heterogeneous types over a typed channel, and there is no
 
 The \emph{origin} for the need of dynamic types lies in the suspension functor of our coroutines, more specifically, in the \hs{response} field, that designates the type of the response returned after an invocation (see Figure~\ref{fig:code-simm}).
 This field would be different for every component we want to invoke, as components should be able to communicate data of any type. %% kind is the type of types, was not meant here as such, I assume
-We have only been able to encode this aspect in the suspension functor using dynamic types.
+We chose to encode this aspect in the suspension functor using dynamic types.
 
 % \cbcomment{The use-case for existentials+type-classes is to get an OO-like way of programming; please correct me if I'm wrong.
 % Just take a look at: http://www.haskell.org/haskellwiki/Existential_type
@@ -521,7 +527,7 @@ The `list' of the types we can send via a single channel should be extendable fo
 Using a type class relieves this problem, but forces constraints on the behaviour of its instances.
 If we would try to keep this type class as generic, as possible, we would obtain a reimplementation of \textsf{Data.Dynamic}.
 If we make the type class more special, is might be of a benefit for particular kind of simulated tasks, but would endanger the generality of the implementation.
-An attempt to sort the dynamic types out with the parameterised monad also fails, as detailed in the next section.
+An attempt to sort the dynamic types out with the parameterised monad is detailed in the next section.
 
 %We are not aware of any other way to implement this behaviour.
 %
@@ -532,7 +538,8 @@ With it, we can transmit heterogeneously typed values over a monomorphicly typed
 The types are restored after the transition with the facilities of \textsf{Data.Dynamic}.
 A similar problem was faced by \citeauthor{grace-tfp} when building a graph-based tool for parallel message-passing programs, they used \hs{unsafeCoerce} \cite{grace-tfp}.
 
-\subsection{Parameterised Monads}
+\subsection{Parameterised Monads --- Discussion}
+\label{sec:param-monads-disc}
 Parameterised monads\footnote{See also \url{http://www.haskell.org/pipermail/haskell-prime/2006-February/000498.html}.}  allow more generic type signatures for monad operations, esp.\ for \hs{>>=}\xspace\nolinebreak[4] \cite{CambridgeJournals:8240527,Ghani:2005:MAG:1090189.1086403,monad-parametrisable}:
 % Atkey:2009:PNC:1561017.1561022,
 \begin{code}
@@ -540,7 +547,8 @@ class PMonad m where
   return :: a -> m s s a
   (>>=)  :: m s1 s2 a -> (a -> m s2 s3 b) -> m s1 s3 b
 \end{code}
-If we could switch from one  intermediate type to another in the coroutine, we would need no dynamic types.
+If we could switch from one  intermediate type to another in the
+coroutine, we would need no dynamic types to implement \soosim.
 This approach works fine with the state monad
 \begin{code}
 newtype PState s1 s2 a
@@ -552,7 +560,7 @@ instance PMonad PState where
                 ^^ ^^ let (a, s') = runPState m s
                 ^^ ^^ in  runPState (k a) s'
 \end{code}
-but it fails for the coroutines.
+but it essentially fails for the coroutines.
 The pivotal issue is: if we introduce different types for the intermediate states of the coroutine, we end up adding more and more types --- the coroutine definition is recursive.
 In this (non proper Haskell) code
 \begin{code}
@@ -560,8 +568,7 @@ newtype Coroutine m o i r
   =  Coroutine { resume ::
        ^^ ^^  m (Either
        ^^ ^^ ^^ ^^ ^^ ^^ (o, i -> Coroutine m i2 o r)
-       ^^ ^^ ^^ ^^ ^^ ^^ r 
-       )}
+       ^^ ^^ ^^ ^^ ^^ ^^ r ) }
 \end{code}
 we make an attempt to reach our goal.\olcomment{what about existential
 types here?}
@@ -569,8 +576,29 @@ Let us abbreviate left and right hand side of the above equation with LHS and RH
 However, to make this code valid Haskell, we need to reference \hs{i2} on the LHS: \hs{Coroutine m i i2 o r}.
 In the type of the \hs{resume} function on the RHS we need to reference \hs{Coroutine} correctly, hence we write \hs{Coroutine m i2 i3 o r} there.
 We need to add \hs{i3} on the LHS, and so on.
-Using some more advanced tricks, like a type class for all the chain \hs{i}, \hs{i2}, \hs{i3}, \dots\ does not really help: all the types on the RHS still need to be listed on the LHS, thus exploding the definition.
-\olcomment{check this again!}
+% Using some more advanced tricks, like a type class for all the chain \hs{i}, \hs{i2}, \hs{i3}, \dots\ does not really help: all the types on the RHS still need to be listed on the LHS, thus exploding the definition.
+% \olcomment{check this again!}
+\olcomment{new --->}
+We can begin fixing this, using existential types: for a suitable type class
+\hs{Intermediate} we can write
+%format <.> = "\cdot"
+\begin{code}
+data Coroutine m o i i2 r
+        =  forall i3 <.> (Intermediate i3) 
+           =>  Coroutine (resume :: m (Either
+                                      (o, i -> CoroutineX m i2 i3 o r)
+                                      r ))
+\end{code}
+However, an instance of \hs{PMonad} is not very
+straighforward. We loose the ability to use \hs{resume} as a
+function. Further drawbacks are:
+\begin{itemize}
+\item We need to use a non-standard monad definition, the \hs{PMonad}.
+\item We are require a re-implementation of coroutines; we cannot use
+  the standard implementation from \textsf{Control.Monad.Coroutine}.
+\item The readability of the source code suffers.
+\end{itemize}
+Hence, we decided to stick to the initial approach with \textsf{Data.Dynamic}.
 
 \section{Related Work}
 \label{sec:related-work}
