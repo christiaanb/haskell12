@@ -342,11 +342,20 @@ class EDSL exp where
 % \end{figure}
 
 \begin{figure}
-\olcomment{WTF is \hs{Sem} and \hs{Sim}? Explain!}
+%\olcomment{WTF is \hs{Sem} and \hs{Sim}? Explain!}
 \begin{code}
+type family Sem (m :: * -> *) a :: *
+type instance Sem m IntT = Int
+type instance Sem m BoolT = Bool
+type instance Sem m UnitT = ()
+type instance Sem m (Ref a) = TVar (Int, Sem m a)
+type instance Sem m (a :-> b) = m (Sem m a) -> m (Sem m b)
+
 newtype S m a = S { unS :: m (Sem m a) }
 
-type SState = StateT Int Sim
+newtype SimM a = ... -- defined below
+
+type SState = StateT Int SimM
 
 share :: SState a -> SState (SState a)
 share = ... -- implementation omitted
@@ -437,6 +446,10 @@ Although initially used solely for the purpose of dealing with existentially qua
 \begin{figure}[tb]
 %\centering
 %format ^^ = "\ \ "
+% newtype Sim a = Sim { runSim :: SimInternal a }
+%   deriving (Functor, Monad, State.MonadState SimState, MonadUnique)
+%
+% type SimInternal = Coroutine (RequestOrYield Unique Dynamic) SimMonad
 \begin{code}
 type SimMonad  =  StateT SimState IO
 data SimState  = ...
