@@ -343,6 +343,7 @@ class EDSL exp where
 
 \begin{figure}
 %\olcomment{WTF is \hs{Sem} and \hs{Sim}? Explain!}
+%format family="\textbf{\textup{family}}"
 \begin{code}
 type family Sem (m :: * -> *) a :: *
 type instance Sem m IntT = Int
