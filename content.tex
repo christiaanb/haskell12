@@ -117,7 +117,7 @@ A schematic overview of an example system can be seen in Figure~\ref{fig:system}
 \end{figure}
 
 \paragraph{Agility.}
-Basic requirements that we would have towards any simulator include the facilities to straightforwardly simulate the instantiation of application threads and OS modules.
+Basic requirements that we would have towards any simulator include the facilities to straightforwardly simulate instantiating of application threads and OS modules.
 Aside from the fact that the \soos-envisioned system will be dynamic as a result of loading OS modules on-the-fly, large-scale systems also tend to be dynamic in the sense that computing nodes can disappear (failure), or
 appear (hot-swap).
 Hence, we also require that our simulator facilitates the straightforward creation and destruction of computing elements, represented by \emph{nodes} in \soosim.
@@ -217,7 +217,7 @@ performs a read at a specified address of a node's local memory.
 \item {\hs{writeMem}}
 writes a value at a specified address of a node's local memory.
 \item The function {\hs{componentLookup}}
-performs a lookup of the unique identifier of a component on a specified node.
+performs a look-up of the unique identifier of a component on a specified node.
 \end{itemize}
 Components have two unique identifiers, their global \emph{name} (as specified in the \hs{ComponentIface} instance), and a \hs{ComponentId} that is a unique number corresponding to a specific instance of a component.
 When a programmer wants to \emph{invoke} a component, she needs to know the unique \mbox{\hs{ComponentId}} of the specific instance.
@@ -586,11 +586,11 @@ We can begin fixing this, using existential types: for a suitable type class
 data Coroutine m o i i2 r
         =  forall i3 <.> (Intermediate i3) 
            =>  Coroutine (resume :: m (Either
-                                      (o, i -> CoroutineX m i2 i3 o r)
+                                      (o, i -> Coroutine m i2 i3 o r)
                                       r ))
 \end{code}
 However, an instance of \hs{PMonad} is not very
-straighforward. We loose the ability to use \hs{resume} as a
+straightforward. We loose the ability to use \hs{resume} as a
 function. Further drawbacks are:
 \begin{itemize}
 \item We need to use a non-standard monad definition, the \hs{PMonad}.
@@ -680,7 +680,7 @@ Two further options are either to make the coroutine execution concurrent using 
 % This is the text of the appendix, if you need one.
 
 %\acks
-\paragraph{Acknowledgments.}
+\paragraph{Acknowledgements.}
 %Acknowledgments, if needed.
 This work was supported by the \soos project, sponsored by the European Commission under FP7-ICT-2009.8.1, Grant Agreement No.~248465.
 We thank Chung-chieh Shan and Oleg Kiselyov for valuable remarks on
