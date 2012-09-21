@@ -58,7 +58,7 @@ This paper features:
   useful in this project. \olcomment{+ reasoning WHY they are useful,
     + explanation what are they}
 \end{itemize}
-\soosim has been released on Hackage.\footnote{Issue \textsf{cabal install SoOSiM} to install \soosim. See also: \url{http://github.com/christiaanb/SoOSiM}.}
+\soosim has been released on Hackage.\footnote{Stable: \url{http://hackage.haskell.org/package/SoOSiM/}. Development: \url{http://github.com/christiaanb/SoOSiM}.}
 %% release is not a paper contribution, unfortunately!
 \olcomment{what is our story? what do we want to tell?}  The goal of
 this paper is to showcase how the sophisticated features from
@@ -117,11 +117,12 @@ A schematic overview of an example system can be seen in Figure~\ref{fig:system}
 \end{figure}
 
 \paragraph{Agility.}
-Basic requirements that we would have towards any simulator include the facilities to straightforwardly simulate instantiating of application threads and OS modules.
+% Basic requirements that we would have towards any simulator include the facilities to straightforwardly simulate instantiating of application threads and OS modules.
+An important requirement for \soosim, set forth by the \soos project, is that it should be able to straightforwardly simulate the instantiation of application threads and OS modules.
 Aside from the fact that the \soos-envisioned system will be dynamic as a result of loading OS modules on-the-fly, large-scale systems also tend to be dynamic in the sense that computing nodes can disappear (failure), or
 appear (hot-swap).
-Hence, we also require that our simulator facilitates the straightforward creation and destruction of computing elements, represented by \emph{nodes} in \soosim.
-Our current need for a simulator rests mostly in formalising the \soos concept, and examining the interaction between our envisioned OS modules and the application threads.
+Hence, we also require that \soosim facilitates the straightforward creation and destruction of computing elements, represented by \emph{nodes} in \soosim.
+The \soos project's current need for a simulator rests mostly in formalising the \soos concept, and examining the interaction between the envisioned OS modules and the application threads.
 As such, being able to extract highly accurate performance figures from a simulated system is not a key requirement.
 We do, however, wish to be able to observe all interactions among application threads and OS modules.
 Additionally, we wish to be able to \emph{zoom in} on particular aspects of the behaviour of an application: such as memory access, messaging, etc.
@@ -133,16 +134,16 @@ During a tick, the simulator progresses a component by one of the following mean
 \begin{itemize}
   \item If a component is blocked on an invocation of another component, and a response is available in the message queue, the component will be executed with this response message.
   \item If a component is not blocked, and the message queue is not empty, the component will be executed by passing it the message that is at the head of the message queue.
-  \item If a component is not blocked, and the message queue is empty, the component will be executed by passing a \emph{null} message it.
+  \item If a component is not blocked, and the message queue is empty, the component will be executed by passing an \emph{empty} message to it.
 \end{itemize}
-Null messages facilitate component execution:
-when desired, a component can inform the simulator that it does not want to receive these null messages.
+Empty messages facilitate component execution:
+when desired, a component can inform the simulator that it does not want to receive these empty messages.
 In this case the component will not be executed by the simulator during a \emph{tick}.
 
 The simulator keeps several statistics with regards to the components, including how many ticks a component was either: active, waiting, or idle.
 When a component makes progress during a tick, it is considered \emph{active}.
 When a component does not make progress because it is blocked on an invocation, and no response was available, the component is counted as \emph{waiting}.
-A component not making progress because it has an empty message queue, and having indicated that it does not want to receive \emph{null} messages, is designated as \emph{idle}.
+A component not making progress because it has an empty message queue, and having indicated that it does not want to receive \emph{empty} messages, is designated as \emph{idle}.
 
 \subsection{OS Component Descriptions}
 Like the simulator itself, the OS components are also specified in Haskell. Every component is modelled as a function.
@@ -159,11 +160,11 @@ In addition, the function can be temporarily suspended at (almost) any point in 
 
 We describe a component as a function that receives a user-defined internal state as its first argument and a value of type \hs{SimEvent} as its second argument.
 The result of this function is the internal state.
-A value of type \hs{SimEvent} is either a message from another component or a null message:
+A value of type \hs{SimEvent} is either a message from another component or an empty message from the simulator:
 \begin{code}
 data SimEvent
   =  Message ComponentId Dynamic
-  |  Null
+  |  EmptyMessage
 \end{code}
 We thus have the following \emph{general} type signature for a component:
 \begin{code}
@@ -211,7 +212,7 @@ In a contrast to \hs{invoke}, using this function will \emph{not} suspend the ex
 \item {\hs{respond}}
 sends a message to another component as a response to an invocation.
 \item {\hs{yield}}
-informs the simulator that the component does not want to receive null messages.
+informs the simulator that the component does not want to receive empty messages.
 \item {\hs{readMem}}
 performs a read at a specified address of a node's local memory.
 \item {\hs{writeMem}}
@@ -221,10 +222,10 @@ performs a look-up of the unique identifier of a component on a specified node.
 \end{itemize}
 Components have two unique identifiers, their global \emph{name} (as specified in the \hs{ComponentIface} instance), and a \hs{ComponentId} that is a unique number corresponding to a specific instance of a component.
 When a programmer wants to \emph{invoke} a component, she needs to know the unique \mbox{\hs{ComponentId}} of the specific instance.
-To give a concrete example, using the system from Figure~\ref{fig:system} as our context: \emph{Thread (\#6)} wants to invoke the instance of the \emph{Memory Manager} that is running on the same Node (\#2).
-As \emph{Thread (\#6)} was not involved with the instantiation of that OS module, it has no idea what the specific \hs{ComponentId} of the memory manager on Node \#2 is.
+To give a concrete example, using the system from Figure~\ref{fig:system} as our context: \emph{Thread \#6} wants to invoke the instance of the \emph{Memory Manager} that is running on the same \emph{Node \#2}.
+As \emph{Thread \#6} was not involved with the instantiation of that OS module, it has no idea what the specific \hs{ComponentId} of the memory manager on \emph{Node \#2} is.
 % Was: It knows the unique global name of all memory managers, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
-It knows the unique global name of the memory manager in question, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \#5 that is running on Node \#2.
+It knows the unique global name of the memory manager in question, so it can use the \hs{componentLookup} function to find the \hs{Memory Manager} with ID \emph{\#5} that is running on \emph{Node \#2}.
 %\olcomment{is this correct?}\cbcomment{yes, it is}
 
 \subsection{Synchronisation between Modules}
@@ -535,7 +536,7 @@ We need to synchronously transmit values of heterogeneous types.
 % and the information on how these values should be used is stored in the values themselves!
 % This information should be be manipulated in any kind of way.
 The types in the coroutine monad transformer are too restrictive.
-Trying to define a type class or a sum type for this setting would yield either a too large, or a too restrictive definition; trying to care for every possible usage we would either overdo it, or limit  future applications.
+Trying to define a type class or a sum type for this setting would yield either a too large, or a too restrictive definition; trying to cater for every possible usage we would either overdo it, or limit  future applications.
 
 The `list' of the types we can send via a single channel should be extendable for the user, hence we cannot use a sum type.
 Using a type class relieves this problem, but forces constraints on the behaviour of its instances.
